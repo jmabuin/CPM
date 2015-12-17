@@ -12,7 +12,7 @@ Typically, in a computing cluster, the task of monitorize a parallel job and get
 
 In order to explain how CPM works, is needed to talk about how a computing cluster typically works. In almost all the supercomputers or clusters, the user connects throught SSH to what is called the master or front node. In this master node the user can compile his/her program that uses MPI, OpenMP, Hadoop, or others. After that, the user launchs the job by using a queue or resources manager, and after to wait for available resources, the job runs in what is called the worker or computing nodes, this is, the rest of nodes in the cluster that make the real computation.
 
-The general process of how **CPM** works can be seen at ![Figure 1](/doc/Images/Diagrama2.png). This process is explained next.
+The general process of how **CPM** works can be seen at the next figure, and this process is explained next.![Figure 1](/doc/Images/Diagrama2.png) 
 
 Typically, only the master node has direct acces to the outside world. In this master node is where the **MonitoringMasterDaemon** is going to run. This daemon acts as a bridge between the computing nodes and the user PC. It is going to open the port 8000 and waits for messages from **MonitoringProcesses**, this is, the client. This client is the visual program that runs in the user PC. The **MonitoringProcesses** program opens the port 10000, where it receives packages from the master node with data that contains the information from the computing nodes. In the computing nodes is where the **MonitorinsAgentDaemon** runs. This daemon opens the port 20000.
 
@@ -81,7 +81,7 @@ Inside the src directory we can see the MonitoringAgent and MonitoringMaster fol
 In case of neccesity, the user can also change the default ports at which the tool operates, also in the Network.h file inside each one of the folders.
 
 ##Configuring the MonitoringProcesses program##
-At the **MonitoringProcesses** main window, the user can configure basic parameters by doing click in *File* and *Configure*. This window can be seen at ![Figure 2](/doc/Images/Configuring.png).
+At the **MonitoringProcesses** main window, the user can configure basic parameters by doing click in *File* and *Configure*. This window can be seen here. ![Figure 2](/doc/Images/Configuring.png)
 The basic parameters that the user needs to configure are:
 
 * **Cluster node list - Usual Nodes** - Here the user has to put the Master Node name or Ip address. Here is where the **MonitoringMasterDaemon** and one of the **MonitoringAgentDaemon** are going to run.
