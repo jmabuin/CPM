@@ -1,0 +1,6 @@
+TO-DO:
+
+- Security implementation by username-password.
+- Ports in master daemon depending on number of user os another field (such as user id).
+- Create start and stop scripts to store in /etc/init.d/ and launch the daemons in a properly way.
+- Add support to take measures from PAPI events (using papi_attach)

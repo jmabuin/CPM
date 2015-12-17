@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DataWidget</class>
+ <widget class="QWidget" name="DataWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1420</width>
+    <height>572</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QComboBox" name="comboBox_Plotting">
+   <property name="geometry">
+    <rect>
+     <x>1120</x>
+     <y>190</y>
+     <width>291</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="tableWidget_Data">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>1301</width>
+     <height>141</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_Summary">
+   <property name="geometry">
+    <rect>
+     <x>1100</x>
+     <y>220</y>
+     <width>311</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="title">
+    <string>Summary</string>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>291</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_InfoMaxMemProcessData">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_InfoMaxMem">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Peak memory</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_InfoMaxMemData">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>291</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_InfoMinMemProcessData">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_InfoMinMem">
+         <property name="text">
+          <string>Min memory</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_InfoMinMemData">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>291</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_InfoMaxCpu">
+         <property name="text">
+          <string>Peak CPU</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_InfoMaxCpuData">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_InfoMaxCpuProcessData">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget_7">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>291</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_7">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_InfoMinCpuProcessData">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_InfoMinCpu">
+         <property name="text">
+          <string>Min CPU</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_InfoMinCpuData">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label_Plotting">
+   <property name="geometry">
+    <rect>
+     <x>1120</x>
+     <y>170</y>
+     <width>279</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Plotting</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_ShowAll">
+   <property name="geometry">
+    <rect>
+     <x>1320</x>
+     <y>10</y>
+     <width>83</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Show all</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2CSV_MainData">
+   <property name="geometry">
+    <rect>
+     <x>1320</x>
+     <y>40</y>
+     <width>83</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>To CSV ...</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>160</y>
+     <width>531</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QPushButton" name="pushButton_2CSV_1">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>10</y>
+      <width>83</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>To CSV ...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2PDF_1">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>40</y>
+      <width>83</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>To PDF ...</string>
+    </property>
+   </widget>
+   <widget class="QCustomPlot" name="widget_PlotCPU" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>421</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>160</y>
+     <width>531</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QPushButton" name="pushButton_2CSV_2">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>10</y>
+      <width>83</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>To CSV ...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2PDF_2">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>40</y>
+      <width>83</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>To PDF ...</string>
+    </property>
+   </widget>
+   <widget class="QCustomPlot" name="widget_PlotMEM" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>421</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>controller/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
