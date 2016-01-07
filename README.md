@@ -8,9 +8,9 @@ This tool composed by three programs/daemons:
 * **MonitoringAgentDaemon**. The daemon running in the cluster computing/worker nodes.
 
 # What's CPM about? #
-Typically, in a computing cluster, the task of monitorize a parallel job and get statictics, such as CPU consumption, used memory or other kind of data, is a tedious job that implies visualize large logs or modify the application source code. There are some solutions that monitorize all the cluster, such as [Nagios][1] or [Zabbix][2], but they monitorize the nodes total resources, and not per process of a launched job. CPM allows the user to monitorize data from individual processes in real time and get plots and statictics from them in a very easy way. It is composed by three programs/daemons that communicate among each other and work togheter.
+Typically, in a computing cluster, the task of monitorize a parallel job and get statictics, such as CPU consumption, used memory or other kind of data, is a tedious job that implies visualize large logs or modify the application source code. There are some solutions that monitorize all the cluster, such as [Nagios][1] or [Zabbix][2], but they monitorize the nodes total resources, and not per process of a launched job. **CPM** allows the user to monitorize data from individual processes in real time and get plots and statictics from them in a very easy way. It is composed by three programs/daemons that communicate among each other and work togheter.
 
-In order to explain how CPM works, is needed to talk about how a computing cluster typically works. In almost all the supercomputers or clusters, the user connects throught SSH to what is called the master or front node. In this master node the user can compile his/her program that uses MPI, OpenMP, Hadoop, or others. After that, the user launchs the job by using a queue or resources manager, and after to wait for available resources, the job runs in what is called the worker or computing nodes, this is, the rest of nodes in the cluster that make the real computation.
+In order to explain how **CPM** works, is needed to talk about how a computing cluster typically works. In almost all the supercomputers or clusters, the user connects throught SSH to what is called the master or front node. In this master node the user can compile his/her program that uses MPI, OpenMP, Hadoop, or others. After that, the user launchs the job by using a queue or resources manager, and after to wait for available resources, the job runs in what is called the worker or computing nodes, this is, the rest of nodes in the cluster that make the real computation.
 
 The general process of how **CPM** works can be seen at the next figure, and this process is explained next.![Figure 1](/doc/Images/Diagrama2.png) 
 
@@ -60,7 +60,7 @@ Common requirements for the three programs are a Linux 64 bit distribution. Indi
 The default way to build **CPM** is:
 
 	git clone https://github.com/jmabuin/CPM.git
-	cd BigBWA
+	cd CPM
 	make
 		
 This will create the *build* folder, which will contain three files:
