@@ -35,8 +35,6 @@ class DataWidget : public QWidget
 public:
 	explicit DataWidget(QWidget *parent = 0);
 	~DataWidget();
-	int getAgentId();
-	void setAgentId(int id);
 
 	void addData(Agent2MasterDataMsg newData);
 
@@ -55,7 +53,7 @@ signals:
 private:
 	Ui::DataWidget *ui;
 	Configuration configuration;
-	int agentId;
+
 	int currentTableRow;
 
 	double globalMaxCPU;
@@ -87,6 +85,7 @@ private:
 	std::vector<QBrush> colours;
 
 	void resetPlots();
+	void resetTable();
 	std::vector<std::string> Data2Vector(Agent2MasterDataMsg data);
 	void printData();
 	void printDataFromAgent(Agent2MasterDataMsg data);

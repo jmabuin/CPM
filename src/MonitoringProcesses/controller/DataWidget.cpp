@@ -23,6 +23,15 @@
 #include <QFileDialog>
 #include <limits>
 
+/*!
+ *  \brief     DataWidget class.
+ *  \details   This class is used to store data from Agents and represent them into the plots
+ *  \author    Jose M. Abuin
+ *  \version   0.1
+ *  \date      2015
+ *  \copyright GNU Public License.
+ */
+
 DataWidget::DataWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::DataWidget)
@@ -31,36 +40,44 @@ DataWidget::DataWidget(QWidget *parent) :
 
 	//ConfigurationWindow confWindow = ConfigurationWindow(this);
 
-	this->configuration = Configuration();
+	this->configuration = Configuration(); /*!< Stores the configuration parameters */
 
-	this->tableHeaders = {"PID","User","RES Mem","CPU%","MEM%","Process","Measure Number","Threads","L1 DCM","L2_DCM","TOTINS","Colour"};
-
-
-	this->colours = { QBrush(QColor(255,0,0)),QBrush(QColor(0,255,0)),QBrush(QColor(0,0,255)),QBrush(QColor(255,255,0)),QBrush(QColor(255,0,255)),QBrush(QColor(0,255,255)),QBrush(QColor(255,255,255))};
+	this->tableHeaders = {"PID","User","RES Mem","CPU%","MEM%","Process","Measure Number","Threads","L1 DCM","L2_DCM","TOTINS","Colour"}; /*!< Headers of table containing processes data */
 
 
-	this->ui->widget_PlotCPU->xAxis->setLabel("Measure number");
-	this->ui->widget_PlotCPU->yAxis->setLabel("CPU percentage");
+	this->colours = { QBrush(QColor(255,0,0)),QBrush(QColor(0,255,0)),QBrush(QColor(0,0,255)),QBrush(QColor(255,255,0)),QBrush(QColor(255,0,255)),QBrush(QColor(0,255,255)),QBrush(QColor(255,255,255))}; /*!< Colours to show when plotting */
 
-	this->ui->widget_PlotMEM->xAxis->setLabel("Measure number");
-	this->ui->widget_PlotMEM->yAxis->setLabel("Memory");
 
-	this->globalMaxCPU = 0.0;
-	this->globalMaxMEM = 0.0;
+	this->ui->widget_PlotCPU->xAxis->setLabel("Measure number"); /*!< X Axis legend for CPU plot */
+	this->ui->widget_PlotCPU->yAxis->setLabel("CPU percentage"); /*!< Y Axis legend for CPU plot */
 
-	this->globalMinCPU = std::numeric_limits<double>::max();
-	this->globalMinMEM = std::numeric_limits<double>::max();
+	this->ui->widget_PlotMEM->xAxis->setLabel("Measure number"); /*!< X Axis legend for memory plot */
+	this->ui->widget_PlotMEM->yAxis->setLabel("Memory"); /*!< Y Axis legend for memory plot */
 
-	this->globalMaxCPUPID = 0;
-	this->globalMaxMEMPID = 0;
+	this->globalMaxCPU = 0.0; /*!< Global maximum CPU percentage in this DataWidget */
+	this->globalMaxMEM = 0.0; /*!< Global maximum memory in this DataWidget */
 
-	this->globalMinCPUPID = 0;
-	this->globalMinMEMPID = 0;
+	this->globalMinCPU = std::numeric_limits<double>::max(); /*!< Global minimum CPU percentage in this DataWidget */
+	this->globalMinMEM = std::numeric_limits<double>::max(); /*!< Global minimum memory in this DataWidget */
 
-	this->numMeasuresCpu = 0;
-	this->numMeasuresMem = 0;
+	this->globalMaxCPUPID = 0; /*!< PID of the global maximum CPU percentage in this DataWidget */
+	this->globalMaxMEMPID = 0; /*!< PID of the global maximum memory in this DataWidget */
 
+	this->globalMinCPUPID = 0; /*!< PID of the global minimum CPU percentage in this DataWidget */
+	this->globalMinMEMPID = 0; /*!< PID of the global minimum memory in this DataWidget */
+
+	this->numMeasuresCpu = 0; /*!< Number of measures taken for CPU percentage */
+	this->numMeasuresMem = 0; /*!< Number of measures taken for memory */
+
+
+	/**
+	 * Connect the updateData(); signal with the plotData(); function.
+	 */
 	QObject::connect(this,SIGNAL(updateData()),this,SLOT(plotData()));
+
+	/**
+	 * Buttons connections with signal clicked();
+	 */
 	QObject::connect(this->ui->pushButton_2CSV_1,SIGNAL(clicked(bool)),this,SLOT(CpuToCSV()));
 	QObject::connect(this->ui->pushButton_2CSV_2,SIGNAL(clicked(bool)),this,SLOT(MemToCSV()));
 
@@ -72,27 +89,26 @@ DataWidget::DataWidget(QWidget *parent) :
 
 }
 
+//! DataWidget destructor.
+/*!
+ * DataWidget destructor.
+ */
 DataWidget::~DataWidget()
 {
 	delete ui;
 }
 
-
-int DataWidget::getAgentId() {
-	return this->agentId;
-}
-
-void DataWidget::setAgentId(int id) {
-	this->agentId = id;
-}
-
+//! Procedure to add a new package from an Agent into the DataWidget data.
+/*!
+ * \param newData Data package coming from an Agent
+ */
 void DataWidget::addData(Agent2MasterDataMsg newData) {
-	//this->data.push_back(newData);
 
 	//unsigned long int measureNumber = 0;// = newData.measureNumber;
+	//The PID of the new data that comes from the Agent
 	unsigned int PID = newData.PID;
 
-
+	//If the PID does exists in the stored data, it only must be added.
 	if(this->data.count(PID) > 0){
 
 		//measureNumber = this->data.at(PID).size();
@@ -100,66 +116,58 @@ void DataWidget::addData(Agent2MasterDataMsg newData) {
 
 		//printf("Adding measure %lu to PID %u\n",measureNumber,PID);
 	}
-
+	//Otherwise it must be created
 	else {
 
 		//There is no data associated to this PID. We add it
-		std::map<unsigned long int,Agent2MasterDataMsg> newDataToInsert;
+		std::map<unsigned long int,Agent2MasterDataMsg> newDataToInsert; //<Measure Number, Data>
 
+		//We insert Pair<Measure Number, Data> into the new Map
 		newDataToInsert.insert(std::pair<unsigned long int,Agent2MasterDataMsg>(newData.measureNumber,newData));
 
+		//Finally we add the <PID,Map> to the stored Data
 		this->data.insert(std::pair<unsigned int,std::map< unsigned long int, Agent2MasterDataMsg> > (PID,newDataToInsert));
-
-		//printf("Inserting new PID %u\n",PID);
 
 	}
 
-	//this->printData();
+	//The signal of new data received is emitted, so the plots can be updated
 	emit this->updateData();
 
 }
 
-
+//! Procedure to plot the data.
 void DataWidget::plotData() {
 
-	this->ui->tableWidget_Data->clear();
-
-
-	this->ui->tableWidget_Data->setColumnCount(this->tableHeaders.size());
-	this->ui->tableWidget_Data->setRowCount(this->data.size());
-
-
-	QList<QString> dataHeaders;
-
-	for (unsigned int i=0; i< this->tableHeaders.size(); i++){
-		dataHeaders.append(QString(this->tableHeaders.at(i).c_str()));
-	}
-
-	this->ui->tableWidget_Data->setHorizontalHeaderLabels(dataHeaders);
-	this->ui->tableWidget_Data->horizontalHeader()->setStretchLastSection(true);
-
-	this->currentTableRow = 0;
+	//First the data showed in the table are reset
+	this->resetTable();
 
 
 	int j = 0;
 	//unsigned int k = 0;
 
+	//Iterator to iterate over the data. <PID,Map<Measure Number,Data>>
 	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> >::iterator it;
 
+	//Iterator with the measures for each one of the PIDs. <Measure Number, Data>
 	std::map<unsigned long int,Agent2MasterDataMsg>::iterator it2;
 
 	//std::map<unsigned long int,Agent2MasterDataMsg>::iterator itInternal;
 
+	//The two plots are cleared
 	this->ui->widget_PlotCPU->clearGraphs();
 	this->ui->widget_PlotMEM->clearGraphs();
 
+
+	//To store the Max CPU and Mem
 	double MaxMem = 0.0;
 	double MaxCPU = 0.0;
 	double Max_X_Mem = 0.0;
 	double Max_X_CPU = 0.0;
 
+	//To use inside the plot as the number of graphic (PID) inside the plot
 	unsigned int numGraph = 0;
 
+	//Maps where data to plot are going to be stored
 	std::map<unsigned int,QVector<double> > X_Mem;
 	std::map<unsigned int,QVector<double> > Y_Mem;
 
@@ -169,52 +177,71 @@ void DataWidget::plotData() {
 	//Iterate over PIDS
 	for(it = this->data.begin(); it != this->data.end(); it++){
 
+		//We get the Map that corresponds to this PID
 		std::map<unsigned long int,Agent2MasterDataMsg> currentProcesses_PID = it->second;
+
+		//The PID that is being processed
 		unsigned int currentPID = it->first;
 
+		//Current data to process
 		Agent2MasterDataMsg currentData;
+
+
 		std::vector<std::string> availableData;
 
+		//Iterate over the Measure Numbers from the current PID
 		for(it2 = currentProcesses_PID.begin(); it2 != currentProcesses_PID.end(); it2 ++) {
-			currentData = it2->second;//currentPID.at(currentPID.size()-1);
 
+			//We get the data
+			currentData = it2->second;
 
+			/*
+			 * First we process the memory information
+			 */
 
+			//In X_Mem we store memory values. If X_Mem already has the current PID, the memory value and measure number are added at the end of the corresponding vector.
 			if(X_Mem.count(currentPID) > 0) {
 
-
+				//Add memory value
 				Y_Mem.at(currentPID).append((double)currentData.memory);
-				//X_Mem.at(currentPID).append((double)Y_Mem.at(currentData.PID).size());
+
+				//Add measure number
 				X_Mem.at(currentPID).append((double)currentData.measureNumber);
 
 				//printf("Adding data to existing memory map %d %f \n",currentData.PID,(double)this->Y_Mem.at(currentData.PID).size());
 
 			}
+			//Otherwise, vectors need to be created and added.
 			else{
 
 				//printf("Creating memory map\n");
 
+				//Vector creation
 				QVector<double> newMeasuresMem;
 				QVector<double> newMeasuresNumber;
 
+				//Data are added at the end of vectors
 				newMeasuresMem.append(currentData.memory);
 				newMeasuresNumber.append(currentData.measureNumber);
 
-				X_Mem.insert(std::pair<unsigned int,QVector<double> >(currentPID,newMeasuresNumber));
+				//And vectors are stored in the PID position of the maps
+				X_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
 				Y_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresMem));
 			}
 
+			//Now we check if the max values for this PID are the ones from the data being processed.
 			if(MaxMem < (double)currentData.memory) {
 				MaxMem = (double)currentData.memory;
 			}
 
+			//To set the limit of the right side of the plot
 			if(Max_X_Mem < (double)currentData.measureNumber) {
 				Max_X_Mem = (double)currentData.measureNumber + 1.0;
 			}
 
-			//Max_X_Mem = (double)Y_Mem.at(currentPID).size() + 1.0;
 
 
+			//And the same for the global values among all the PIDs
 			if(this->globalMaxMEM < (double)currentData.memory) {
 				this->globalMaxMEM = (double)currentData.memory;
 				this->globalMaxMEMPID = currentPID;
@@ -227,39 +254,47 @@ void DataWidget::plotData() {
 
 			//printf("Max_X_Mem %f\n",Max_X_Mem);
 
+			/*
+			 * Second we process the CPU information
+			 */
+
+			//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
 			if(X_CPU.count(currentPID) > 0) {
 
-				//printf("Adding data to existing CPU map\n");
-
-
+				//Add CPU value
 				Y_CPU.at(currentPID).append((double)currentData.cpuPercentage);
-				//X_CPU.at(currentPID).append((double)Y_CPU.at(currentPID).size());
+
+				//Add measure number
 				X_CPU.at(currentPID).append((double)currentData.measureNumber);
 			}
+			//Otherwise, vectors need to be created and added.
 			else{
 
-				//printf("Creating CPU map\n");
-
+				//Vector creation
 				QVector<double> newMeasuresCPU;
 				QVector<double> newMeasuresNumber;
 
+				//Data are added at the end of vectors
 				newMeasuresCPU.append(currentData.cpuPercentage);
 				newMeasuresNumber.append(currentData.measureNumber);
 
-				X_CPU.insert(std::pair<unsigned int,QVector<double> >(currentPID,newMeasuresNumber));
+				//And vectors are stored in the PID position of the maps
+				X_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
 				Y_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresCPU));
 			}
 
+			//Now we check if the max values for this PID are the ones from the data being processed.
 			if(MaxCPU < (double)currentData.cpuPercentage) {
 				MaxCPU = (double)currentData.cpuPercentage;
-
 			}
 
+			//To set the limit of the right side of the plot
 			if(Max_X_CPU < (double) currentData.measureNumber){
 				Max_X_CPU = (double)currentData.measureNumber + 1.0;
 			}
-			//Max_X_CPU = (double)Y_CPU.at(currentData.PID).size() + 1.0;
 
+
+			//And the same for the global values among all the PIDs
 			if(this->globalMaxCPU < (double)currentData.cpuPercentage) {
 				this->globalMaxCPU = (double)currentData.cpuPercentage;
 				this->globalMaxCPUPID = currentPID;
@@ -273,17 +308,15 @@ void DataWidget::plotData() {
 
 			//printf("Max_X_CPU %f\n",Max_X_CPU);
 
-
-
 		}
 
-		//Insert current data in current Row
+		//Insert current data in current Row. Note that currentData is going to be the last of the measures for the processed PID and j is the row that corresponds to the PID in the table
 		this->insertDataInTable(j,currentData);
-
 
 		j++;
 	}
 
+	//Table colours are set
 	this->setTableColours();
 
 
@@ -304,58 +337,72 @@ void DataWidget::plotData() {
 
 	//Iterate over plots data
 
+	//Iterator for the X axis data
 	std::map<unsigned int,QVector<double> >::iterator iter;
 
+	//Iterator for the Y axis data
 	std::map<unsigned int,QVector<double> >::iterator iter2 = Y_CPU.begin();
 
 	QBrush tmpColour;
 
-	for(iter = X_CPU.begin(); iter != X_CPU.end(); iter++){
-		//printf("Plotting CPU %u\n",iter->first);
+	//CPU plotting
+	for(iter = X_CPU.begin(); iter != X_CPU.end(); iter++){ //Iterate over CPU X axis data
 
+		//We add a new graph, this is, a process PID
 		this->ui->widget_PlotCPU->addGraph();
 
-
+		//X and Y data that corresponds to this PID
 		QVector<double> tmpX = iter->second;
 		QVector<double> tmpY = iter2->second;
 
-
+		//We set the current data into the current graph
 		this->ui->widget_PlotCPU->graph(numGraph)->setData(tmpX,tmpY);
 
+		//Colour election
 		tmpColour = this->colours.at(numGraph % this->colours.size());
-
+		//Colour set
 		this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
 
+		//Advance of the Y data
 		iter2++;
 
+		//Advance of the numGraph parameter
 		numGraph++;
 
 	}
 
+	//The same process for the Memory plot
+	//Now iter2 is going to be the Y data for the memory
 	iter2 = Y_Mem.begin();
+	//The numGraph parameter is reset
 	numGraph = 0;
 
+	//Memory plotting
 	for(iter = X_Mem.begin(); iter != X_Mem.end(); iter++){
 
+		//We add a new graph, this is, a process PID
 		this->ui->widget_PlotMEM->addGraph();
-		//printf("Plotting Mem %u\n",iter->first);
 
+		//X and Y data that corresponds to this PID
 		QVector<double> tmpX = iter->second;
 		QVector<double> tmpY = iter2->second;
 
-
-
+		//We set the current data into the current graph
 		this->ui->widget_PlotMEM->graph(numGraph)->setData(tmpX,tmpY);
 
+		//Colour election
 		tmpColour = this->colours.at(numGraph % this->colours.size());
-
+		//Colour set
 		this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
 
+		//Advance of the Y data
 		iter2++;
 
+		//Advance of the numGraph parameter
 		numGraph++;
 	}
 
+	//replot of both graphics with axis limits
 	this->ui->widget_PlotMEM->xAxis->setRange(0, Max_X_Mem);
 	this->ui->widget_PlotMEM->yAxis->setRange(0, MaxMem);
 	this->ui->widget_PlotMEM->replot();
@@ -368,10 +415,39 @@ void DataWidget::plotData() {
 
 }
 
+//! Procedure to reset the table data.
+void DataWidget::resetTable() {
+
+	//The data currently showed at the table is cleared
+	this->ui->tableWidget_Data->clear();
+
+
+	this->ui->tableWidget_Data->setColumnCount(this->tableHeaders.size());
+	this->ui->tableWidget_Data->setRowCount(this->data.size());
+
+
+	QList<QString> dataHeaders;
+
+	for (unsigned int i=0; i< this->tableHeaders.size(); i++){
+		dataHeaders.append(QString(this->tableHeaders.at(i).c_str()));
+	}
+
+	this->ui->tableWidget_Data->setHorizontalHeaderLabels(dataHeaders);
+	this->ui->tableWidget_Data->horizontalHeader()->setStretchLastSection(true);
+
+	this->currentTableRow = 0;
+}
+
+//! Procedure to reset the plots.
 void DataWidget::resetPlots() {
 
 }
 
+//! Function to pass from Agent2MasterDataMsg to a vector of sctrings.
+/*!
+ * \param data Agent2MasterDataMsg data to be processed.
+ * \return A vector of strings with the data.
+ */
 std::vector<std::string> DataWidget::Data2Vector(Agent2MasterDataMsg data) {
 
 	std::vector<std::string> dataReturned;
@@ -393,32 +469,17 @@ std::vector<std::string> DataWidget::Data2Vector(Agent2MasterDataMsg data) {
 	dataReturned.push_back("0");
 	dataReturned.push_back("");
 
-	/*
-	dataReturned.push_back("PID");
-	dataReturned.push_back("User");
-	dataReturned.push_back("12");
-	dataReturned.push_back("50");
-	dataReturned.push_back("0");
-
-
-	dataReturned.push_back("Process");
-	dataReturned.push_back("Measure");
-	dataReturned.push_back("0");
-	dataReturned.push_back("0");
-	dataReturned.push_back("0");
-	dataReturned.push_back("0");
-	dataReturned.push_back("");
-*/
 	return dataReturned;
 }
 
+//! Procedure to print all the data stored in this widget
 void DataWidget::printData() {
 
 	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> >::iterator it;
 
 	std::map<unsigned long int,Agent2MasterDataMsg>::iterator it2;
 
-	//MEM
+
 	for(it = this->data.begin(); it != this->data.end(); it++){
 
 		std::map<unsigned long int,Agent2MasterDataMsg> currentPID = it->second;
@@ -448,14 +509,23 @@ void DataWidget::printData() {
 
 }
 
-
+//! Procedure to print data from a Agent2MasterDataMsg item
+/*!
+ * \brief DataWidget::printDataFromAgent
+ * \param data Data to be printed
+ */
 void DataWidget::printDataFromAgent(Agent2MasterDataMsg data){
 
 	printf("%u %d %u %lu %lu %f %f %s %s %llu\n",data.packageId,data.PID,data.agentId,data.messageNumber,data.measureNumber,data.cpuPercentage,data.totalCpuPercentage,data.userName,data.processName,data.memory);
 
 }
 
-
+//! Procedure to insert data into the table
+/*!
+ * \brief DataWidget::insertDataInTable
+ * \param j Row where the data is going to be inserted
+ * \param data Data to be inserted
+ */
 void DataWidget::insertDataInTable(int j, Agent2MasterDataMsg data) {
 
 	//We follow the order: {"PID","User","RES Mem","CPU%","MEM%","Process","Threads","L1 DCM","L2_DCM","TOTINS","Colour"};
@@ -533,7 +603,10 @@ void DataWidget::insertDataInTable(int j, Agent2MasterDataMsg data) {
 
 
 }
-
+//! Procedure to set the colour in the last column of the table
+/*!
+ * \brief DataWidget::setTableColours
+ */
 void DataWidget::setTableColours() {
 
 	QBrush tmpColour;
@@ -549,6 +622,10 @@ void DataWidget::setTableColours() {
 
 }
 
+//! Procedure to export data from CPU plot into a CSV file
+/*!
+ * \brief DataWidget::CpuToCSV
+ */
 void DataWidget::CpuToCSV() {
 
 	//QFileDialog.getSaveFileName(self, QString.fromLocal8Bit(u"Save File"), filter=u'CSV (*.csv)')
@@ -573,17 +650,17 @@ void DataWidget::CpuToCSV() {
 			}
 
 			fprintf(fp,"\n");
-
 		}
-
 
 		fclose(fp);
 	}
 
-
-
 }
 
+//! Procedure to export data from Memory plot into a CSV file
+/*!
+ * \brief DataWidget::MemToCSV
+ */
 void DataWidget::MemToCSV() {
 
 	//QFileDialog.getSaveFileName(self, QString.fromLocal8Bit(u"Save File"), filter=u'CSV (*.csv)')
@@ -619,6 +696,10 @@ void DataWidget::MemToCSV() {
 
 }
 
+//! Procedure to export data from Memory plot into a PDF file
+/*!
+ * \brief DataWidget::MemToPdf
+ */
 void DataWidget::MemToPdf(){
 
 	QString fileName = QFileDialog::getSaveFileName(this,"Save file","./","PDF (*.pdf)");
@@ -630,6 +711,10 @@ void DataWidget::MemToPdf(){
 
 }
 
+//! Procedure to export data from CPU plot into a PDF file
+/*!
+ * \brief DataWidget::CpuToPdf
+ */
 void DataWidget::CpuToPdf(){
 
 	QString fileName = QFileDialog::getSaveFileName(this,"Save file","./","PDF (*.pdf)");
@@ -641,14 +726,18 @@ void DataWidget::CpuToPdf(){
 
 }
 
-
+//! Procedure to export data from the table into a CSV file
+/*!
+ * \brief DataWidget::Table2CSV
+ */
 void DataWidget::Table2CSV(){
 
 	QString fileName = QFileDialog::getSaveFileName(this,"Save file","./","CSV (*.csv)");
-	printf("Gardando CSV\n");
+	//printf("Gardando CSV\n");
 	if(!fileName.isEmpty() && !fileName.isNull()){
 		FILE *fp = fopen(fileName.toStdString().c_str(),"w");
-		printf("Gardando CSV en %s\n",fileName.toStdString().c_str());
+
+		//printf("Gardando CSV en %s\n",fileName.toStdString().c_str());
 		//int numGraphs = this->ui->widget_PlotCPU->graphCount();
 
 		for(unsigned int i = 0; i< this->tableHeaders.size();i++){
