@@ -28,6 +28,14 @@ namespace Ui {
 class DataWidget;
 }
 
+/*!
+ *  \brief     DataWidget class.
+ *  \details   This class is used to store data from Agents and represent them into the plots
+ *  \author    Jose M. Abuin
+ *  \version   0.1
+ *  \date      2015
+ *  \copyright GNU Public License.
+ */
 class DataWidget : public QWidget
 {
 	Q_OBJECT
@@ -51,38 +59,33 @@ signals:
 
 
 private:
-	Ui::DataWidget *ui;
-	Configuration configuration;
+	Ui::DataWidget *ui;/*!< Ui that stores the graphic items */
+	Configuration configuration; /*!< Stores the configuration parameters */
 
-	int currentTableRow;
+	int currentTableRow; /*!< To store the number of the row currently selected in the table */
 
-	double globalMaxCPU;
-	double globalMaxMEM;
+	double globalMaxCPU; /*!< Global maximum CPU percentage in this DataWidget */
+	double globalMaxMEM; /*!< Global maximum memory in this DataWidget */
 
-	double globalMinCPU;
-	double globalMinMEM;
+	double globalMinCPU; /*!< Global minimum CPU percentage in this DataWidget */
+	double globalMinMEM; /*!< Global minimum memory in this DataWidget */
 
-	unsigned int globalMaxCPUPID;
-	unsigned int globalMaxMEMPID;
+	unsigned int globalMaxCPUPID; /*!< PID of the global maximum CPU percentage in this DataWidget */
+	unsigned int globalMaxMEMPID; /*!< PID of the global maximum memory in this DataWidget */
 
-	unsigned int globalMinCPUPID;
-	unsigned int globalMinMEMPID;
+	unsigned int globalMinCPUPID; /*!< PID of the global minimum CPU percentage in this DataWidget */
+	unsigned int globalMinMEMPID; /*!< PID of the global minimum memory in this DataWidget */
 
-
-
-	unsigned long int numMeasuresMem;
-	unsigned long int numMeasuresCpu;
-
-	//Map that stores measures in the format <PID,<Measure_Number,Process_Data>>
-	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> > data;
+	unsigned long int numMeasuresMem; /*!< Number of measures taken for CPU percentage */
+	unsigned long int numMeasuresCpu; /*!< Number of measures taken for memory */
 
 
+	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> > data; /*!< Map that stores measures in the format <PID,<Measure_Number,Process_Data>> */
 
+	std::vector<std::string> tableHeaders; /*!< Headers of table containing processes data */
+	std::vector<std::string> tableHeadersPapi; /*!< Headers of table containing processes data for future versions*/
 
-	std::vector<std::string> tableHeaders;
-	std::vector<std::string> tableHeadersPapi;
-
-	std::vector<QBrush> colours;
+	std::vector<QBrush> colours; /*!< Colours to show when plotting */
 
 	void resetPlots();
 	void resetTable();
