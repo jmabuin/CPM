@@ -19,6 +19,12 @@
 
 #include "Configuration.h"
 
+/*!
+ * \brief Configuration::Configuration Class
+ * \details Constructor. This is the class that contains all the configuration parameters. here the keys are set.
+ * \author Jose M. Abuin
+ *
+ */
 Configuration::Configuration()
 {
 
@@ -42,15 +48,20 @@ Configuration::Configuration()
 
 }
 
+/*!
+ * \brief Configuration::getConfiguration This function gets the current configuration
+ * \return A struct Config that contains the current configuration
+ */
 Config Configuration::getConfiguration() {
 
 
 		Config currentConfig;
 
+		//Settingst are got from file
 		this->settings = new QSettings(QString(this->configFile.c_str()),QSettings::NativeFormat);
 
 
-
+		//By using the keys, the current settings are obtained
 		if(this->settings->contains(this->userKey.c_str())) {
 			currentConfig.userName = this->settings->value(this->userKey.c_str()).toString().toStdString();
 		}
@@ -109,7 +120,10 @@ Config Configuration::getConfiguration() {
 
 	}
 
-
+/*!
+ * \brief Configuration::setConfiguration This procedure allows to set a configuration that is passed as argument
+ * \param conf The struct Config with the configuration parameters to be set
+ */
 void Configuration::setConfiguration(Config conf){
 
 	//this->configFile	   = "Configuration";
@@ -147,6 +161,11 @@ void Configuration::setConfiguration(Config conf){
 
 }
 
+/*!
+ * \brief Configuration::encryptDecrypt Function that is used to encrypt or decrypt a string.
+ * \param toEncrypt The string to be encrypted/decrypted
+ * \return The String encrypted or decrypted
+ */
 std::string Configuration::encryptDecrypt(std::string toEncrypt) {
 	char key[3] = {'K', 'C', 'Q'}; //Any chars will work
 	std::string output = toEncrypt;
