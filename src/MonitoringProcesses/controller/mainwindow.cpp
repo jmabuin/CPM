@@ -20,34 +20,42 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+/*!
+ * \brief MainWindow::MainWindow Constructor
+ * \param parent The parent Widget
+ */
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
 
+	//Call to vcarious procedures to init the Window
 	this->initWindow();
 	this->createActions();
 	this->createMenus();
 	this->initButtonsActions();
-
-	//this->fileMenu = this->menuBar()->addMenu("&File");
-
-	//this->configureAction = QAction("Configure",this);
-
-
 }
 
+/*!
+ * \brief MainWindow::~MainWindow Destructor
+ */
 MainWindow::~MainWindow()
 {
 	delete ui;
 }
 
+/*!
+ * \brief MainWindow::initWindow Procedure to init various items from the MainWindow
+ */
 void MainWindow::initWindow() {
 	this->ui->pushButton_StopMeasures->setEnabled(false);
 	this->receivingData = false;
 }
 
+/*!
+ * \brief MainWindow::createActions Procedure to create actions for this window
+ */
 void MainWindow::createActions() {
 
 	this->configureAction = new QAction(tr("&Configure"), this);
@@ -62,7 +70,9 @@ void MainWindow::createActions() {
 }
 
 
-
+/*!
+ * \brief MainWindow::createMenus Procedure to create menus for this window
+ */
 void MainWindow::createMenus() {
 
 	this->fileMenu = this->menuBar()->addMenu(tr("&File"));
@@ -71,6 +81,9 @@ void MainWindow::createMenus() {
 	this->fileMenu->addAction(this->exitProgram);
 }
 
+/*!
+ * \brief MainWindow::initButtonsActions Procedure do create actions for the buttons in this window
+ */
 void MainWindow::initButtonsActions() {
 
 	connect(this->ui->pushButton_StartMeasures,SIGNAL(clicked(bool)),this,SLOT(startMeasures()));
@@ -80,6 +93,9 @@ void MainWindow::initButtonsActions() {
 
 }
 
+/*!
+ * \brief MainWindow::configureRun Procedure to open the configuration window
+ */
 void MainWindow::configureRun() {
 	//printf("Configuring program\n");
 
@@ -88,28 +104,33 @@ void MainWindow::configureRun() {
 	this->configurationWindow->show();
 }
 
+/*!
+ * \brief MainWindow::exitRun Procedure to exit the program
+ */
 void MainWindow::exitRun() {
 	this->stopMeasures();
 	QApplication::quit();
 }
 
+/*!
+ * \brief MainWindow::startMeasures Procedure that starts the measures in the master and slaves nodes. It launches the getData thread
+ */
 void MainWindow::startMeasures() {
 
 	pthread_t dataThread;
 	int thread;
 
-
+	//The tabs are cleared
 	this->ui->nodesTab->clear();
 
-	//this->configurationWindow = new ConfigurationWindow(this);
-
-
+	//The configuration parameters are obtained
 	Configuration cnf = Configuration();
 
 	Config currentConf = cnf.getConfiguration();
 
 	char *nodes;
 
+	//We get the master and slave nodes
 	char *tmpNodes = (char *)malloc(currentConf.nodes.length()*sizeof(char));
 	strcpy(tmpNodes,currentConf.nodes.c_str());
 
@@ -136,7 +157,7 @@ void MainWindow::startMeasures() {
 	free(nodes);
 
 
-	//this->configurationWindow->destroy();
+	//The buttons change their state
 	this->ui->pushButton_StopMeasures->setEnabled(true);
 	this->ui->pushButton_StartMeasures->setEnabled(false);
 
@@ -151,6 +172,9 @@ void MainWindow::startMeasures() {
 
 }
 
+/*!
+ * \brief MainWindow::stopMeasures Procedure that stops taking measures in master and slaves nodes
+ */
 void MainWindow::stopMeasures() {
 	this->receivingData = false;
 
@@ -182,6 +206,11 @@ void MainWindow::stopMeasures() {
 
 }
 
+/*!
+ * \brief MainWindow::getData Procedure that starts the thread that gets the data
+ * \param param A pointer to the MainWindow object
+ * \return
+ */
 void *MainWindow::getData(void *param) {
 
 	MainWindow *receivedObject = (MainWindow *) param;
@@ -200,7 +229,7 @@ void *MainWindow::getData(void *param) {
 
 	int nRxBytes;
 	socklen_t addrLen;
-	char rxBuffer[MAX_BUF_SIZE];//Actualmente 20480. En Network.h
+	char rxBuffer[MAX_BUF_SIZE];//Nowadays 20480. En Network.h
 	Agent2MasterDataMsg rxMsg;
 
 
@@ -237,7 +266,7 @@ void *MainWindow::getData(void *param) {
 
 	int error;
 
-	printf("About to send packages\n");
+	//printf("About to send packages\n");
 
 	for (i = 0; i < receivedObject->ui->nodesTab->count(); i++) {
 		//receivedObject->ui->nodesTab->widget(index)->
@@ -247,7 +276,7 @@ void *MainWindow::getData(void *param) {
 		//tmpHostName = receivedObject->ui->nodesTab->tabText(i).toStdString().c_str();
 		strcpy(tmpHostName,receivedObject->ui->nodesTab->tabText(i).toStdString().c_str());
 		strcpy(packageAgent.nodeName,receivedObject->ui->nodesTab->tabText(i).toStdString().c_str());
-		printf("Iteration %d\n",i);
+		//printf("Iteration %d\n",i);
 
 
 		if (i == 0){
@@ -262,12 +291,12 @@ void *MainWindow::getData(void *param) {
 				printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),MASTER_BASE_PORT);
 
 				networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,MASTER_BASE_PORT,inet_ntoa(receivedObject->masterNodeIp));
-				printf("Message sent\n");
+				//printf("Message sent\n");
 				nRxBytes = recvfrom(rxSocket, rxBuffer, sizeof(rxBuffer), 0,(struct sockaddr *) &myRxAddr, &addrLen);
 				if(nRxBytes <= 0) {
 					fprintf(stderr,"[%s] Error in recvfrom()\n",__func__);
 				}
-				printf("Message received\n");
+				//printf("Message received\n");
 				memcpy(&receivedData, rxBuffer, sizeof(ProcessesInfo));
 				//memcpy(&packageAgent,&receivedData,sizeof(ProcessesInfo));
 				receivedObject->rxPortInMaster = receivedData.port;
@@ -275,7 +304,7 @@ void *MainWindow::getData(void *param) {
 
 
 				//Send message to start agentMonitor also in the master node
-				printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),receivedObject->rxPortInMaster);
+				//printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),receivedObject->rxPortInMaster);
 				networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,receivedObject->rxPortInMaster,inet_ntoa(receivedObject->masterNodeIp));
 
 			}
