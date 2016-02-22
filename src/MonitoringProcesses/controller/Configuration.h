@@ -45,6 +45,7 @@ typedef struct Config{
 
 /*!
  * \brief The Configuration class. Class that contains all the configuration parameters
+ * \author Jose M. Abuin
  */
 
 class Configuration

@@ -20,6 +20,10 @@
 #include "ConfigurationWindow.h"
 #include "ui_ConfigurationWindow.h"
 
+/*!
+ * \brief ConfigurationWindow::ConfigurationWindow Constructor
+ * \param parent The parent widget
+ */
 ConfigurationWindow::ConfigurationWindow(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ConfigurationWindow)
@@ -34,12 +38,19 @@ ConfigurationWindow::ConfigurationWindow(QWidget *parent) :
 
 }
 
+/*!
+ * \brief ConfigurationWindow::~ConfigurationWindow Destructor
+ */
 ConfigurationWindow::~ConfigurationWindow()
 {
 	delete ui;
 }
 
 
+/*!
+ * \brief ConfigurationWindow::done This method oberwrites the done method. Its code is executed when the Accept or Cancel buttons are clicked
+ * \param result An integer that depends on the clicked button
+ */
 void ConfigurationWindow::done(int result) {
 	if(result == QDialog::Accepted) {
 		
@@ -58,9 +69,9 @@ void ConfigurationWindow::done(int result) {
 
 }
 
-/**
- * Procedure to init Configuration Window with the stored values or the default ones (if there are none stored).
- * @param filename File where the configuration is stored.
+/*!
+ * /brief ConfigurationWindow::initConfiguration Procedure to init Configuration Window with the stored values or the default ones (if there are none stored).
+ * /param filename File where the configuration is stored.
  */
 void ConfigurationWindow::initConfiguration(){
 
@@ -152,7 +163,10 @@ void ConfigurationWindow::initConfiguration(){
 
 }
 
-
+/*!
+ * \brief ConfigurationWindow::saveAndClose Function to save the current configuration settings and close the window
+ * \return A boolean value that is true if the configuration parameters are correctly stored
+ */
 bool ConfigurationWindow::saveAndClose() {
 
 	//Save settings and close
