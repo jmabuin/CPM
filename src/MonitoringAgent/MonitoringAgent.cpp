@@ -38,8 +38,6 @@
 #include "Network.h"
 
 
-#define SLEEP_NUM_SECS 5
-
 typedef struct processesRunning {
 	pid_t PID;
 	char userName[256];

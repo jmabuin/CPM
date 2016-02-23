@@ -49,6 +49,7 @@
 #define PACKAGE_ID_DATAMSG 2
 #define PACKAGE_ID_DATAPROCESS 1
 
+#define SLEEP_NUM_SECS 5
 
 #define NETWORK_INTERFACE "eth0"
 
