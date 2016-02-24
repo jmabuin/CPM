@@ -43,6 +43,8 @@
 
 #define MAX_BUF_SIZE 20480
 
+#define SLEEP_NUM_SECS 5
+
 //#define DAEMON_NAME "MonitoringMaster"
 #define PACKAGE_ID_STOP 3
 #define PACKAGE_ID_DATAMSG 2

@@ -628,19 +628,40 @@ void DataWidget::setTableColours() {
  */
 void DataWidget::CpuToCSV() {
 
-	//QFileDialog.getSaveFileName(self, QString.fromLocal8Bit(u"Save File"), filter=u'CSV (*.csv)')
-
 	QString fileName = QFileDialog::getSaveFileName(this,"Save file","./","CSV (*.csv)");
 
 	if(!fileName.isEmpty() && !fileName.isNull()){
 		FILE *fp = fopen(fileName.toStdString().c_str(),"w");
 
-		//int numGraphs = this->ui->widget_PlotCPU->graphCount();
-
 		std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> >::iterator it;
 
 		std::map<unsigned long int,Agent2MasterDataMsg>::iterator it2;
 
+		unsigned long int max_time = 0;
+
+		//We calculate the maximum time
+		for ( it = this->data.begin(); it != this->data.end(); it++) {
+
+			for( it2 = it->second.begin(); it2 != it->second.end(); it2++){
+				if(it2->first>=max_time){
+					max_time = it2->first;
+				}
+			}
+
+		}
+
+		//We print the table header
+		fprintf(fp,"PID;");
+
+		unsigned long int tmp_time = 0;
+
+		for(tmp_time = 0; tmp_time<=max_time; tmp_time+=SLEEP_NUM_SECS){
+			fprintf(fp,"%lu;",tmp_time);
+		}
+
+		fprintf(fp,"\n");
+
+		//Now we print the data
 		for ( it = this->data.begin(); it != this->data.end(); it++) {
 
 			fprintf(fp,"%u;",it->first);
@@ -655,6 +676,7 @@ void DataWidget::CpuToCSV() {
 		fclose(fp);
 	}
 
+
 }
 
 //! Procedure to export data from Memory plot into a CSV file
@@ -663,19 +685,40 @@ void DataWidget::CpuToCSV() {
  */
 void DataWidget::MemToCSV() {
 
-	//QFileDialog.getSaveFileName(self, QString.fromLocal8Bit(u"Save File"), filter=u'CSV (*.csv)')
-
 	QString fileName = QFileDialog::getSaveFileName(this,"Save file","./","CSV (*.csv)");
 
 	if(!fileName.isEmpty() && !fileName.isNull()){
 		FILE *fp = fopen(fileName.toStdString().c_str(),"w");
 
-		//int numGraphs = this->ui->widget_PlotCPU->graphCount();
-
 		std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> >::iterator it;
 
 		std::map<unsigned long int,Agent2MasterDataMsg>::iterator it2;
 
+		unsigned long int max_time = 0;
+
+		//We calculate the maximum time
+		for ( it = this->data.begin(); it != this->data.end(); it++) {
+
+			for( it2 = it->second.begin(); it2 != it->second.end(); it2++){
+				if(it2->first>=max_time){
+					max_time = it2->first;
+				}
+			}
+
+		}
+
+		//We print the table header
+		fprintf(fp,"PID;");
+
+		unsigned long int tmp_time = 0;
+
+		for(tmp_time = 0; tmp_time<=max_time; tmp_time+=SLEEP_NUM_SECS){
+			fprintf(fp,"%lu;",tmp_time);
+		}
+
+		fprintf(fp,"\n");
+
+		//Now we print the data
 		for ( it = this->data.begin(); it != this->data.end(); it++) {
 
 			fprintf(fp,"%u;",it->first);
@@ -685,14 +728,10 @@ void DataWidget::MemToCSV() {
 			}
 
 			fprintf(fp,"\n");
-
 		}
-
 
 		fclose(fp);
 	}
-
-
 
 }
 
