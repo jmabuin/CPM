@@ -9,9 +9,9 @@ PROC_LIBS = $(shell find /lib/ -name "*libprocps*")
 PROC_LIBS2 = $(shell find /lib/ -name "*libproc*")
 
 ifneq (, $(findstring procps, $(PROC_LIBS)))
-	LIBS=			-lprocps -lpthread
+	LIBS=			-lprocps -lpthread -lpapi
 else ifneq (, $(findstring proc, $(PROC_LIBS2)))
-	LIBS=			-lproc -lpthread
+	LIBS=			-lproc -lpthread -lpapi
 endif
 
 #To check the compiler version and use C++11
@@ -41,8 +41,8 @@ GCCVERSION = $(shell expr $(GCCVERSION_FIRST) \+ $(GCCVERSION_SECOND) \+ $(GCCVE
 
 all:$(PROG)
 	
-MonitoringAgent: MonitoringAgent.o Network.o
-	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringAgent.o Network.o -o $@  $(LIBS)
+MonitoringAgent: MonitoringAgent.o Network.o PapiCounts.o
+	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringAgent.o Network.o PapiCounts.o -o $@  $(LIBS)
 	
 clean:
 	rm $(PROG) *.o
