@@ -144,7 +144,7 @@ int Network::sendMsgTo(void *message, unsigned int msgType, unsigned int port, c
 		}
 	}
 
-
+	close(s);
 
 	return 1;
 

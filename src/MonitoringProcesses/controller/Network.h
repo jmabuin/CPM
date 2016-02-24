@@ -36,6 +36,7 @@
 #include <ifaddrs.h>
 #include <vector>
 #include <string>
+#include <unistd.h>
 
 #define MASTER_BASE_PORT 8000
 #define DAEMON_AGENT_PORT 20000

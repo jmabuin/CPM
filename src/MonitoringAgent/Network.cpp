@@ -178,7 +178,7 @@ int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip) 
 		}
 	}
 	
-	
+	close(s);
 	
 	return 1;
 
