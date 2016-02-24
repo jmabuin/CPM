@@ -203,10 +203,10 @@ void createMasterMonitor(struct ProcessesInfo processInfo) {
 		
 
 			//Stop all the agents
-			vector<struct in_addr> agentsAddressesTmp;
 			for (unsigned int i = 0; i < agentsAddresses.size(); i++) {
-
+	
 				sendMsgTo((void *)&newProcess, PACKAGE_ID_STOP, DAEMON_AGENT_PORT, inet_ntoa(agentsAddresses.at(i)));
+	
 			}
 			
 			//Stop this MonitoringMaster

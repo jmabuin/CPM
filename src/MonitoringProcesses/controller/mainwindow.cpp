@@ -188,7 +188,7 @@ void MainWindow::stopMeasures() {
 	Config currentConf = cnf.getConfiguration();
 	stopAgents.packageId = PACKAGE_ID_STOP;
 	strcpy(stopAgents.processName,currentConf.processName.c_str());
-	strcpy(stopAgents.userName,currentConf.userName.c_str());
+	strcpy(stopAgents.userName,currentConf.processOwner.c_str());
 
 	Network networkObject = Network();
 	//struct in_addr masterNodeIp;

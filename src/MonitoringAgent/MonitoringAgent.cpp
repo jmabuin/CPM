@@ -433,8 +433,10 @@ int main(int argc, char **argv) {
 		else if (rxMsg.packageId == PACKAGE_ID_STOP) {
 			vector<unsigned int> itemsToDelete;
 			for(unsigned int i = 0; i< runningAgents.size(); i++) {
+				
 				if ((strcmp(runningAgents.at(i).processName,rxMsg.processName)==0) && (strcmp(runningAgents.at(i).userName,rxMsg.userName) == 0 )) {
 					//Stop this agent. For that, we send a signal to the process
+					syslog(LOG_INFO,"[%s] Stopping agent %d\n",__func__,runningAgents.at(i).PID);
 					kill(runningAgents.at(i).PID,SIGUSR1);
 					
 					//Delete process from vector
@@ -443,7 +445,7 @@ int main(int argc, char **argv) {
 			}
 			
 			for(unsigned int i = itemsToDelete.size()-1; i<= 0; i--) {
-				runningAgents.erase(runningAgents.begin()+itemsToDelete.at(i));
+				runningAgents.erase(runningAgents.begin()+itemsToDelete.at(i)); //The argument is the position inside an iterator
 			}
 			
 			itemsToDelete.clear();
