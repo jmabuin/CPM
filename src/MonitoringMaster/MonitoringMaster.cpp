@@ -84,7 +84,9 @@ void createMasterMonitor(struct ProcessesInfo processInfo) {
 	//Set the port where we are going to listen
 	//int rxPort = MASTER_BASE_PORT + userId;
 	
-	int rxPort = MASTER_BASE_PORT + processInfo.port;
+	//int rxPort = MASTER_BASE_PORT + processInfo.port;
+	int rxPort = MASTER_BASE_PORT + 1;
+	//int rxPort = 0;
 
 	newProcess.port = rxPort;
 	newProcess.from.sin_port = rxPort;
