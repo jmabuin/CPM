@@ -253,6 +253,14 @@ void *MainWindow::getData(void *param) {
 	//strcpy(packageAgent.userName,currentConf.userName.c_str());
 	strcpy(packageAgent.userName,currentConf.processOwner.c_str());
 
+	if(currentConf.checkPapi_Status){
+		packageAgent.measurePapi = 1;
+	}
+	else{
+		packageAgent.measurePapi = 0;
+	}
+
+
 	char tmpInterface[currentConf.networkInterface.size()];
 	strcpy(tmpInterface,currentConf.networkInterface.c_str());
 

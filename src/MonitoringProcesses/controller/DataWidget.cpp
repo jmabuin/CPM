@@ -580,19 +580,19 @@ void DataWidget::insertDataInTable(int j, Agent2MasterDataMsg data) {
 	col++;
 
 	//L1_DCM
-	newItem = new QTableWidgetItem(QString(std::to_string(0).c_str()));
+	newItem = new QTableWidgetItem(QString(std::to_string(data.papiMeasures[0]).c_str()));
 	this->ui->tableWidget_Data->setItem(j,col,newItem);
 
 	col++;
 
 	//L2_DCM
-	newItem = new QTableWidgetItem(QString(std::to_string(0).c_str()));
+	newItem = new QTableWidgetItem(QString(std::to_string(data.papiMeasures[1]).c_str()));
 	this->ui->tableWidget_Data->setItem(j,col,newItem);
 
 	col++;
 
 	//TOT_INS
-	newItem = new QTableWidgetItem(QString(std::to_string(0).c_str()));
+	newItem = new QTableWidgetItem(QString(std::to_string(data.papiMeasures[2]).c_str()));
 	this->ui->tableWidget_Data->setItem(j,col,newItem);
 
 	col++;

@@ -37,7 +37,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#define MASTER_BASE_PORT 15000
+#define MASTER_BASE_PORT 8000
 #define DAEMON_AGENT_PORT 20000
 #define CLIENT_BASE_PORT 10000
 
@@ -67,6 +67,7 @@ typedef struct Agent2MasterDataMsg{
 	char processName[MAX_PROCESS_NAME];
 	unsigned long long memory;
 	struct sockaddr_in destinationNode;
+	long long int papiMeasures[3];
   
 } Agent2MasterDataMsg;
 
@@ -81,6 +82,7 @@ typedef struct ProcessesInfo{
 	char nodeName[256];
 	struct sockaddr_in destinationNode;
 	unsigned int port;
+	int measurePapi;
 
 } ProcessesInfo;
 

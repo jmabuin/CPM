@@ -69,7 +69,8 @@ typedef struct Agent2MasterDataMsg{
 	char processName[MAX_PROCESS_NAME];
 	unsigned long long memory;
 	struct sockaddr_in destinationNode;
-  
+	long long int papiMeasures[3];
+	
 } Agent2MasterDataMsg;
 
 typedef struct ProcessesInfo{
@@ -83,6 +84,7 @@ typedef struct ProcessesInfo{
 	char nodeName[256];
 	struct sockaddr_in destinationNode;
 	unsigned int port;
+	int measurePapi;
 
 } ProcessesInfo;
 
