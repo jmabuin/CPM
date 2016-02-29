@@ -52,7 +52,10 @@ DataWidget::DataWidget(QWidget *parent) :
 	this->ui->widget_PlotCPU->yAxis->setLabel("CPU percentage"); /*!< Y Axis legend for CPU plot */
 
 	this->ui->widget_PlotMEM->xAxis->setLabel("Measure number"); /*!< X Axis legend for memory plot */
-	this->ui->widget_PlotMEM->yAxis->setLabel("Memory"); /*!< Y Axis legend for memory plot */
+	this->ui->widget_PlotMEM->yAxis->setLabel("Memory (KB)"); /*!< Y Axis legend for memory plot */
+
+	this->ui->comboBox_Plotting->addItem("CPU - Memory");
+	this->ui->comboBox_Plotting->addItem("PAPI_L1 - PAPI_L2");
 
 	this->globalMaxCPU = 0.0; /*!< Global maximum CPU percentage in this DataWidget */
 	this->globalMaxMEM = 0.0; /*!< Global maximum memory in this DataWidget */
@@ -87,6 +90,10 @@ DataWidget::DataWidget(QWidget *parent) :
 
 	QObject::connect(this->ui->pushButton_2CSV_MainData,SIGNAL(clicked(bool)),this,SLOT(Table2CSV()));
 
+	/**
+	 * Combobox connection with Singal to update plots
+	 */
+	QObject::connect(this->ui->comboBox_Plotting,SIGNAL(currentIndexChanged(int)),this,SLOT(plotData()));
 }
 
 //! DataWidget destructor.
@@ -164,6 +171,12 @@ void DataWidget::plotData() {
 	double Max_X_Mem = 0.0;
 	double Max_X_CPU = 0.0;
 
+	//Max values for PAPI L1 and L2
+	long long int Max_L1 = 0;
+	long long int Max_L2 = 0;
+	double Max_X_L1 = 0.0;
+	double Max_X_L2 = 0.0;
+
 	//To use inside the plot as the number of graphic (PID) inside the plot
 	unsigned int numGraph = 0;
 
@@ -173,6 +186,14 @@ void DataWidget::plotData() {
 
 	std::map<unsigned int,QVector<double> > X_CPU;
 	std::map<unsigned int,QVector<double> > Y_CPU;
+
+	std::map<unsigned int,QVector<double> > X_PAPI_L1;
+	//std::map<unsigned int,QVector<long long int> > Y_PAPI_L1;
+	std::map<unsigned int,QVector<double> > Y_PAPI_L1;
+
+	std::map<unsigned int,QVector<double> > X_PAPI_L2;
+	//std::map<unsigned int,QVector<long long int> > Y_PAPI_L2;
+	std::map<unsigned int,QVector<double> > Y_PAPI_L2;
 
 	//Iterate over PIDS
 	for(it = this->data.begin(); it != this->data.end(); it++){
@@ -195,53 +216,185 @@ void DataWidget::plotData() {
 			//We get the data
 			currentData = it2->second;
 
-			/*
-			 * First we process the memory information
-			 */
 
-			//In X_Mem we store memory values. If X_Mem already has the current PID, the memory value and measure number are added at the end of the corresponding vector.
-			if(X_Mem.count(currentPID) > 0) {
+			if (this->ui->comboBox_Plotting->currentIndex() == 0){
 
-				//Add memory value
-				Y_Mem.at(currentPID).append((double)currentData.memory);
+				/*
+				 * First we process the memory information
+				 */
 
-				//Add measure number
-				X_Mem.at(currentPID).append((double)currentData.measureNumber);
+				//In X_Mem we store memory values. If X_Mem already has the current PID, the memory value and measure number are added at the end of the corresponding vector.
+				if(X_Mem.count(currentPID) > 0) {
 
-				//printf("Adding data to existing memory map %d %f \n",currentData.PID,(double)this->Y_Mem.at(currentData.PID).size());
+					//Add memory value
+					Y_Mem.at(currentPID).append((double)currentData.memory);
+
+					//Add measure number
+					X_Mem.at(currentPID).append((double)currentData.measureNumber);
+
+					//printf("Adding data to existing memory map %d %f \n",currentData.PID,(double)this->Y_Mem.at(currentData.PID).size());
+
+				}
+				//Otherwise, vectors need to be created and added.
+				else{
+
+					//printf("Creating memory map\n");
+
+					//Vector creation
+					QVector<double> newMeasuresMem;
+					QVector<double> newMeasuresNumber;
+
+					//Data are added at the end of vectors
+					newMeasuresMem.append(currentData.memory);
+					newMeasuresNumber.append(currentData.measureNumber);
+
+					//And vectors are stored in the PID position of the maps
+					X_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
+					Y_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresMem));
+				}
+
+				//Now we check if the max values for this PID are the ones from the data being processed.
+				if(MaxMem < (double)currentData.memory) {
+					MaxMem = (double)currentData.memory;
+				}
+
+				//To set the limit of the right side of the plot
+				if(Max_X_Mem < (double)currentData.measureNumber) {
+					Max_X_Mem = (double)currentData.measureNumber + 1.0;
+				}
+
+
+
+
+
+				//printf("Max_X_Mem %f\n",Max_X_Mem);
+
+				/*
+				* Second we process the CPU information
+				*/
+
+				//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
+				if(X_CPU.count(currentPID) > 0) {
+
+					//Add CPU value
+					Y_CPU.at(currentPID).append((double)currentData.cpuPercentage);
+
+					//Add measure number
+					X_CPU.at(currentPID).append((double)currentData.measureNumber);
+				}
+				//Otherwise, vectors need to be created and added.
+				else{
+
+					//Vector creation
+					QVector<double> newMeasuresCPU;
+					QVector<double> newMeasuresNumber;
+
+					//Data are added at the end of vectors
+					newMeasuresCPU.append(currentData.cpuPercentage);
+					newMeasuresNumber.append(currentData.measureNumber);
+
+					//And vectors are stored in the PID position of the maps
+					X_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
+					Y_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresCPU));
+				}
+
+				//Now we check if the max values for this PID are the ones from the data being processed.
+				if(MaxCPU < (double)currentData.cpuPercentage) {
+					MaxCPU = (double)currentData.cpuPercentage;
+				}
+
+				//To set the limit of the right side of the plot
+				if(Max_X_CPU < (double) currentData.measureNumber){
+					Max_X_CPU = (double)currentData.measureNumber + 1.0;
+				}
+
 
 			}
-			//Otherwise, vectors need to be created and added.
-			else{
+			else if(this->ui->comboBox_Plotting->currentIndex() == 1){
+				/*
+				 * Third, Papi_L1
+				 */
 
-				//printf("Creating memory map\n");
+				//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
+				if(X_PAPI_L1.count(currentPID) > 0) {
 
-				//Vector creation
-				QVector<double> newMeasuresMem;
-				QVector<double> newMeasuresNumber;
+					//Add L1 value
+					Y_PAPI_L1.at(currentPID).append((double)currentData.papiMeasures[0]);
 
-				//Data are added at the end of vectors
-				newMeasuresMem.append(currentData.memory);
-				newMeasuresNumber.append(currentData.measureNumber);
+					//Add measure number
+					X_PAPI_L1.at(currentPID).append((double)currentData.measureNumber);
+				}
+				//Otherwise, vectors need to be created and added.
+				else{
 
-				//And vectors are stored in the PID position of the maps
-				X_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
-				Y_Mem.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresMem));
+					//Vector creation
+					QVector<double> newMeasuresL1;
+					QVector<double> newMeasuresNumber;
+
+					//Data are added at the end of vectors
+					newMeasuresL1.append(currentData.papiMeasures[0]);
+					newMeasuresNumber.append(currentData.measureNumber);
+
+					//And vectors are stored in the PID position of the maps
+					X_PAPI_L1.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
+					Y_PAPI_L1.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresL1));
+				}
+
+				//Now we check if the max values for this PID are the ones from the data being processed.
+				if(Max_L1 < currentData.papiMeasures[0]) {
+					Max_L1 = currentData.papiMeasures[0];
+				}
+
+				//To set the limit of the right side of the plot
+				if(Max_X_L1 < (double) currentData.measureNumber){
+					Max_X_L1 = (double)currentData.measureNumber + 1.0;
+				}
+
+
+				/*
+				 * Fourth, Papi_L2
+				 */
+
+				//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
+				if(X_PAPI_L2.count(currentPID) > 0) {
+
+					//Add L1 value
+					Y_PAPI_L2.at(currentPID).append((double)currentData.papiMeasures[1]);
+
+					//Add measure number
+					X_PAPI_L2.at(currentPID).append((double)currentData.measureNumber);
+				}
+				//Otherwise, vectors need to be created and added.
+				else{
+
+					//Vector creation
+					QVector<double> newMeasuresL2;
+					QVector<double> newMeasuresNumber;
+
+					//Data are added at the end of vectors
+					newMeasuresL2.append(currentData.papiMeasures[1]);
+					newMeasuresNumber.append(currentData.measureNumber);
+
+					//And vectors are stored in the PID position of the maps
+					X_PAPI_L2.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
+					Y_PAPI_L2.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresL2));
+				}
+
+				//Now we check if the max values for this PID are the ones from the data being processed.
+				if(Max_L2 < currentData.papiMeasures[1]) {
+					Max_L2 = currentData.papiMeasures[1];
+				}
+
+				//To set the limit of the right side of the plot
+				if(Max_X_L2 < (double) currentData.measureNumber){
+					Max_X_L2 = (double)currentData.measureNumber + 1.0;
+				}
+
+
 			}
 
-			//Now we check if the max values for this PID are the ones from the data being processed.
-			if(MaxMem < (double)currentData.memory) {
-				MaxMem = (double)currentData.memory;
-			}
 
-			//To set the limit of the right side of the plot
-			if(Max_X_Mem < (double)currentData.measureNumber) {
-				Max_X_Mem = (double)currentData.measureNumber + 1.0;
-			}
-
-
-
-			//And the same for the global values among all the PIDs
+			//Max and min global values for Memory and CPU
 			if(this->globalMaxMEM < (double)currentData.memory) {
 				this->globalMaxMEM = (double)currentData.memory;
 				this->globalMaxMEMPID = currentPID;
@@ -251,48 +404,6 @@ void DataWidget::plotData() {
 				this->globalMinMEM = (double)currentData.memory;
 				this->globalMinMEMPID = currentPID;
 			}
-
-			//printf("Max_X_Mem %f\n",Max_X_Mem);
-
-			/*
-			 * Second we process the CPU information
-			 */
-
-			//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
-			if(X_CPU.count(currentPID) > 0) {
-
-				//Add CPU value
-				Y_CPU.at(currentPID).append((double)currentData.cpuPercentage);
-
-				//Add measure number
-				X_CPU.at(currentPID).append((double)currentData.measureNumber);
-			}
-			//Otherwise, vectors need to be created and added.
-			else{
-
-				//Vector creation
-				QVector<double> newMeasuresCPU;
-				QVector<double> newMeasuresNumber;
-
-				//Data are added at the end of vectors
-				newMeasuresCPU.append(currentData.cpuPercentage);
-				newMeasuresNumber.append(currentData.measureNumber);
-
-				//And vectors are stored in the PID position of the maps
-				X_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresNumber));
-				Y_CPU.insert(std::pair<unsigned int,QVector<double> > (currentPID,newMeasuresCPU));
-			}
-
-			//Now we check if the max values for this PID are the ones from the data being processed.
-			if(MaxCPU < (double)currentData.cpuPercentage) {
-				MaxCPU = (double)currentData.cpuPercentage;
-			}
-
-			//To set the limit of the right side of the plot
-			if(Max_X_CPU < (double) currentData.measureNumber){
-				Max_X_CPU = (double)currentData.measureNumber + 1.0;
-			}
-
 
 			//And the same for the global values among all the PIDs
 			if(this->globalMaxCPU < (double)currentData.cpuPercentage) {
@@ -337,80 +448,175 @@ void DataWidget::plotData() {
 
 	//Iterate over plots data
 
-	//Iterator for the X axis data
-	std::map<unsigned int,QVector<double> >::iterator iter;
+	if(this->ui->comboBox_Plotting->currentIndex() == 0){
+		//Iterator for the X axis data
+		std::map<unsigned int,QVector<double> >::iterator iter;
 
-	//Iterator for the Y axis data
-	std::map<unsigned int,QVector<double> >::iterator iter2 = Y_CPU.begin();
+		//Iterator for the Y axis data
+		std::map<unsigned int,QVector<double> >::iterator iter2 = Y_CPU.begin();
 
-	QBrush tmpColour;
+		QBrush tmpColour;
 
-	//CPU plotting
-	for(iter = X_CPU.begin(); iter != X_CPU.end(); iter++){ //Iterate over CPU X axis data
+		//CPU plotting (Left plot)
+		for(iter = X_CPU.begin(); iter != X_CPU.end(); iter++){ //Iterate over CPU X axis data
 
-		//We add a new graph, this is, a process PID
-		this->ui->widget_PlotCPU->addGraph();
+			//We add a new graph, this is, a process PID
+			this->ui->widget_PlotCPU->addGraph();
 
-		//X and Y data that corresponds to this PID
-		QVector<double> tmpX = iter->second;
-		QVector<double> tmpY = iter2->second;
+			//X and Y data that corresponds to this PID
+			QVector<double> tmpX = iter->second;
+			QVector<double> tmpY = iter2->second;
 
-		//We set the current data into the current graph
-		this->ui->widget_PlotCPU->graph(numGraph)->setData(tmpX,tmpY);
+			//We set the current data into the current graph
+			this->ui->widget_PlotCPU->graph(numGraph)->setData(tmpX,tmpY);
 
-		//Colour election
-		tmpColour = this->colours.at(numGraph % this->colours.size());
-		//Colour set
-		this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
+			//Colour election
+			tmpColour = this->colours.at(numGraph % this->colours.size());
+			//Colour set
+			this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
 
-		//Advance of the Y data
-		iter2++;
+			//Advance of the Y data
+			iter2++;
 
-		//Advance of the numGraph parameter
-		numGraph++;
+			//Advance of the numGraph parameter
+			numGraph++;
+
+		}
+
+		//The same process for the Memory plot
+		//Now iter2 is going to be the Y data for the memory
+		iter2 = Y_Mem.begin();
+		//The numGraph parameter is reset
+		numGraph = 0;
+
+		//Memory plotting
+		for(iter = X_Mem.begin(); iter != X_Mem.end(); iter++){
+
+			//We add a new graph, this is, a process PID
+			this->ui->widget_PlotMEM->addGraph();
+
+			//X and Y data that corresponds to this PID
+			QVector<double> tmpX = iter->second;
+			QVector<double> tmpY = iter2->second;
+
+			//We set the current data into the current graph
+			this->ui->widget_PlotMEM->graph(numGraph)->setData(tmpX,tmpY);
+
+			//Colour election
+			tmpColour = this->colours.at(numGraph % this->colours.size());
+			//Colour set
+			this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+			//Advance of the Y data
+			iter2++;
+
+			//Advance of the numGraph parameter
+			numGraph++;
+		}
+
+
+		this->ui->widget_PlotCPU->xAxis->setLabel("Measure number"); /*!< X Axis legend for CPU plot */
+		this->ui->widget_PlotCPU->yAxis->setLabel("CPU percentage"); /*!< Y Axis legend for CPU plot */
+
+		this->ui->widget_PlotMEM->xAxis->setLabel("Measure number"); /*!< X Axis legend for memory plot */
+		this->ui->widget_PlotMEM->yAxis->setLabel("Memory (KB)"); /*!< Y Axis legend for memory plot */
+
+		//replot of both graphics with axis limits
+		this->ui->widget_PlotMEM->xAxis->setRange(0, Max_X_Mem);
+		this->ui->widget_PlotMEM->yAxis->setRange(0, MaxMem);
+		this->ui->widget_PlotMEM->replot();
+
+		this->ui->widget_PlotCPU->xAxis->setRange(0, Max_X_CPU);
+		this->ui->widget_PlotCPU->yAxis->setRange(0, MaxCPU);
+		this->ui->widget_PlotCPU->replot();
+	}
+	else if (this->ui->comboBox_Plotting->currentIndex() == 1){
+		//Iterator for the X axis data
+		std::map<unsigned int,QVector<double> >::iterator iter;
+
+		//Iterator for the Y axis data
+		std::map<unsigned int,QVector<double> >::iterator iter2 = Y_PAPI_L1.begin();
+
+		QBrush tmpColour;
+
+		//L1 plotting (Left plot)
+		for(iter = X_PAPI_L1.begin(); iter != X_PAPI_L1.end(); iter++){ //Iterate over L1 misses X axis data
+
+			//We add a new graph, this is, a process PID
+			this->ui->widget_PlotCPU->addGraph();
+
+			//X and Y data that corresponds to this PID
+			QVector<double> tmpX = iter->second;
+			QVector<double> tmpY = iter2->second;
+
+			//We set the current data into the current graph
+			this->ui->widget_PlotCPU->graph(numGraph)->setData(tmpX,tmpY);
+
+			//Colour election
+			tmpColour = this->colours.at(numGraph % this->colours.size());
+			//Colour set
+			this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+			//Advance of the Y data
+			iter2++;
+
+			//Advance of the numGraph parameter
+			numGraph++;
+
+		}
+
+		//The same process for the Memory plot
+		//Now iter2 is going to be the Y data for the memory
+		iter2 = Y_PAPI_L2.begin();
+		//The numGraph parameter is reset
+		numGraph = 0;
+
+		//Memory plotting
+		for(iter = X_PAPI_L2.begin(); iter != X_PAPI_L2.end(); iter++){
+
+			//We add a new graph, this is, a process PID
+			this->ui->widget_PlotMEM->addGraph();
+
+			//X and Y data that corresponds to this PID
+			QVector<double> tmpX = iter->second;
+			QVector<double> tmpY = iter2->second;
+
+			//We set the current data into the current graph
+			this->ui->widget_PlotMEM->graph(numGraph)->setData(tmpX,tmpY);
+
+			//Colour election
+			tmpColour = this->colours.at(numGraph % this->colours.size());
+			//Colour set
+			this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+			//Advance of the Y data
+			iter2++;
+
+			//Advance of the numGraph parameter
+			numGraph++;
+		}
+
+
+		this->ui->widget_PlotCPU->xAxis->setLabel("Measure number"); /*!< X Axis legend for L1 plot */
+		this->ui->widget_PlotCPU->yAxis->setLabel("L1 Misses"); /*!< Y Axis legend for L1 plot */
+
+		this->ui->widget_PlotMEM->xAxis->setLabel("Measure number"); /*!< X Axis legend for L2 plot */
+		this->ui->widget_PlotMEM->yAxis->setLabel("L2 Misses"); /*!< Y Axis legend for L2 plot */
+
+		//replot of both graphics with axis limits
+		this->ui->widget_PlotMEM->xAxis->setRange(0, Max_X_L2);
+		this->ui->widget_PlotMEM->yAxis->setRange(0, Max_L2);
+		this->ui->widget_PlotMEM->replot();
+
+		this->ui->widget_PlotCPU->xAxis->setRange(0, Max_X_L1);
+		this->ui->widget_PlotCPU->yAxis->setRange(0, Max_L1);
+		this->ui->widget_PlotCPU->replot();
+
+
+
+
 
 	}
-
-	//The same process for the Memory plot
-	//Now iter2 is going to be the Y data for the memory
-	iter2 = Y_Mem.begin();
-	//The numGraph parameter is reset
-	numGraph = 0;
-
-	//Memory plotting
-	for(iter = X_Mem.begin(); iter != X_Mem.end(); iter++){
-
-		//We add a new graph, this is, a process PID
-		this->ui->widget_PlotMEM->addGraph();
-
-		//X and Y data that corresponds to this PID
-		QVector<double> tmpX = iter->second;
-		QVector<double> tmpY = iter2->second;
-
-		//We set the current data into the current graph
-		this->ui->widget_PlotMEM->graph(numGraph)->setData(tmpX,tmpY);
-
-		//Colour election
-		tmpColour = this->colours.at(numGraph % this->colours.size());
-		//Colour set
-		this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
-
-		//Advance of the Y data
-		iter2++;
-
-		//Advance of the numGraph parameter
-		numGraph++;
-	}
-
-	//replot of both graphics with axis limits
-	this->ui->widget_PlotMEM->xAxis->setRange(0, Max_X_Mem);
-	this->ui->widget_PlotMEM->yAxis->setRange(0, MaxMem);
-	this->ui->widget_PlotMEM->replot();
-
-	this->ui->widget_PlotCPU->xAxis->setRange(0, Max_X_CPU);
-	this->ui->widget_PlotCPU->yAxis->setRange(0, MaxCPU);
-	this->ui->widget_PlotCPU->replot();
-
 	//printf("NUmber of data: %lu\n",this->data.size());
 
 }
