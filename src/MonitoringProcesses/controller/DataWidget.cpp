@@ -47,6 +47,11 @@ DataWidget::DataWidget(QWidget *parent) :
 
 	this->colours = { QBrush(QColor(255,0,0)),QBrush(QColor(0,255,0)),QBrush(QColor(0,0,255)),QBrush(QColor(255,255,0)),QBrush(QColor(255,0,255)),QBrush(QColor(0,255,255)),QBrush(QColor(255,255,255))}; /*!< Colours to show when plotting */
 
+	this->energyTimes[0] = 0.0;
+	this->energyTimes[1] = 0.0;
+	this->energyTimes[2] = 0.0;
+	this->energyTimes[3] = 0.0;
+
 
 	this->ui->widget_PlotCPU->xAxis->setLabel("Measure number"); /*!< X Axis legend for CPU plot */
 	this->ui->widget_PlotCPU->yAxis->setLabel("CPU percentage"); /*!< Y Axis legend for CPU plot */
@@ -207,7 +212,17 @@ void DataWidget::updateEnergyDataInfo() {
 	int i = 0;
 	int j = 0;
 
+	double currentCumulativeTime = 0.0;
+
 	for(i = 0; i< 24; i+=2) {
+
+
+
+		if(i%3 == 0){
+			this->energyTimes[i/3] = this->energyTimes[i/3] + receivedData.energyMeasures[i];
+			currentCumulativeTime = this->energyTimes[i/3];
+		}
+
 		if(receivedData.energyMeasures[i] == 0.0){
 			energyData1 = "0.0";
 			energyData2 = "0.0";
@@ -215,7 +230,8 @@ void DataWidget::updateEnergyDataInfo() {
 
 		else {
 			energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-			energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+			//energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+			energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/currentCumulativeTime);
 		}
 
 		labelsCPU[j]->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
