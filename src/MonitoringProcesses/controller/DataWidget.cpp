@@ -185,185 +185,45 @@ void DataWidget::updateEnergyDataInfo() {
 	std::string energyData1;
 	std::string energyData2;
 
-	std::string energyData[12];
+
+	QLabel *labelsCPU[12];
+
+	labelsCPU[0] = this->ui->label_PPt_CPU1;
+	labelsCPU[1] = this->ui->label_PP1_CPU1;
+	labelsCPU[2] = this->ui->label_PP0_CPU1;
+	labelsCPU[3] = this->ui->label_PPt_CPU2;
+	labelsCPU[4] = this->ui->label_PP1_CPU2;
+	labelsCPU[5] = this->ui->label_PP0_CPU2;
+	labelsCPU[6] = this->ui->label_PPt_CPU3;
+	labelsCPU[7] = this->ui->label_PP1_CPU3;
+	labelsCPU[8] = this->ui->label_PP0_CPU3;
+	labelsCPU[9] = this->ui->label_PPt_CPU4;
+	labelsCPU[10] = this->ui->label_PP1_CPU4;
+	labelsCPU[11] = this->ui->label_PP0_CPU4;
+
 
 	//It is not possible in the Agent to take RAPL measures
 
 	int i = 0;
+	int j = 0;
 
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
+	for(i = 0; i< 24; i+=2) {
+		if(receivedData.energyMeasures[i] == 0.0){
+			energyData1 = "0.0";
+			energyData2 = "0.0";
+		}
+
+		else {
+			energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+			energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+		}
+
+		labelsCPU[j]->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+		j++;
 	}
 
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
 
-	this->ui->label_PPt_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP1_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP0_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PPt_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP1_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP0_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PPt_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP1_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP0_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PPt_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP1_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-	i+=2;
-
-	if(receivedData.energyMeasures[i] == 0.0){
-		energyData1 = "0.0";
-		energyData2 = "0.0";
-	}
-
-	else {
-		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
-		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
-	}
-
-	this->ui->label_PP0_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
-
-
-
-	/*for (int i = 0; i < 24 ; i+=2){
-		printf("Energy %f %f\n",receivedData.energyMeasures[i],receivedData.energyMeasures[i+1]);
-	}*/
-
-	this->ui->label_InfoEnergyData->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
 }
 
 //! Procedure to plot the data.
