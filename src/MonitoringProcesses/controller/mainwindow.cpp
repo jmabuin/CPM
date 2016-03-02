@@ -253,11 +253,20 @@ void *MainWindow::getData(void *param) {
 	//strcpy(packageAgent.userName,currentConf.userName.c_str());
 	strcpy(packageAgent.userName,currentConf.processOwner.c_str());
 
+	//Check if PAPI counters have to be monitorized
 	if(currentConf.checkPapi_Status){
 		packageAgent.measurePapi = 1;
 	}
 	else{
 		packageAgent.measurePapi = 0;
+	}
+
+	//Check if energy has to be monitorized
+	if(currentConf.checkEnergy_Status){
+		packageAgent.measureEnergy = 1;
+	}
+	else{
+		packageAgent.measureEnergy = 0;
 	}
 
 
@@ -342,18 +351,32 @@ void *MainWindow::getData(void *param) {
 		memcpy(&rxMsg, rxBuffer, sizeof(Agent2MasterDataMsg));
 
 
+		if(rxMsg.packageId == PACKAGE_ID_DATAMSG){
+			//printf("%d %u %lu %2f%c %2f%c %s %s %llu Kb\n",rxMsg.PID, rxMsg.agentId, rxMsg.measureNumber,rxMsg.cpuPercentage,'%', rxMsg.totalCpuPercentage,'%', rxMsg.userName,rxMsg.processName,rxMsg.memory);
+			QWidget *currentWidget = receivedObject->ui->nodesTab->widget(rxMsg.agentId);
+			DataWidget *currentDataWidget;
 
-		//printf("%d %u %lu %2f%c %2f%c %s %s %llu Kb\n",rxMsg.PID, rxMsg.agentId, rxMsg.measureNumber,rxMsg.cpuPercentage,'%', rxMsg.totalCpuPercentage,'%', rxMsg.userName,rxMsg.processName,rxMsg.memory);
-		QWidget *currentWidget = receivedObject->ui->nodesTab->widget(rxMsg.agentId);
-		DataWidget *currentDataWidget;
+			//if(currentWidget->metaObject()->className() == "DataWidget"){
+				currentDataWidget = (DataWidget *)currentWidget;
 
-		//if(currentWidget->metaObject()->className() == "DataWidget"){
+				currentDataWidget->addData(rxMsg);
+
+			//}
+		}
+		else if (rxMsg.packageId == PACKAGE_ID_ENERGY){
+			Agent2MasterEnergyMsg energyMsg;
+
+			memcpy(&energyMsg, rxBuffer, sizeof(Agent2MasterEnergyMsg));
+
+			QWidget *currentWidget = receivedObject->ui->nodesTab->widget(rxMsg.agentId);
+			DataWidget *currentDataWidget;
+
 			currentDataWidget = (DataWidget *)currentWidget;
 
-			currentDataWidget->addData(rxMsg);
+			currentDataWidget->addDataEnergy(energyMsg);
 
-			//Emit signal to update data
-		//}
+		}
+
 
 	}
 

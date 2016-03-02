@@ -61,6 +61,7 @@ void createMasterMonitor(struct ProcessesInfo processInfo) {
 	
 	//Message to send data do Client
 	Agent2MasterDataMsg rxMsg;
+	Agent2MasterEnergyMsg energyPkg;
 	
 	//Message to senf info data to client
 	ProcessesInfo newProcess;
@@ -147,8 +148,10 @@ void createMasterMonitor(struct ProcessesInfo processInfo) {
 		
 		//Parse message
 		memcpy(&rxMsg, rxBuffer, sizeof(Agent2MasterDataMsg));
-
-		syslog(LOG_INFO,"[%s] Received message %d type %u\n",__func__,i,rxMsg.packageId);
+		//memcpy(&energyPkg, rxBuffer, sizeof(Agent2MasterEnergyMsg));
+		
+		//syslog(LOG_INFO,"[%s] Received message %d type %u\n",__func__,i,rxMsg.packageId);
+		//syslog(LOG_INFO,"[%s] Received message Energy %d - %lu type %u\n",__func__,i,energyPkg.messageNumber,energyPkg.packageId);
 		i++;
 		
 
@@ -188,8 +191,22 @@ void createMasterMonitor(struct ProcessesInfo processInfo) {
 			
 			//fprintf(stderr,"[%s] Re-sending message to client - %s - %s:%u\n",__func__,rxMsg.processName,inet_ntoa(processInfo.from.sin_addr),CLIENT_BASE_PORT);
 			
-			
+			//syslog(LOG_INFO,"[%s] Re-sending data package to client %u %lu\n",__func__,rxMsg.packageId,rxMsg.messageNumber);
 			sendMsgTo((void *)&rxMsg,PACKAGE_ID_DATAMSG, CLIENT_BASE_PORT, inet_ntoa(addresFromClient));
+			
+		}
+		
+		else if(rxMsg.packageId == PACKAGE_ID_ENERGY) {
+			//Re-Route the package to the client
+			
+			//fprintf(stderr,"[%s] Re-sending message to client - %s - %s:%u\n",__func__,rxMsg.processName,inet_ntoa(processInfo.from.sin_addr),CLIENT_BASE_PORT);
+			
+			//Agent2MasterEnergyMsg energyPkg;
+			
+			
+			memcpy(&energyPkg, rxBuffer, sizeof(Agent2MasterEnergyMsg));
+			//syslog(LOG_INFO,"[%s] Re-sending energy package to client %u %lu\n",__func__,energyPkg.packageId,energyPkg.messageNumber);
+			sendMsgTo((void *)&energyPkg,PACKAGE_ID_ENERGY, CLIENT_BASE_PORT, inet_ntoa(addresFromClient));
 			
 		}
 		

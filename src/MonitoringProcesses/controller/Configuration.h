@@ -39,6 +39,7 @@ typedef struct Config{
 	bool checkMEM_Status;		/*!< Boolean value used to measure or not the memory */
 	bool checkCPU_Status;		/*!< Boolean value used to measure or not the CPU percentage */
 	bool checkPapi_Status;		/*!< Boolean value used to measure or not PAPI counters */
+	bool checkEnergy_Status;	/*!< Boolean value used to measure energy using PAPI and RAPL */
 
 
 } Config;
@@ -74,6 +75,7 @@ private:
 	std::string measureCPU_Key;		/*!< Key to measure or not CPU */
 	std::string measureMEM_Key;		/*!< Key to measure or not Memory */
 	std::string measurePapi_Key;		/*!< Key to measure or not PAPI counters */
+	std::string measureEnergy_Key;		/*!< Key to measure or not energy */
 
 	std::string encryptDecrypt(std::string toEncrypt);	/*!< Function to encrypt or decrypt a string */
 };

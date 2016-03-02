@@ -45,6 +45,7 @@
 
 #define DAEMON_NAME "MonitoringMaster"
 
+#define PACKAGE_ID_ENERGY 4
 #define PACKAGE_ID_STOP 3
 #define PACKAGE_ID_DATAMSG 2
 #define PACKAGE_ID_DATAPROCESS 1
@@ -70,6 +71,7 @@ typedef struct Agent2MasterDataMsg{
 	unsigned long long memory;
 	struct sockaddr_in destinationNode;
 	long long int papiMeasures[3];
+	double energyMeasures[24];
 	
 } Agent2MasterDataMsg;
 
@@ -85,8 +87,21 @@ typedef struct ProcessesInfo{
 	struct sockaddr_in destinationNode;
 	unsigned int port;
 	int measurePapi;
+	int measureEnergy;
 
 } ProcessesInfo;
+
+typedef struct Agent2MasterEnergyMsg{
+	unsigned int packageId;
+	int PID;
+	unsigned int agentId;
+	unsigned long int messageNumber;
+	unsigned long int measureNumber;
+	char userName[256];
+	struct sockaddr_in destinationNode;
+	double energyMeasures[24];
+  
+} Agent2MasterEnergyMsg;
 
 struct in_addr getOwnIp(char *iface);
 struct sockaddr_in buildAddr(short int sin_family, unsigned short int sin_port, struct in_addr sin_addr);

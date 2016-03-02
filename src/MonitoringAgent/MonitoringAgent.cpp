@@ -38,6 +38,7 @@
 
 #include "Network.h"
 #include "PapiCounts.h"
+#include "Energy.h"
 
 typedef struct processesRunning {
 	pid_t PID;
@@ -131,16 +132,27 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 	//To check if the user wants to measure PAPI performance
 	static int measurePapi = rxMsg.measurePapi;
 
+	//To check if the user wants to measure energy with PAPI and RAPL
+	static int measureEnergy = rxMsg.measureEnergy;
+	
 	//Max number fo shared memory regions for PAPI measurement
-	int maxShm = smp_num_cpus;
+	//int maxShm = smp_num_cpus;
 
 	//Map to store the shared memory regions <PID,long long int[3]>
 	std::map<unsigned int,long long int*> shmRegionsData;
 	//The same, but with the file descriptors
 	std::map<unsigned int,int> fdRegionsData;
+	
 	//Another map that stores the PID of the process being monitorized as key and the related PID of the process monitoring the PAPI counters as value
 	std::map<unsigned int, unsigned int> pidsPapi;
 
+	//File descriptor for the shm region for RAPL
+	int fd_rapl = -1;
+	
+	//Shared region memory for RAPL
+	double *shm_rapl = NULL;
+
+	pid_t childPidRAPL = 0;
 	//Variables to get process information
 	unsigned int cpuUsage = 0;
 
@@ -383,7 +395,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 				//Send the message
 				sendMsgTo((void *)&msgToSend,PACKAGE_ID_DATAMSG, rxPort, inet_ntoa(masterIp));
-
+				//syslog(LOG_INFO,"[%s] Process data package %lu sent to %s:%d\n",__func__,msgToSend.messageNumber,inet_ntoa(masterIp),rxPort);
 				messageNumber++;
 			}
 
@@ -391,6 +403,117 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 			freeproc(proc_info);
 		}
 		free(proc_tab);
+		
+		//If the user wants to measure energy
+		if(measureEnergy){
+		
+			Agent2MasterEnergyMsg energyMsg;
+		
+			if(measureNumber == 0) {
+			
+				//Create the SHM region and launch fork
+				
+				//The shared memory region has to be created and the PAPI monitor launched
+				//syslog(LOG_INFO,"[%s] Creating shared memory region\n",__func__);
+
+				pid_t childPid;
+
+				//Fork and launch countPapi
+				childPid = fork();
+
+				if (childPid < 0) {
+					exit(EXIT_FAILURE);
+				}
+
+				//We got a good pid, Close the Parent Process
+				if (childPid == 0) {
+					syslog(LOG_INFO,"[%s] Launching Energy monitor\n",__func__);
+					//countPapi(proc_info->tid);
+					measureEnergyFunction();
+					exit(EXIT_SUCCESS);
+				}
+				
+				//We store the child process PID
+				childPidRAPL = childPid;
+
+				char *shmName = (char*)malloc(sizeof(char)*25);
+				char *fileName = (char*)malloc(sizeof(char)*30);
+
+				strcpy(fileName,"/tmp/");
+				strcpy(shmName,"EnergyCount");
+
+				char charPID[5];
+				sprintf(charPID,"%d",childPidRAPL);
+				strcat(shmName,charPID);
+				strcat(fileName,shmName);
+
+				int fd;
+				
+
+				fd = open(fileName, O_RDONLY | O_CREAT , 0666);
+				if (fd == -1) {
+					syslog(LOG_ERR,"[%s] Error opening file for reading: %s\n",__func__,strerror(errno));
+					exit(EXIT_FAILURE);
+				}
+				//syslog(LOG_INFO,"[%s] File opened\n",__func__);
+				shm_rapl = (double *)mmap(0, FILESIZE_RAPL, PROT_READ, MAP_SHARED, fd, 0);
+				if (shm_rapl == MAP_FAILED) {
+					close(fd);
+					syslog(LOG_ERR,"[%s] Error mmapping the file\n",__func__);
+					exit(EXIT_FAILURE);
+				}
+				
+				//We save the file descriptor, so we will be able to close it later
+				fd_rapl = fd;
+
+
+
+				energyMsg.packageId 		= PACKAGE_ID_ENERGY;
+				energyMsg.PID 			= childPidRAPL;
+				energyMsg.agentId		= agent_id;
+				energyMsg.messageNumber		= messageNumber;
+				energyMsg.measureNumber		= measureNumber*SLEEP_NUM_SECS;
+				strcpy(energyMsg.userName, userName);
+				//energyMsg.destinationNode
+
+				int j = 0;
+				
+				//The region is just inizializated, so it still has no values
+				for ( j = 0; j< NUMEVENTS_RAPL ; j++) {
+				
+					energyMsg.energyMeasures[j] = 0.0;
+				}
+				
+				
+			
+			}
+			else {
+			
+				energyMsg.packageId 		= PACKAGE_ID_ENERGY;
+				energyMsg.PID 			= childPidRAPL;
+				energyMsg.agentId		= agent_id;
+				energyMsg.messageNumber		= messageNumber;
+				energyMsg.measureNumber		= measureNumber*SLEEP_NUM_SECS;
+				strcpy(energyMsg.userName, userName);
+			
+				//Read from the SHM region
+				int j = 0;
+				
+				//The region is just inizializated, so it still has no values
+				for ( j = 0; j< NUMEVENTS_RAPL ; j++) {
+				
+					energyMsg.energyMeasures[j] = shm_rapl[j];
+				}
+			}
+			
+			//Send energy PKG
+			sendMsgTo((void *)&energyMsg,PACKAGE_ID_ENERGY, rxPort, inet_ntoa(masterIp));
+			//syslog(LOG_INFO,"[%s] Energy package %lu ID: %u sent to %s:%d\n",__func__,energyMsg.messageNumber,energyMsg.packageId,inet_ntoa(masterIp),rxPort);
+
+			messageNumber++;
+		}
+		
+		
 		measureNumber++;
 
 		processesCPU_Old.clear();
@@ -458,6 +581,22 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 		}
 
+	}
+
+	//Stop the measure energy process if needed
+	if(measureEnergy) {
+		
+		//Unmap the shm region and close fd
+		if (munmap(shm_rapl, FILESIZE_RAPL) == -1) {
+			perror("Error un-mmapping the file");
+		}
+
+		close(fd_rapl);
+
+		//Send signal to the process counting PAPI counters
+
+		kill(childPidRAPL,SIGUSR1);
+			
 	}
 
 

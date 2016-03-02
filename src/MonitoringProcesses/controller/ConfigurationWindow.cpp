@@ -148,17 +148,15 @@ void ConfigurationWindow::initConfiguration(){
 		this->ui->plainTextEdit_ClusterNodeListBM->setPlainText(cnf.nodesBM.c_str());
 	}
 
-
 	this->ui->checkBox_CPU->setChecked(cnf.checkCPU_Status);
-
 
 
 	this->ui->checkBox_MEM->setChecked(cnf.checkMEM_Status);
 
 
-
 	this->ui->checkBox_PapiCounters->setChecked(cnf.checkPapi_Status);
 
+	this->ui->checkBox_Energy->setChecked(cnf.checkEnergy_Status);
 
 
 }
@@ -185,6 +183,7 @@ bool ConfigurationWindow::saveAndClose() {
 	bool newCheckMEM_Status			= this->ui->checkBox_MEM->isChecked();
 	bool newCheckCPU_Status			= this->ui->checkBox_CPU->isChecked();
 	bool newCheckPapi_Status		= this->ui->checkBox_PapiCounters->isChecked();
+	bool newCheckEnergy_Status		= this->ui->checkBox_Energy->isChecked();
 
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("Error");
@@ -220,7 +219,7 @@ bool ConfigurationWindow::saveAndClose() {
 		conf.checkMEM_Status	= newCheckMEM_Status;
 		conf.checkCPU_Status	= newCheckCPU_Status;
 		conf.checkPapi_Status	= newCheckPapi_Status;
-
+		conf.checkEnergy_Status	= newCheckEnergy_Status;
 
 		/*
 		this->settings->setValue(QString(this->userKey.c_str()),QVariant(QString(newUser.c_str())));

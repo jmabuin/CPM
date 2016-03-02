@@ -45,6 +45,7 @@ public:
 	~DataWidget();
 
 	void addData(Agent2MasterDataMsg newData);
+	void addDataEnergy(Agent2MasterEnergyMsg newData);
 
 private slots:
 	void plotData();
@@ -53,9 +54,11 @@ private slots:
 	void CpuToPdf();
 	void MemToPdf();
 	void Table2CSV();
+	void updateEnergyDataInfo();
 
 signals:
 	void updateData();
+	void updateEnergyData();
 
 
 private:
@@ -81,6 +84,8 @@ private:
 
 
 	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> > data; /*!< Map that stores measures in the format <PID,<Measure_Number,Process_Data>> */
+
+	std::map<unsigned long int,Agent2MasterEnergyMsg> energyData; /*!< Map that stores energy measurements in the format <Measure Number, Process_Data> */
 
 	std::vector<std::string> tableHeaders; /*!< Headers of table containing processes data */
 	std::vector<std::string> tableHeadersPapi; /*!< Headers of table containing processes data for future versions*/

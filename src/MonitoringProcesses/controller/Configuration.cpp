@@ -45,6 +45,7 @@ Configuration::Configuration()
 	this->measureCPU_Key		= "M_CPU";
 	this->measureMEM_Key		= "M_MEM";
 	this->measurePapi_Key		= "M_PAPI";
+	this->measureEnergy_Key		= "M_PAPI_RAPL";
 
 }
 
@@ -114,6 +115,9 @@ Config Configuration::getConfiguration() {
 			currentConfig.checkPapi_Status = this->settings->value(this->measurePapi_Key.c_str(), false).toBool();
 		}
 
+		if(this->settings->contains(this->measureEnergy_Key.c_str())) {
+			currentConfig.checkEnergy_Status = this->settings->value(this->measureEnergy_Key.c_str(), false).toBool();
+		}
 
 
 		return currentConfig;
@@ -142,6 +146,7 @@ void Configuration::setConfiguration(Config conf){
 	bool newCheckMEM_Status			= conf.checkMEM_Status;
 	bool newCheckCPU_Status			= conf.checkMEM_Status;
 	bool newCheckPapi_Status		= conf.checkPapi_Status;
+	bool newCheckEnergy_Status		= conf.checkEnergy_Status;
 
 
 	this->settings->setValue(QString(this->userKey.c_str()),QVariant(QString(newUser.c_str())));
@@ -157,6 +162,7 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->measureCPU_Key.c_str()),newCheckMEM_Status);
 	this->settings->setValue(QString(this->measureMEM_Key.c_str()),newCheckCPU_Status);
 	this->settings->setValue(QString(this->measurePapi_Key.c_str()),newCheckPapi_Status);
+	this->settings->setValue(QString(this->measureEnergy_Key.c_str()),newCheckEnergy_Status);
 
 
 }

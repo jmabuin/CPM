@@ -79,6 +79,11 @@ DataWidget::DataWidget(QWidget *parent) :
 	QObject::connect(this,SIGNAL(updateData()),this,SLOT(plotData()));
 
 	/**
+	 * Connect the updateEnergyData(); signal with the updateEnergyDataInfo(); function.
+	 */
+	QObject::connect(this,SIGNAL(updateEnergyData()),this,SLOT(updateEnergyDataInfo()));
+
+	/**
 	 * Buttons connections with signal clicked();
 	 */
 	QObject::connect(this->ui->pushButton_2CSV_1,SIGNAL(clicked(bool)),this,SLOT(CpuToCSV()));
@@ -111,35 +116,254 @@ DataWidget::~DataWidget()
  */
 void DataWidget::addData(Agent2MasterDataMsg newData) {
 
-	//unsigned long int measureNumber = 0;// = newData.measureNumber;
-	//The PID of the new data that comes from the Agent
-	unsigned int PID = newData.PID;
 
-	//If the PID does exists in the stored data, it only must be added.
-	if(this->data.count(PID) > 0){
+	if(newData.packageId == PACKAGE_ID_DATAMSG){
+		//The PID of the new data that comes from the Agent
+		unsigned int PID = newData.PID;
 
-		//measureNumber = this->data.at(PID).size();
-		this->data.at(PID).insert(std::pair<unsigned long int,Agent2MasterDataMsg> (newData.measureNumber,newData));
+		//If the PID does exists in the stored data, it only must be added.
+		if(this->data.count(PID) > 0){
 
-		//printf("Adding measure %lu to PID %u\n",measureNumber,PID);
+			//measureNumber = this->data.at(PID).size();
+			this->data.at(PID).insert(std::pair<unsigned long int,Agent2MasterDataMsg> (newData.measureNumber,newData));
+
+			//printf("Adding measure %lu to PID %u\n",measureNumber,PID);
+		}
+		//Otherwise it must be created
+		else {
+
+			//There is no data associated to this PID. We add it
+			std::map<unsigned long int,Agent2MasterDataMsg> newDataToInsert; //<Measure Number, Data>
+
+			//We insert Pair<Measure Number, Data> into the new Map
+			newDataToInsert.insert(std::pair<unsigned long int,Agent2MasterDataMsg>(newData.measureNumber,newData));
+
+			//Finally we add the <PID,Map> to the stored Data
+			this->data.insert(std::pair<unsigned int,std::map< unsigned long int, Agent2MasterDataMsg> > (PID,newDataToInsert));
+
+		}
+
+		//The signal of new data received is emitted, so the plots can be updated
+		emit this->updateData();
 	}
-	//Otherwise it must be created
+
+
+}
+
+//! Procedure to add a new energy data package from an Agent into the DataWidget data.
+/*!
+ * \param newData Data energy package coming from an Agent
+ */
+void DataWidget::addDataEnergy(Agent2MasterEnergyMsg newData) {
+
+
+	if(newData.packageId == PACKAGE_ID_ENERGY){
+
+		this->energyData.insert(std::pair<unsigned long int, Agent2MasterEnergyMsg> (newData.measureNumber,newData));
+
+		emit this->updateEnergyData();
+	}
+
+
+}
+
+//! Procedure to update the energy data.
+void DataWidget::updateEnergyDataInfo() {
+
+	std::map<unsigned long int, Agent2MasterEnergyMsg>::iterator itEnergyData;
+
+	Agent2MasterEnergyMsg receivedData;
+
+	for(itEnergyData = this->energyData.begin();itEnergyData != this->energyData.end(); itEnergyData++){
+
+		receivedData = itEnergyData->second;
+	}
+
+	//QString(std::to_string(this->globalMaxMEMPID).c_str())
+	this->ui->label_InfoEnergyMeasure->setText(QString(std::to_string(receivedData.measureNumber).c_str()));
+
+	std::string energyData1;
+	std::string energyData2;
+
+	std::string energyData[12];
+
+	//It is not possible in the Agent to take RAPL measures
+
+	int i = 0;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
 	else {
-
-		//There is no data associated to this PID. We add it
-		std::map<unsigned long int,Agent2MasterDataMsg> newDataToInsert; //<Measure Number, Data>
-
-		//We insert Pair<Measure Number, Data> into the new Map
-		newDataToInsert.insert(std::pair<unsigned long int,Agent2MasterDataMsg>(newData.measureNumber,newData));
-
-		//Finally we add the <PID,Map> to the stored Data
-		this->data.insert(std::pair<unsigned int,std::map< unsigned long int, Agent2MasterDataMsg> > (PID,newDataToInsert));
-
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
 	}
 
-	//The signal of new data received is emitted, so the plots can be updated
-	emit this->updateData();
+	this->ui->label_PPt_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
 
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP1_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP0_CPU1->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PPt_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP1_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP0_CPU2->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PPt_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP1_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP0_CPU3->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PPt_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP1_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+	i+=2;
+
+	if(receivedData.energyMeasures[i] == 0.0){
+		energyData1 = "0.0";
+		energyData2 = "0.0";
+	}
+
+	else {
+		energyData1 = std::to_string(receivedData.energyMeasures[i+1]);
+		energyData2 = std::to_string((double)receivedData.energyMeasures[i+1]/(double)receivedData.energyMeasures[i]);
+	}
+
+	this->ui->label_PP0_CPU4->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
+
+
+
+	/*for (int i = 0; i < 24 ; i+=2){
+		printf("Energy %f %f\n",receivedData.energyMeasures[i],receivedData.energyMeasures[i+1]);
+	}*/
+
+	this->ui->label_InfoEnergyData->setText(QString((energyData1+" J  -- "+energyData2+" W").c_str()));
 }
 
 //! Procedure to plot the data.

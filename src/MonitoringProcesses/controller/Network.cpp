@@ -143,6 +143,12 @@ int Network::sendMsgTo(void *message, unsigned int msgType, unsigned int port, c
 			return 0;
 		}
 	}
+	else if(msgType == PACKAGE_ID_ENERGY) {
+		if (sendto(s, message, sizeof(struct Agent2MasterEnergyMsg) , 0 , (struct sockaddr *) &destinationSocket, sizeof(struct sockaddr))==-1) {
+			fprintf(stderr,"Error in sendto()\n");
+			return 0;
+		}
+	}
 
 	close(s);
 

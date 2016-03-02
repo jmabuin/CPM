@@ -19,17 +19,7 @@
 
 #include "PapiCounts.h"
 
-//PAPI Variables
-long long int contadoresPapi[NUMEVENTS];
 
-int events[] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_TOT_INS};
-int EventSet = PAPI_NULL;
-int retval = 0;
-char error_str[PAPI_MAX_STR_LEN]; //To control possible errors
-const PAPI_hw_info_t *hwinfo = NULL; // Hardware info structure
-
-long long start_time,after_time;
-double total_time;
 
 int stopPapi = 0;
 
@@ -43,6 +33,18 @@ void stopPapiHandler(int num){
 int countPapi(int PID){
 
 	//int status = PAPI_NULL;
+
+	//PAPI Variables
+	long long int contadoresPapi[NUMEVENTS];
+
+	int events[] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_TOT_INS};
+	int EventSet = PAPI_NULL;
+	int retval = 0;
+	//char error_str[PAPI_MAX_STR_LEN]; //To control possible errors
+	const PAPI_hw_info_t *hwinfo = NULL; // Hardware info structure
+
+	//long long start_time,after_time;
+	//double total_time;
 
 	char *shmName = (char*)malloc(sizeof(char)*25);
 	char *fileName = (char*)malloc(sizeof(char)*30);

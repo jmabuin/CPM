@@ -41,8 +41,8 @@ GCCVERSION = $(shell expr $(GCCVERSION_FIRST) \+ $(GCCVERSION_SECOND) \+ $(GCCVE
 
 all:$(PROG)
 	
-MonitoringAgent: MonitoringAgent.o Network.o PapiCounts.o
-	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringAgent.o Network.o PapiCounts.o -o $@  $(LIBS)
+MonitoringAgent: MonitoringAgent.o Network.o PapiCounts.o Energy.o
+	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringAgent.o Network.o PapiCounts.o Energy.o -o $@  $(LIBS)
 	
 clean:
 	rm $(PROG) *.o
