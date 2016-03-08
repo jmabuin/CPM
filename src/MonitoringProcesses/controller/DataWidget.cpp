@@ -61,6 +61,7 @@ DataWidget::DataWidget(QWidget *parent) :
 
 	this->ui->comboBox_Plotting->addItem("CPU - Memory");
 	this->ui->comboBox_Plotting->addItem("PAPI_L1 - PAPI_L2");
+	this->ui->comboBox_Plotting->addItem("Jules - Watts");
 
 	this->globalMaxCPU = 0.0; /*!< Global maximum CPU percentage in this DataWidget */
 	this->globalMaxMEM = 0.0; /*!< Global maximum memory in this DataWidget */
@@ -77,6 +78,8 @@ DataWidget::DataWidget(QWidget *parent) :
 	this->numMeasuresCpu = 0; /*!< Number of measures taken for CPU percentage */
 	this->numMeasuresMem = 0; /*!< Number of measures taken for memory */
 
+
+	this->ui->radioButton_Plot_CPU1->setChecked(true);
 
 	/**
 	 * Connect the updateData(); signal with the plotData(); function.
@@ -217,10 +220,10 @@ void DataWidget::updateEnergyDataInfo() {
 	for(i = 0; i< 24; i+=2) {
 
 
-
-		if(i%3 == 0){
-			this->energyTimes[i/3] = this->energyTimes[i/3] + receivedData.energyMeasures[i];
-			currentCumulativeTime = this->energyTimes[i/3];
+		//We store the time for each CPu Chip
+		if(i%6 == 0){ //0, 6, 12, 18
+			this->energyTimes[i/6] = this->energyTimes[i/6] + receivedData.energyMeasures[i];
+			currentCumulativeTime = this->energyTimes[i/6];
 		}
 
 		if(receivedData.energyMeasures[i] == 0.0){
@@ -258,7 +261,8 @@ void DataWidget::plotData() {
 	//Iterator with the measures for each one of the PIDs. <Measure Number, Data>
 	std::map<unsigned long int,Agent2MasterDataMsg>::iterator it2;
 
-	//std::map<unsigned long int,Agent2MasterDataMsg>::iterator itInternal;
+	//Iterator with the energy measures
+	std::map<unsigned long int,Agent2MasterEnergyMsg>::iterator itEnergy;
 
 	//The two plots are cleared
 	this->ui->widget_PlotCPU->clearGraphs();
@@ -277,8 +281,15 @@ void DataWidget::plotData() {
 	double Max_X_L1 = 0.0;
 	double Max_X_L2 = 0.0;
 
+	//Max values for Jules and Watts
+	double Max_Jules = 0;
+	double Max_Watts = 0;
+	double Max_X_Jules = 0.0;
+	double Max_X_Watts = 0.0;
+
 	//To use inside the plot as the number of graphic (PID) inside the plot
 	unsigned int numGraph = 0;
+
 
 	//Maps where data to plot are going to be stored
 	std::map<unsigned int,QVector<double> > X_Mem;
@@ -294,6 +305,24 @@ void DataWidget::plotData() {
 	std::map<unsigned int,QVector<double> > X_PAPI_L2;
 	//std::map<unsigned int,QVector<long long int> > Y_PAPI_L2;
 	std::map<unsigned int,QVector<double> > Y_PAPI_L2;
+
+	/*
+	std::map<unsigned int,QVector<double> > X_Jules;
+	std::map<unsigned int,QVector<double> > Y_Jules;
+
+	std::map<unsigned int,QVector<double> > X_Watts;
+	std::map<unsigned int,QVector<double> > Y_Watts;
+	*/
+
+	QVector<double> X_Jules;
+	QVector<double> Y_Jules_Total;
+	QVector<double> Y_Jules_PP1;
+	QVector<double> Y_Jules_PP0;
+
+	QVector<double> X_Watts;
+	QVector<double> Y_Watts_Total;
+	QVector<double> Y_Watts_PP1;
+	QVector<double> Y_Watts_PP0;
 
 	//Iterate over PIDS
 	for(it = this->data.begin(); it != this->data.end(); it++){
@@ -415,7 +444,7 @@ void DataWidget::plotData() {
 				 * Third, Papi_L1
 				 */
 
-				//In X_CPU we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
+				//In X_PAPI_L1 we store CPU percentage values. If X_CPU already has the current PID, the CPU value and measure number are added at the end of the corresponding vector.
 				if(X_PAPI_L1.count(currentPID) > 0) {
 
 					//Add L1 value
@@ -492,41 +521,41 @@ void DataWidget::plotData() {
 
 
 			}
+			else if(this->ui->comboBox_Plotting->currentIndex() == 2) {
 
 
-			//Max and min global values for Memory and CPU
-			if(this->globalMaxMEM < (double)currentData.memory) {
-				this->globalMaxMEM = (double)currentData.memory;
-				this->globalMaxMEMPID = currentPID;
+
+				//Max and min global values for Memory and CPU
+				if(this->globalMaxMEM < (double)currentData.memory) {
+					this->globalMaxMEM = (double)currentData.memory;
+					this->globalMaxMEMPID = currentPID;
+
+				}
+				if (this->globalMinMEM > (double)currentData.memory) {
+					this->globalMinMEM = (double)currentData.memory;
+					this->globalMinMEMPID = currentPID;
+				}
+
+				//And the same for the global values among all the PIDs
+				if(this->globalMaxCPU < (double)currentData.cpuPercentage) {
+					this->globalMaxCPU = (double)currentData.cpuPercentage;
+					this->globalMaxCPUPID = currentPID;
+
+				}
+				if (this->globalMinCPU > (double)currentData.cpuPercentage) {
+					this->globalMinCPU = (double)currentData.cpuPercentage;
+					this->globalMinCPUPID = currentPID;
+				}
 
 			}
-			if (this->globalMinMEM > (double)currentData.memory) {
-				this->globalMinMEM = (double)currentData.memory;
-				this->globalMinMEMPID = currentPID;
-			}
-
-			//And the same for the global values among all the PIDs
-			if(this->globalMaxCPU < (double)currentData.cpuPercentage) {
-				this->globalMaxCPU = (double)currentData.cpuPercentage;
-				this->globalMaxCPUPID = currentPID;
-
-			}
-			if (this->globalMinCPU > (double)currentData.cpuPercentage) {
-				this->globalMinCPU = (double)currentData.cpuPercentage;
-				this->globalMinCPUPID = currentPID;
-			}
-
-
-			//printf("Max_X_CPU %f\n",Max_X_CPU);
-
 		}
-
 		//Insert current data in current Row. Note that currentData is going to be the last of the measures for the processed PID and j is the row that corresponds to the PID in the table
+
 		this->insertDataInTable(j,currentData);
 
 		j++;
-	}
 
+	}
 	//Table colours are set
 	this->setTableColours();
 
@@ -543,7 +572,6 @@ void DataWidget::plotData() {
 
 	this->ui->label_InfoMinCpuData->setText(QString(std::to_string(this->globalMinCPUPID).c_str()));
 	this->ui->label_InfoMinCpuProcessData->setText(QString(std::to_string(this->globalMinCPU).c_str()));
-
 
 
 	//Iterate over plots data
@@ -715,6 +743,219 @@ void DataWidget::plotData() {
 
 
 
+
+	}
+
+	else if(this->ui->comboBox_Plotting->currentIndex() == 2){ //Energy
+
+		std::map<unsigned long int, Agent2MasterEnergyMsg>::iterator itEnergyData;
+
+		Agent2MasterEnergyMsg receivedData;
+
+		QBrush tmpColour;
+
+		unsigned int selectedCPU = 0;
+
+		if(this->ui->radioButton_Plot_CPU1->isChecked()){
+			selectedCPU = 0;
+		}
+
+		else if(this->ui->radioButton_Plot_CPU2->isChecked()){
+			selectedCPU = 1;
+		}
+
+		else if(this->ui->radioButton_Plot_CPU3->isChecked()){
+			selectedCPU = 2;
+		}
+
+		else if(this->ui->radioButton_Plot_CPU4->isChecked()){
+			selectedCPU = 3;
+		}
+
+		//double currentCumulativeTime = 0.0;
+
+		this->energyTimes[0] = 0.0;
+		this->energyTimes[1] = 0.0;
+		this->energyTimes[2] = 0.0;
+		this->energyTimes[3] = 0.0;
+
+		double currentCummulativeTime = 0.0;
+
+
+
+		unsigned int i = 0; //Row
+		unsigned int j = 0; //Col
+
+		for(itEnergyData = this->energyData.begin();itEnergyData != this->energyData.end(); itEnergyData++){
+
+			receivedData = itEnergyData->second;
+
+
+			for(i = 0; i< 24; i++) {
+
+
+				if(i>=selectedCPU*6 && i<(selectedCPU+1)*6){
+
+					if(i%6 == 0){ //0, 6, 12, 18
+						this->energyTimes[i/6] = this->energyTimes[i/6] + receivedData.energyMeasures[i];
+						currentCummulativeTime = this->energyTimes[i/6];
+
+						X_Jules.append(currentCummulativeTime);
+						X_Watts.append(currentCummulativeTime);
+
+						if(currentCummulativeTime >= Max_X_Jules) {
+							Max_X_Jules = currentCummulativeTime + 1.0;
+							Max_X_Watts = currentCummulativeTime + 1.0;
+						}
+
+					}
+
+					else if (i%6 == 1){
+						Y_Jules_Total.append(receivedData.energyMeasures[i]);
+						Y_Watts_Total.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+
+						if(receivedData.energyMeasures[i] > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i];
+						}
+
+						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
+							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						}
+
+					}
+
+					else if (i%6 == 3){
+						Y_Jules_PP1.append(receivedData.energyMeasures[i]);
+						Y_Watts_PP1.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+
+						if(receivedData.energyMeasures[i] > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i];
+						}
+
+						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
+							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						}
+					}
+
+					else if (i%6 == 5){
+						Y_Jules_PP0.append(receivedData.energyMeasures[i]);
+						Y_Watts_PP0.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+
+						if(receivedData.energyMeasures[i] > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i];
+						}
+
+						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
+							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						}
+					}
+
+				}
+
+			}
+
+		}
+
+
+		//Plot
+		//We set the current data into the current graph from total Jules
+		numGraph = 0;
+		this->ui->widget_PlotCPU->addGraph();
+		this->ui->widget_PlotCPU->graph(numGraph)->setData(X_Jules,Y_Jules_Total);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+		this->ui->widget_PlotCPU->addGraph();
+		//We set the current data into the current graph from PP1 Jules
+		this->ui->widget_PlotCPU->graph(numGraph)->setData(X_Jules,Y_Jules_PP1);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+		this->ui->widget_PlotCPU->addGraph();
+		//We set the current data into the current graph from total Jules
+		this->ui->widget_PlotCPU->graph(numGraph)->setData(X_Jules,Y_Jules_PP0);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotCPU->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+
+		//Now Watts===========================================================
+		numGraph = 0;
+		//We set the current data into the current graph from total Watts
+		this->ui->widget_PlotMEM->addGraph();
+		this->ui->widget_PlotMEM->graph(numGraph)->setData(X_Watts,Y_Watts_Total);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+		this->ui->widget_PlotMEM->addGraph();
+		//We set the current data into the current graph from PP1 Jules
+		this->ui->widget_PlotMEM->graph(numGraph)->setData(X_Watts,Y_Watts_PP1);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+		this->ui->widget_PlotMEM->addGraph();
+		//We set the current data into the current graph from total Jules
+		this->ui->widget_PlotMEM->graph(numGraph)->setData(X_Watts,Y_Watts_PP0);
+
+		//Colour election
+		tmpColour = this->colours.at(numGraph % this->colours.size());
+
+		//Colour set
+		this->ui->widget_PlotMEM->graph(numGraph)->setPen(QPen(tmpColour,1));
+
+		//Advance of the numGraph parameter
+		numGraph++;
+
+		this->ui->widget_PlotCPU->xAxis->setLabel("Measure number"); /*!< X Axis legend for L1 plot */
+		this->ui->widget_PlotCPU->yAxis->setLabel("Jules"); /*!< Y Axis legend for L1 plot */
+
+		this->ui->widget_PlotMEM->xAxis->setLabel("Measure number"); /*!< X Axis legend for L2 plot */
+		this->ui->widget_PlotMEM->yAxis->setLabel("Watts"); /*!< Y Axis legend for L2 plot */
+
+
+
+		this->ui->widget_PlotCPU->xAxis->setRange(0, Max_X_Jules);
+		this->ui->widget_PlotCPU->yAxis->setRange(0, Max_Jules);
+		this->ui->widget_PlotCPU->replot();
+
+		//Replot of both graphics with axis limits
+		this->ui->widget_PlotMEM->xAxis->setRange(0, Max_X_Watts);
+		this->ui->widget_PlotMEM->yAxis->setRange(0, Max_Watts);
+		this->ui->widget_PlotMEM->replot();
 
 	}
 	//printf("NUmber of data: %lu\n",this->data.size());
