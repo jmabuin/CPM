@@ -597,7 +597,7 @@
         <enum>QFrame::NoFrame</enum>
        </property>
        <property name="text">
-        <string>Total (CPUs + GPU + DRAM)</string>
+        <string>Total (CPUs + GPU + Cache)</string>
        </property>
       </widget>
      </item>

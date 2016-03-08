@@ -786,6 +786,10 @@ void DataWidget::plotData() {
 		unsigned int i = 0; //Row
 		unsigned int j = 0; //Col
 
+		double previousJulesTotal = 0.0;
+		double previousJulesPP1 = 0.0;
+		double previousJulesPP0 = 0.0;
+
 		for(itEnergyData = this->energyData.begin();itEnergyData != this->energyData.end(); itEnergyData++){
 
 			receivedData = itEnergyData->second;
@@ -811,43 +815,64 @@ void DataWidget::plotData() {
 					}
 
 					else if (i%6 == 1){
-						Y_Jules_Total.append(receivedData.energyMeasures[i]);
-						Y_Watts_Total.append(receivedData.energyMeasures[i]/currentCummulativeTime);
 
-						if(receivedData.energyMeasures[i] > Max_Jules){
-							Max_Jules = receivedData.energyMeasures[i];
+
+						//Y_Jules_Total.append(receivedData.energyMeasures[i]);
+						//Y_Watts_Total.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+
+						Y_Jules_Total.append(receivedData.energyMeasures[i]-previousJulesTotal);
+						Y_Watts_Total.append((receivedData.energyMeasures[i]-previousJulesTotal)/(receivedData.energyMeasures[i-1]));
+
+
+						if((receivedData.energyMeasures[i] - previousJulesTotal) > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i] - previousJulesTotal;
 						}
 
-						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
-							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						if(((receivedData.energyMeasures[i] - previousJulesTotal)/receivedData.energyMeasures[i-1]) > Max_Watts){
+							Max_Watts = (receivedData.energyMeasures[i]-previousJulesTotal)/(receivedData.energyMeasures[i-1]);
 						}
+
+
+						previousJulesTotal = receivedData.energyMeasures[i];
 
 					}
 
 					else if (i%6 == 3){
-						Y_Jules_PP1.append(receivedData.energyMeasures[i]);
-						Y_Watts_PP1.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+						//Y_Jules_PP1.append(receivedData.energyMeasures[i]);
+						//Y_Watts_PP1.append(receivedData.energyMeasures[i]/currentCummulativeTime);
 
-						if(receivedData.energyMeasures[i] > Max_Jules){
-							Max_Jules = receivedData.energyMeasures[i];
+						Y_Jules_PP1.append(receivedData.energyMeasures[i]-previousJulesPP1);
+						Y_Watts_PP1.append((receivedData.energyMeasures[i]-previousJulesPP1)/(receivedData.energyMeasures[i-1]));
+
+
+						if((receivedData.energyMeasures[i] - previousJulesPP1) > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i] - previousJulesPP1;
 						}
 
-						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
-							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						if(((receivedData.energyMeasures[i] - previousJulesPP1)/receivedData.energyMeasures[i-1]) > Max_Watts){
+							Max_Watts = (receivedData.energyMeasures[i]-previousJulesPP1)/(receivedData.energyMeasures[i-1]);
 						}
+
+						previousJulesPP1 = receivedData.energyMeasures[i];
 					}
 
 					else if (i%6 == 5){
-						Y_Jules_PP0.append(receivedData.energyMeasures[i]);
-						Y_Watts_PP0.append(receivedData.energyMeasures[i]/currentCummulativeTime);
+						//Y_Jules_PP0.append(receivedData.energyMeasures[i]);
+						//Y_Watts_PP0.append(receivedData.energyMeasures[i]/currentCummulativeTime);
 
-						if(receivedData.energyMeasures[i] > Max_Jules){
-							Max_Jules = receivedData.energyMeasures[i];
+						Y_Jules_PP0.append(receivedData.energyMeasures[i]-previousJulesPP0);
+						Y_Watts_PP0.append((receivedData.energyMeasures[i]-previousJulesPP0)/(receivedData.energyMeasures[i-1]));
+
+						if((receivedData.energyMeasures[i] - previousJulesPP0) > Max_Jules){
+							Max_Jules = receivedData.energyMeasures[i] - previousJulesPP1;
 						}
 
-						if((receivedData.energyMeasures[i]/currentCummulativeTime) > Max_Watts){
-							Max_Watts = receivedData.energyMeasures[i]/currentCummulativeTime;
+						if(((receivedData.energyMeasures[i] - previousJulesPP0)/receivedData.energyMeasures[i-1]) > Max_Watts){
+							Max_Watts = (receivedData.energyMeasures[i]-previousJulesPP0)/(receivedData.energyMeasures[i-1]);
 						}
+
+						previousJulesPP0 = receivedData.energyMeasures[i];
+
 					}
 
 				}
