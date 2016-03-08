@@ -784,7 +784,6 @@ void DataWidget::plotData() {
 
 
 		unsigned int i = 0; //Row
-		unsigned int j = 0; //Col
 
 		double previousJulesTotal = 0.0;
 		double previousJulesPP1 = 0.0;
