@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->createActions();
 	this->createMenus();
 	this->initButtonsActions();
+
+	this->setWindowIcon(QIcon(":/icons/controller/CPM.ico"));
 }
 
 /*!

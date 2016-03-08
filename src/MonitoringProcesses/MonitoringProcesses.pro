@@ -37,3 +37,6 @@ LIBS    += \
     -lpthread
 
 QMAKE_CXXFLAGS += -std=c++11
+
+RESOURCES += \
+    resourcefile.qrc
