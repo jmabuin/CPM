@@ -70,8 +70,9 @@ typedef struct Agent2MasterDataMsg{
 	char processName[MAX_PROCESS_NAME];
 	unsigned long long memory;
 	struct sockaddr_in destinationNode;
+	int numberOfThreads;
 	long long int papiMeasures[3];
-	double energyMeasures[24];
+	//double energyMeasures[24];
 	
 } Agent2MasterDataMsg;
 

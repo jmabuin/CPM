@@ -1145,7 +1145,7 @@ void DataWidget::insertDataInTable(int j, Agent2MasterDataMsg data) {
 	col++;
 
 	//Threads
-	newItem = new QTableWidgetItem(QString(std::to_string(0).c_str()));
+	newItem = new QTableWidgetItem(QString(std::to_string(data.numberOfThreads).c_str()));
 	this->ui->tableWidget_Data->setItem(j,col,newItem);
 
 	col++;

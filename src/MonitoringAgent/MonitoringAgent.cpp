@@ -374,6 +374,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				msgToSend.messageNumber		= messageNumber;
 				msgToSend.measureNumber		= measureNumber*SLEEP_NUM_SECS;
 				msgToSend.totalCpuPercentage	= (double) (pcpu/10U) + (double) (pcpu%10U)/10.0;
+				msgToSend.numberOfThreads	= proc_info->nlwp;
 				msgToSend.cpuPercentage = 0;
 
 				if(processesCPU_Old.count(proc_info->tid) > 0) {
