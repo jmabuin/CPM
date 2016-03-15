@@ -84,13 +84,24 @@ int countPapi(int PID){
 		exit(-1);
 	}
 
-
+	/* For now, the only available granularity available in PAPI is the PAPI_GRN_THR, that only measures one thread.
+	 * The granularity intended to measure a whole process, PAPI_GRN_PROC, it is not yet implemented.
+	 * The following code is to measure a whole process when this option will be ready.
+	 */
+	 
+	/*
+	if ((retval = PAPI_set_cmp_granularity(PAPI_GRN_PROC,0)) != PAPI_OK){
+		syslog(LOG_ERR,"[%s] Error assigning events granularity %s\n",__func__, PAPI_strerror(retval));
+		exit(-1);
+	}
+	*/
+	
 	//PAPI_set_granularity( PAPI_GRN_MAX);
 	//PAPI_set_domain(PAPI_DOM_ALL);
 
 	//eventSet creation
 	if ((retval = PAPI_create_eventset(&EventSet)) != PAPI_OK){
-		syslog(LOG_ERR,"[%s] Erro creando o set de eventos %s\n",__func__, PAPI_strerror(retval));
+		syslog(LOG_ERR,"[%s] Error creating eventset %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 

@@ -205,7 +205,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 	while(!stopAgent ){
 
 		//Iterate over the processes table
-		proc_tab = readproctab(PROC_FILLMEM | PROC_FILLSTAT | PROC_FILLSTATUS | PROC_FILLCOM | PROC_FILLENV);
+		proc_tab = readproctab(PROC_FILLMEM | PROC_FILLSTAT | PROC_FILLSTATUS | PROC_FILLCOM | PROC_FILLENV | PROC_LOOSE_TASKS);
 
 		procTabIndex = 0;
 		seconds_since_boot = uptime(0,0);
