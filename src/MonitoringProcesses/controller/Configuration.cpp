@@ -106,17 +106,29 @@ Config Configuration::getConfiguration() {
 		if(this->settings->contains(this->measureCPU_Key.c_str())) {
 			currentConfig.checkCPU_Status = this->settings->value(this->measureCPU_Key.c_str(), false).toBool();
 		}
+		else{
+			currentConfig.checkCPU_Status = false;
+		}
 
 		if(this->settings->contains(this->measureMEM_Key.c_str())) {
 			currentConfig.checkMEM_Status = this->settings->value(this->measureMEM_Key.c_str(), false).toBool();
+		}
+		else{
+			currentConfig.checkMEM_Status = false;
 		}
 
 		if(this->settings->contains(this->measurePapi_Key.c_str())) {
 			currentConfig.checkPapi_Status = this->settings->value(this->measurePapi_Key.c_str(), false).toBool();
 		}
+		else{
+			currentConfig.checkPapi_Status = false;
+		}
 
 		if(this->settings->contains(this->measureEnergy_Key.c_str())) {
 			currentConfig.checkEnergy_Status = this->settings->value(this->measureEnergy_Key.c_str(), false).toBool();
+		}
+		else{
+			currentConfig.checkEnergy_Status = false;
 		}
 
 

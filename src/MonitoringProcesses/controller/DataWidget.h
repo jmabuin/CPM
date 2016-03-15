@@ -82,6 +82,9 @@ private:
 	unsigned long int numMeasuresMem; /*!< Number of measures taken for CPU percentage */
 	unsigned long int numMeasuresCpu; /*!< Number of measures taken for memory */
 
+	unsigned long int globalMaxNumThreads;	/*!< Global maximum number of threads in this DataWidget */
+	unsigned int globalmaxNumThreadsPID;	/*!< PID of the global maximum threads in this DataWidget */
+
 	double energyTimes[4];		/*!< Stored time for calculate average Watts. One per CPU Chip */
 
 	std::map<unsigned int,std::map<unsigned long int,Agent2MasterDataMsg> > data; /*!< Map that stores measures in the format <PID,<Measure_Number,Process_Data>> */

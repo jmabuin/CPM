@@ -78,6 +78,8 @@ DataWidget::DataWidget(QWidget *parent) :
 	this->numMeasuresCpu = 0; /*!< Number of measures taken for CPU percentage */
 	this->numMeasuresMem = 0; /*!< Number of measures taken for memory */
 
+	this->globalMaxNumThreads	= 0; /*!< Global maximum number of threads in this DataWidget */
+	this->globalmaxNumThreadsPID	= 0; /*!< PID of the global maximum number of threads in this DataWidget */
 
 	this->ui->radioButton_Plot_CPU1->setChecked(true);
 
@@ -188,7 +190,7 @@ void DataWidget::updateEnergyDataInfo() {
 	}
 
 	//QString(std::to_string(this->globalMaxMEMPID).c_str())
-	this->ui->label_InfoEnergyMeasure->setText(QString(std::to_string(receivedData.measureNumber).c_str()));
+	//this->ui->label_InfoEnergyMeasure->setText(QString(std::to_string(receivedData.measureNumber).c_str()));
 
 	std::string energyData1;
 	std::string energyData2;
@@ -521,7 +523,7 @@ void DataWidget::plotData() {
 
 
 			}
-			else if(this->ui->comboBox_Plotting->currentIndex() == 2) {
+			//else if(this->ui->comboBox_Plotting->currentIndex() == 2) {
 
 
 
@@ -547,7 +549,12 @@ void DataWidget::plotData() {
 					this->globalMinCPUPID = currentPID;
 				}
 
-			}
+				if(this->globalMaxNumThreads < (unsigned long int)currentData.numberOfThreads){
+					this->globalMaxNumThreads = currentData.numberOfThreads;
+					this->globalmaxNumThreadsPID = currentPID;
+				}
+
+			//}
 		}
 		//Insert current data in current Row. Note that currentData is going to be the last of the measures for the processed PID and j is the row that corresponds to the PID in the table
 
@@ -573,6 +580,8 @@ void DataWidget::plotData() {
 	this->ui->label_InfoMinCpuData->setText(QString(std::to_string(this->globalMinCPUPID).c_str()));
 	this->ui->label_InfoMinCpuProcessData->setText(QString(std::to_string(this->globalMinCPU).c_str()));
 
+	this->ui->label_InfoThreadsData->setText(QString(std::to_string(this->globalmaxNumThreadsPID).c_str()));
+	this->ui->label_InfoThreadsMeasure->setText(QString(std::to_string(this->globalMaxNumThreads).c_str()));
 
 	//Iterate over plots data
 

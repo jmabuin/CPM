@@ -83,8 +83,8 @@ void ConfigurationWindow::initConfiguration(){
 
 	//Default checkboxes status
 	this->ui->checkBox_CPU->setChecked(true);
-
 	this->ui->checkBox_CPU->setEnabled(false);
+
 	this->ui->checkBox_MEM->setChecked(true);
 	this->ui->checkBox_MEM->setEnabled(false);
 
@@ -148,10 +148,10 @@ void ConfigurationWindow::initConfiguration(){
 		this->ui->plainTextEdit_ClusterNodeListBM->setPlainText(cnf.nodesBM.c_str());
 	}
 
-	this->ui->checkBox_CPU->setChecked(cnf.checkCPU_Status);
+	//this->ui->checkBox_CPU->setChecked(cnf.checkCPU_Status);
 
 
-	this->ui->checkBox_MEM->setChecked(cnf.checkMEM_Status);
+	//this->ui->checkBox_MEM->setChecked(cnf.checkMEM_Status);
 
 
 	this->ui->checkBox_PapiCounters->setChecked(cnf.checkPapi_Status);
