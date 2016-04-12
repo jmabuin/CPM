@@ -1023,7 +1023,7 @@ void DataWidget::resetPlots() {
 
 }
 
-//! Function to pass from Agent2MasterDataMsg to a vector of sctrings.
+//! Function to pass from Agent2MasterDataMsg to a vector of strings.
 /*!
  * \param data Agent2MasterDataMsg data to be processed.
  * \return A vector of strings with the data.
@@ -1136,7 +1136,7 @@ void DataWidget::insertDataInTable(int j, Agent2MasterDataMsg data) {
 	col++;
 
 	//MEM%
-	newItem = new QTableWidgetItem(QString(std::to_string(0.0).c_str()));
+	newItem = new QTableWidgetItem(QString(std::to_string(data.memoryPercentage).c_str()));
 	this->ui->tableWidget_Data->setItem(j,col,newItem);
 
 	col++;

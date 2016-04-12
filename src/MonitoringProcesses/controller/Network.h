@@ -65,6 +65,7 @@ typedef struct Agent2MasterDataMsg{
 	char userName[256];
 	char processName[MAX_PROCESS_NAME];
 	unsigned long long memory;
+	double memoryPercentage;
 	struct sockaddr_in destinationNode;
 	int numberOfThreads;
 	long long int papiMeasures[3];

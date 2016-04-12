@@ -217,7 +217,11 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 			pidsInUse.clear();
 		}
 
+		//To get the memory information into global variables
+		meminfo();
+
 		while((proc_info = proc_tab[procTabIndex])!=NULL){
+			
 
 			//Store the current process name into the processName variable
 
@@ -393,6 +397,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				//strcpy(msgToSend.processName, proc_info->cmd);
 				strcpy(msgToSend.processName, processName);
 				msgToSend.memory = proc_info->vm_rss;
+				msgToSend.memoryPercentage = (msgToSend.memory*100.0)/kb_main_total;
 
 				//Send the message
 				sendMsgTo((void *)&msgToSend,PACKAGE_ID_DATAMSG, rxPort, inet_ntoa(masterIp));
