@@ -93,6 +93,18 @@ The basic parameters that the user needs to configure are:
 
 The rest of the options are not currently working, because they are planned to work in future versions with future features.
 
+##Tasks
+
+###Completed
+
+- [x] Creation of the three programs.
+
+###To Do
+
+- [ ] Creation of install target in Makefile
+- [ ] Creation of init and stop scripts
+- [ ] Improve the ports assignation to forked processes
+
 ##Frequently asked questions (FAQs)
 
 1. [I can not build the tool because I can not find the procps library.](#building1)
