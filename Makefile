@@ -1,8 +1,8 @@
 include ./Makefile.common
 
-.PHONY: MonitoringAgent MonitoringMaster MonitoringClient clean
+.PHONY: MonitoringAgent MonitoringMaster MonitoringClient scripts clean
 
-all: MonitoringAgent MonitoringMaster MonitoringClient
+all: MonitoringAgent MonitoringMaster MonitoringClient scripts
 	@echo "================================================================================"
 	@echo "MonitoringProcesses has been compiled."
 	@echo "Location    = $(LOCATION)/$(BUILD_DIR)/"
@@ -23,6 +23,11 @@ MonitoringClient:
 	$(MAKE) -C $(CLIENT_DIR)
 	if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
 	cp $(CLIENT_DIR)/MonitoringProcesses $(BUILD_DIR)
+
+scripts:
+	if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
+	cp $(SCRIPTS_DIR)/* $(BUILD_DIR)
+	chmod +x $(BUILD_DIR)/*.sh
 
 clean:
 	$(RMR) $(BUILD_DIR)

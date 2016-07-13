@@ -11,3 +11,4 @@ BUILD_DIR = build
 AGENT_DIR = $(SRC_DIR)/MonitoringAgent/
 MASTER_DIR = $(SRC_DIR)/MonitoringMaster/
 CLIENT_DIR = $(SRC_DIR)/MonitoringProcesses/
+SCRIPTS_DIR = ./script
