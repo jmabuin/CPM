@@ -65,6 +65,8 @@ void MainWindow::createActions() {
 	this->configureAction->setStatusTip(tr("Configure program preferences"));
 	connect(this->configureAction, SIGNAL(triggered()), this, SLOT(configureRun()));
 
+
+
 	this->exitProgram = new QAction(tr("&Exit"), this);
 	this->exitProgram->setShortcuts(QKeySequence::Quit);
 	this->exitProgram->setStatusTip(tr("Quit program"));

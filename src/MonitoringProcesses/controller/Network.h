@@ -1,5 +1,5 @@
 /**
-  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
   *
   * This file is part of CPM.
   *
@@ -20,8 +20,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include <string.h>
-
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -36,6 +34,7 @@
 #include <ifaddrs.h>
 #include <vector>
 #include <string>
+#include <string.h>
 #include <unistd.h>
 
 #define MASTER_BASE_PORT 8000

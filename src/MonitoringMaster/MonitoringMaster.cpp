@@ -320,7 +320,7 @@ int main(int argc, char **argv) {
 
 	int nRxBytes;
 	socklen_t addrLen;
-	char rxBuffer[MAX_BUF_SIZE];//Currently 20480. In Network.h
+	char rxBuffer[MAX_BUF_SIZE]; //Currently 20480. In Network.h
 	ProcessesInfo rxMsg;
 
 
