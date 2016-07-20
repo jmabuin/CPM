@@ -18,7 +18,9 @@ SOURCES += main.cpp \
     controller/ConfigurationWindow.cpp \
     controller/DataWidget.cpp \
     controller/qcustomplot.cpp \
-    controller/Configuration.cpp
+    controller/Configuration.cpp \
+    controller/ssh_handler.cpp \
+    controller/ManageClusterWindow.cpp
 
 HEADERS  += \
     controller/mainwindow.h \
@@ -26,15 +28,19 @@ HEADERS  += \
     controller/ConfigurationWindow.h \
     controller/DataWidget.h \
     controller/qcustomplot.h \
-    controller/Configuration.h
+    controller/Configuration.h \
+    controller/ssh_handler.h \
+    controller/ManageClusterWindow.h
 
 FORMS    += \
     view/mainwindow.ui \
     view/ConfigurationWindow.ui \
-    view/DataWidget.ui
+    view/DataWidget.ui \
+    view/ManageClusterWindow.ui
 
 LIBS    += \
-    -lpthread
+    -lpthread \
+    -lssh
 
 QMAKE_CXXFLAGS += -std=c++11
 
