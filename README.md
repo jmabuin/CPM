@@ -98,12 +98,15 @@ The rest of the options are not currently working, because they are planned to w
 ###Completed
 
 - [x] Creation of the three programs.
+- [x] Creation of init and stop scripts.
 
 ###To Do
 
-- [ ] Creation of install target in Makefile
-- [ ] Creation of init and stop scripts
-- [ ] Improve the ports assignation to forked processes
+- [ ] Creation of a **Debug mode** to see logs from agents in the screen instead of the system logs.
+- [ ] Creation of a **Deploy** function to deploy the agents to the master and computing nodes and build them.
+- [ ] Creation of a **Start** function to start master and agents remotely from the client.
+- [ ] Creation of install target in Makefile.
+- [ ] Improve the ports assignation to forked processes.
 
 ##Frequently asked questions (FAQs)
 
