@@ -1,5 +1,5 @@
 /**
-  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
   * 
   * This file is part of CPM.
   *
@@ -36,6 +36,8 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <unistd.h>
+
+#include "Globals.h"
 
 #define MASTER_BASE_PORT 8000
 #define DAEMON_AGENT_PORT 20000

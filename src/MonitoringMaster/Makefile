@@ -11,8 +11,8 @@ PROG=			MonitoringMaster
 
 all:$(PROG)
 	
-MonitoringMaster: MonitoringMaster.o Network.o
-	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringMaster.o Network.o -o $@
+MonitoringMaster: MonitoringMaster.o Network.o AgentChild.o Globals.o
+	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringMaster.o Network.o AgentChild.o Globals.o -o $@
 	
 clean:
 	rm $(PROG) *.o
