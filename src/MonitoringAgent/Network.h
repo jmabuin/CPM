@@ -37,6 +37,8 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#include "Globals.h"
+
 #define MASTER_BASE_PORT 8000
 #define DAEMON_AGENT_PORT 20000
 #define CLIENT_BASE_PORT 10000

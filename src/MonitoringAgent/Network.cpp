@@ -1,5 +1,5 @@
 /**
-  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
   * 
   * This file is part of CPM.
   *
@@ -57,7 +57,7 @@ int createUDPSocket(int broadcast, int isTxSocket, struct sockaddr_in myAddr){
 	
 	if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
 		{
-			perror("Could not create socket\n");
+			fprintf(stderr,"[%s] Could not create socket\n",__func__);
 			return(-1);
 		}
 		
@@ -67,14 +67,14 @@ int createUDPSocket(int broadcast, int isTxSocket, struct sockaddr_in myAddr){
 	if (isTxSocket){
 		if (broadcast){
 			if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1) {
-				perror("setsockopt (SO_BROADCAST)");
+				fprintf(stderr,"[%s] setsockopt (SO_BROADCAST)",__func__);
 				return(-1);
 				}
 		}
 	}
 
 	if (bind(sock, (struct sockaddr *)&myAddr, sizeof(struct sockaddr)) == -1) {
-			perror("Could not bind socket\n");
+			fprintf(stderr,"[%s] Could not bind socket\n",__func__);
 			return(-1);
 		}
 
@@ -90,17 +90,17 @@ int createRxUDPSocket(unsigned int port, struct sockaddr_in myAddr) {
 	int broadcast = 1;
 
 	if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-		perror("Could not create socket\n");
+		fprintf(stderr,"[%s] Could not create socket\n",__func__);
 		return(-1);
 	}
 
 	if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1) {
-		perror("setsockopt (SO_BROADCAST)");
+		fprintf(stderr,"[%s] setsockopt (SO_BROADCAST)",__func__);
 		return(-1);
 	}
 	
 	if (bind(sock, (struct sockaddr *)&myAddr, sizeof(struct sockaddr)) == -1) {
-		perror("Could not bind socket\n");
+		fprintf(stderr,"[%s] Could not bind socket\n",__func__);
 		return(-1);
 	}
 
@@ -118,7 +118,7 @@ int createTxUPDSocket(unsigned int port, char *address, struct sockaddr_in *rxMa
 	int s;
 	
 	if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-		fprintf(stderr, "socket() failed\n");
+		fprintf(stderr, "[%s] socket() failed\n",__func__);
 	}
 
 	memset((char *) rxMasterSocket, 0, sizeof(*rxMasterSocket));
@@ -126,7 +126,7 @@ int createTxUPDSocket(unsigned int port, char *address, struct sockaddr_in *rxMa
 	rxMasterSocket->sin_port = htons(port);
 	
 	if (inet_aton(address , &(rxMasterSocket->sin_addr)) == 0) {
-		fprintf(stderr, "inet_aton() failed\n");
+		fprintf(stderr, "[%s] inet_aton() failed\n",__func__);
 		return -1;
 	}
 	
@@ -157,7 +157,7 @@ int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip) 
 	int s;
 			
 	if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-		fprintf(stderr, "socket() failed\n");
+		fprintf(stderr, "[%s] socket() failed\n",__func__);
 	}
 
 	memset((char *) &destinationSocket, 0, sizeof(destinationSocket));
@@ -167,19 +167,19 @@ int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip) 
 	
 	if((msgType == PACKAGE_ID_DATAPROCESS ) || (msgType == PACKAGE_ID_STOP)) {
 		if (sendto(s, message, sizeof(struct ProcessesInfo) , 0 , (struct sockaddr *) &destinationSocket, sizeof(struct sockaddr))==-1) {
-			fprintf(stderr,"Error in sendto()\n");
+			fprintf(stderr,"[%s] Error in sendto()\n",__func__);
 			return 0;
 		}
 	}
 	else if(msgType == PACKAGE_ID_DATAMSG) {
 		if (sendto(s, message, sizeof(struct Agent2MasterDataMsg) , 0 , (struct sockaddr *) &destinationSocket, sizeof(struct sockaddr))==-1) {
-			fprintf(stderr,"Error in sendto()\n");
+			fprintf(stderr,"[%s] Error in sendto()\n",__func__);
 			return 0;
 		}
 	}
 	else if(msgType == PACKAGE_ID_ENERGY) {
 		if (sendto(s, message, sizeof(struct Agent2MasterEnergyMsg) , 0 , (struct sockaddr *) &destinationSocket, sizeof(struct sockaddr))==-1) {
-			fprintf(stderr,"Error in sendto()\n");
+			fprintf(stderr,"[%s] Error in sendto()\n",__func__);
 			return 0;
 		}
 	}

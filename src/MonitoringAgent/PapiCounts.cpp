@@ -1,5 +1,5 @@
 /**
-  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
   * 
   * This file is part of CPM.
   *
@@ -18,7 +18,7 @@
   */
 
 #include "PapiCounts.h"
-
+#include "Globals.h"
 
 
 int stopPapi = 0;
@@ -26,7 +26,7 @@ int stopPapi = 0;
 void stopPapiHandler(int num){
 
 	stopPapi = 1;
-	syslog(LOG_INFO, "[%s] Receiving signal and stopping Papi measures\n",__func__);
+	printFunction(0, "[%s] Receiving signal and stopping Papi measures\n",__func__);
 
 }
 
@@ -75,12 +75,12 @@ int countPapi(int PID){
 
 
 	if ((retval = PAPI_library_init(PAPI_VER_CURRENT)) != PAPI_VER_CURRENT){
-		syslog(LOG_ERR,"[%s] Error initing PAPI: %s\n",__func__,PAPI_strerror(retval));
+		printFunction(1,"[%s] Error initing PAPI: %s\n",__func__,PAPI_strerror(retval));
 		exit(-1);
 	}
 	
 	if ((hwinfo = PAPI_get_hardware_info()) == NULL) {
-		syslog(LOG_ERR,"[%s] Error in PAPI_get_hardware_info\n",__func__);
+		printFunction(1,"[%s] Error in PAPI_get_hardware_info\n",__func__);
 		exit(-1);
 	}
 
@@ -91,7 +91,7 @@ int countPapi(int PID){
 	 
 	/*
 	if ((retval = PAPI_set_cmp_granularity(PAPI_GRN_PROC,0)) != PAPI_OK){
-		syslog(LOG_ERR,"[%s] Error assigning events granularity %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error assigning events granularity %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 	*/
@@ -101,77 +101,77 @@ int countPapi(int PID){
 
 	//eventSet creation
 	if ((retval = PAPI_create_eventset(&EventSet)) != PAPI_OK){
-		syslog(LOG_ERR,"[%s] Error creating eventset %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error creating eventset %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 
 	//eventSet assign
 	if ((retval = PAPI_assign_eventset_component(EventSet, 0)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error in PAPI_assign_eventset_component: %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error in PAPI_assign_eventset_component: %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 
 	//Start meassuring
 	if ((retval=PAPI_add_events(EventSet, events, NUMEVENTS)) != PAPI_OK){
 		//PAPI_perror(retval,error_str,PAPI_MAX_STR_LEN);
-		syslog(LOG_ERR,"[%s] Error adding events: %s\n",__func__,PAPI_strerror(retval));
+		printFunction(1,"[%s] Error adding events: %s\n",__func__,PAPI_strerror(retval));
 		exit(-1);
 	}
 
 	//Attach to PID
 	if ((retval = PAPI_attach(EventSet, PID)) != PAPI_OK){
-		syslog(LOG_ERR,"[%s] Error in PAPI_attach: %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error in PAPI_attach: %s\n",__func__, PAPI_strerror(retval));
 		exit(1);
 	}
 
 	// Reseteamos os contadores antes de comezar
 	if ((retval = PAPI_reset(EventSet)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error in PAPI_reset: %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error in PAPI_reset: %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 
 	if ((retval = PAPI_start(EventSet)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error initing PAPI %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error initing PAPI %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 
 
 	//File open to mmap it into memory and write results
 	if ((fd=open(fileName,O_CREAT | O_RDWR, 0666)) < 0) {
-		syslog(LOG_ERR,"[%s] Error opening file for writing: %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error opening file for writing: %s\n",__func__,strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	int result = lseek(fd, FILESIZE-1, SEEK_SET);
 	if (result == -1) {
 		close(fd);
-		syslog(LOG_ERR,"[%s] Error calling lseek() to 'stretch' the file %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error calling lseek() to 'stretch' the file %s\n",__func__,strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	result = write(fd, "", 1);
 	if (result != 1) {
 		close(fd);
-		syslog(LOG_ERR,"[%s] Error writing last byte of the file %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error writing last byte of the file %s\n",__func__,strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	map = (long long int *)mmap(0, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (map == MAP_FAILED) {
 		close(fd);
-		syslog(LOG_ERR,"[%s] Error mmapping the file %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error mmapping the file %s\n",__func__,strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	while((kill(PID,0)==0) && (!stopPapi)){
 
 		if ((retval = PAPI_read(EventSet, contadoresPapi)) != PAPI_OK) {
-			syslog(LOG_ERR,"[%s] Error in PAPI_read %s\n",__func__, PAPI_strerror(retval));
+			printFunction(1,"[%s] Error in PAPI_read %s\n",__func__, PAPI_strerror(retval));
 			exit(-1);
 		}
 
 		if ((retval = PAPI_reset(EventSet)) != PAPI_OK) {
-			syslog(LOG_ERR,"[%s] Error in PAPI_reset %s\n",__func__, PAPI_strerror(retval));
+			printFunction(1,"[%s] Error in PAPI_reset %s\n",__func__, PAPI_strerror(retval));
 			exit(-1);
 		}
 
@@ -186,31 +186,31 @@ int countPapi(int PID){
 
 	//Finishing
 	if ((retval = PAPI_stop(EventSet,contadoresPapi)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error stopping PAPI: %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error stopping PAPI: %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 	//Dettach from PID
 	if ((retval = PAPI_detach(EventSet)) != PAPI_OK){
-		syslog(LOG_ERR,"[%s] Error in PAPI_detach: %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error in PAPI_detach: %s\n",__func__, PAPI_strerror(retval));
 		exit(1);
 	}
 	if ((retval = PAPI_cleanup_eventset(EventSet)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error cleaning EventSet %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error cleaning EventSet %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 	if ((retval = PAPI_destroy_eventset(&EventSet)) != PAPI_OK) {
-		syslog(LOG_ERR,"[%s] Error destroying EventSet %s\n",__func__, PAPI_strerror(retval));
+		printFunction(1,"[%s] Error destroying EventSet %s\n",__func__, PAPI_strerror(retval));
 		exit(-1);
 	}
 
 	if (munmap(map, FILESIZE) == -1) {
-		syslog(LOG_ERR,"[%s] Error un-mmapping the file %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error un-mmapping the file %s\n",__func__,strerror(errno));
 	}
 
 	close(fd);
 
 	if( remove( fileName ) != 0 )
-		syslog(LOG_ERR,"[%s] Error deleting file %s\n",__func__,strerror(errno));
+		printFunction(1,"[%s] Error deleting file %s\n",__func__,strerror(errno));
 
 
 

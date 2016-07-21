@@ -33,7 +33,7 @@ sig_atomic_t child_exit_status;
 
 	stopAgent = 1;
 	//fprintf(stderr,"[%s] Receiving signal\n",__func__);
-	syslog(LOG_INFO,"[%s] Receiving signal\n",__func__);
+	printFunction(0,"[%s] Receiving signal\n",__func__);
 
 }
 */
@@ -45,7 +45,7 @@ void handleChildren(int sigNum) {
 	/* Clean up the child process.  */
 	int status;
 	//fprintf(stderr,"[%s] Cleaning up children process\n",__func__);
-	syslog(LOG_INFO, "[%s] Cleaning up children process\n",__func__);
+	printFunction(0, "[%s] Cleaning up children process\n",__func__);
 	wait(&status);
 
 	/* Store its exit status in a global variable.  */
@@ -75,16 +75,75 @@ void *stopAgentFunction(void *ptr) {
 }
 */
 
+static int usage()
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Program: MonitoringAgent (Monitor to processes information in the computing nodes)\n");
+	fprintf(stderr, "Version: %s\n", PACKAGE_VERSION);
+	fprintf(stderr, "Contact: José M. Abuín <josemanuel.abuin@usc.es>\n\n");
+	fprintf(stderr, "Usage:   MonitoringAgent [options]\n\n");
+	fprintf(stderr, "Common options:\n");
+	fprintf(stderr, "\n");
+
+	fprintf(stderr, " -d		Debug mode. Default: False.\n");
+	fprintf(stderr, " -h		Print this help.\n");
+
+	fprintf(stderr, "\n");
+	
+	fprintf(stderr, "Network options:\n");
+	fprintf(stderr, "\n");
+
+	fprintf(stderr, " -a INT        Port where the agent (this program) is going to run in the computing nodes. Default: 20000.\n");
+	//fprintf(stderr, " -m INT        Port where the master monitor is going to run in the master node. Default: 8000.\n");
+	//fprintf(stderr, " -c INT        Port where the client program is going to run. Default: 10000.\n");
+	fprintf(stderr, "\n");
+	return 1;
+}
 
 int main(int argc, char **argv) {
 
 	using namespace std;
 
-	//Daemon init
-	setlogmask(LOG_UPTO(LOG_NOTICE | LOG_INFO));
-	openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
+	// Parse options
+	int 			option;
+	//int			master_port = 0;
+	int			agent_port = 0;
+	//int			client_port = 0;
+	
+	while ((option = getopt(argc, argv,"dha:m:c:")) >= 0) {
+		switch (option) {
+			case 'd' :
+				setDebugMode(1);
+				break;
+			
+			case 'h':
+				usage();
+				exit(0);
+			
+			case 'a':
+				agent_port = atoi(optarg);
+				break;
+				
+			/*
+			case 'm':
+				master_port = atoi(optarg);
+				break;
+				
+			case 'c':
+				client_port = atoi(optarg);
+			*/	
+			default: break;
+			
+		}
+	}
 
-	syslog(LOG_INFO, "Entering Daemon MonitoringAgent");
+	//Daemon init
+	if(!getDebugMode()) {
+		setlogmask(LOG_UPTO(LOG_NOTICE | LOG_INFO));
+		openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
+	}
+	
+	printFunction(0, "[%s] Entering Daemon MonitoringAgent\n",__func__);
 
 	/*
 	 * To launch the daemon and exit
@@ -125,16 +184,24 @@ int main(int argc, char **argv) {
 	}
 
 	//Close Standard File Descriptors
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
-
+	if(!getDebugMode()) {
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+	}
 
 	//Begin of Daemon
 	pid_t currentPID;
 
 	//Variables for network
 	int rxPort = DAEMON_AGENT_PORT;
+	
+	if(agent_port != 0) {
+		rxPort = agent_port;
+	}
+	
+	
+	
 	int stopDaemon = 0;
 	int nRxBytes;
 	socklen_t addrLen;
@@ -154,7 +221,7 @@ int main(int argc, char **argv) {
 	//Running agents
 	vector<struct processesRunning> runningAgents;
 
-	syslog(LOG_INFO,"[%s] I am daemon agent at %s with PID: %d\n",__func__, strAddr(myRxAddr),getpid());
+	printFunction(0,"[%s] I am daemon agent at %s with PID: %d\n",__func__, strAddr(myRxAddr),getpid());
 
 
 	while (!stopDaemon) { //We stay receiving data packages and sending them to the client
@@ -163,7 +230,7 @@ int main(int argc, char **argv) {
 		nRxBytes = recvfrom(rxSocket, rxBuffer, sizeof(rxBuffer), 0,(struct sockaddr *) &myRxAddr, &addrLen);
 
 		if(nRxBytes <= 0) {
-			syslog(LOG_ERR,"[%s] Error in recvfrom()\n",__func__);
+			printFunction(1,"[%s] Error in recvfrom()\n",__func__);
 		}
 
 
@@ -195,7 +262,7 @@ int main(int argc, char **argv) {
 
 				if ((strcmp(runningAgents.at(i).processName,rxMsg.processName)==0) && (strcmp(runningAgents.at(i).userName,rxMsg.userName) == 0 )) {
 					//Stop this agent. For that, we send a signal to the process
-					syslog(LOG_INFO,"[%s] Stopping agent %d\n",__func__,runningAgents.at(i).PID);
+					printFunction(0,"[%s] Stopping agent %d\n",__func__,runningAgents.at(i).PID);
 					kill(runningAgents.at(i).PID,SIGUSR1);
 
 					//Delete process from vector
@@ -215,8 +282,10 @@ int main(int argc, char **argv) {
 
 
 	//Close the log
-	closelog ();
-
+	if(!getDebugMode()) {
+		closelog ();
+	}
+	
 	return 0;
 
 }

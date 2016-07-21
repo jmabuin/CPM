@@ -17,27 +17,13 @@
   * along with CPM. If not, see <http://www.gnu.org/licenses/>.
   */
 
+#ifndef DEFS_GLOBALS_H
+#define DEFS_GLOBALS_H
 
-#include <sys/procfs.h>
+#define PACKAGE_VERSION "0.2.0"
 
-#include <proc/readproc.h>
-#include <proc/sysinfo.h>
+void setDebugMode(int new_debug);
+int getDebugMode();
+void printFunction(int error, const char* string_to_print, ...);
 
-#include <pwd.h>
-#include <proc/sysinfo.h>
-#include <syslog.h>
-#include <vector>
-#include <signal.h>
-#include <pthread.h>
-#include <map>
-#include <cstdlib>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#include "Network.h"
-#include "PapiCounts.h"
-#include "Energy.h"
-
-void searchAndSendInfo(struct ProcessesInfo rxMsg);
+#endif

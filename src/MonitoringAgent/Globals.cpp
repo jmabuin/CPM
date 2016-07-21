@@ -17,27 +17,38 @@
   * along with CPM. If not, see <http://www.gnu.org/licenses/>.
   */
 
-
-#include <sys/procfs.h>
-
-#include <proc/readproc.h>
-#include <proc/sysinfo.h>
-
-#include <pwd.h>
-#include <proc/sysinfo.h>
+#include <stdio.h>
+#include <stdarg.h>
 #include <syslog.h>
-#include <vector>
-#include <signal.h>
-#include <pthread.h>
-#include <map>
-#include <cstdlib>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "Globals.h"
 
-#include "Network.h"
-#include "PapiCounts.h"
-#include "Energy.h"
+int DEBUG_MODE = 0;
 
-void searchAndSendInfo(struct ProcessesInfo rxMsg);
+
+void setDebugMode(int new_mode) {
+
+	DEBUG_MODE = new_mode;
+
+}
+
+int getDebugMode() {
+	return DEBUG_MODE;
+}
+
+void printFunction (int error, const char* format, ...) {
+
+	va_list argptr;
+	va_start(argptr, format);
+
+	if (DEBUG_MODE) {
+		vfprintf(stderr, format, argptr);
+	}
+	else if (error) {
+		syslog(LOG_ERR, format, argptr);
+	}
+	else{
+		syslog(LOG_INFO, format, argptr);
+	}
+
+}
+
