@@ -1,5 +1,5 @@
 /**
-  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
   *
   * This file is part of CPM.
   *
@@ -109,7 +109,7 @@ void ConfigurationWindow::initConfiguration(){
 
 
 	//if(this->settings->contains(this->userKey.c_str())) {
-	if(!cnf.userName.empty()) {
+	/*if(!cnf.userName.empty()) {
 		this->ui->LineEdit_Username->setText(cnf.userName.c_str());
 	}
 
@@ -117,19 +117,19 @@ void ConfigurationWindow::initConfiguration(){
 	if(!cnf.password.empty()) {
 		this->ui->LineEdit_Password->setText(cnf.password.c_str());
 	}
-
+*/
 	if(!cnf.nodes.empty()){
 		this->ui->plainTextEdit_ClusterNodeList->setPlainText(cnf.nodes.c_str());
 	}
 
 	//if(this->settings->contains(this->portKey.c_str())) {
-	if(!cnf.port.empty()) {
-		this->ui->LineEdit_Port->setText(cnf.port.c_str());
+
+	if(!cnf.clientPort.empty()) {
+		this->ui->LineEdit_Port->setText(cnf.clientPort.c_str());
 	}
 
-	//if(this->settings->contains(this->keyFileKey.c_str())) {
-	if(!cnf.key.empty()) {
-		this->ui->LineEdit_KeyFile->setText(cnf.key.c_str());
+	if(!cnf.masterPort.empty()) {
+		this->ui->LineEdit_MasterPort->setText(cnf.masterPort.c_str());
 	}
 
 	if(!cnf.processOwner.empty()) {
@@ -170,12 +170,12 @@ bool ConfigurationWindow::saveAndClose() {
 	//Save settings and close
 
 	//1.- Check values
-	std::string newUser			= this->ui->LineEdit_Username->text().toStdString();
-	std::string newPassword			= this->ui->LineEdit_Password->text().toStdString();
+	//std::string newUser			= this->ui->LineEdit_Username->text().toStdString();
+	//std::string newPassword			= this->ui->LineEdit_Password->text().toStdString();
 	std::string newNodes			= this->ui->plainTextEdit_ClusterNodeList->toPlainText().toStdString();
 	std::string newNodesBM			= this->ui->plainTextEdit_ClusterNodeListBM->toPlainText().toStdString();
-	std::string newPort			= this->ui->LineEdit_Port->text().toStdString();
-	std::string newKey			= this->ui->LineEdit_KeyFile->text().toStdString();
+	std::string newClientPort		= this->ui->LineEdit_Port->text().toStdString();
+	std::string newMasterPort		= this->ui->LineEdit_MasterPort->text().toStdString();
 	std::string newProcessOwner		= this->ui->LineEdit_ProcessOwner->text().toStdString();
 	std::string newProcessName		= this->ui->LineEdit_ProcessName->text().toStdString();
 	std::string newProcessStartsWith	= this->ui->LineEdit_ProcessStartsWith->text().toStdString();
@@ -192,26 +192,30 @@ bool ConfigurationWindow::saveAndClose() {
 	//msgBox.setDefaultButton(QMessageBox::No);
 
 
-	//We check inserted values
-	if(!this->isNumeric(newPort)){
-		msgBox.setText("Port must be a numeric value");
+	if(!this->isNumeric(newClientPort)){
+		msgBox.setText("Client port must be a numeric value");
 		msgBox.exec();
 
 		return false;
 	}
+	else if(!this->isNumeric(newMasterPort)){
+		msgBox.setText("Master port must be a numeric value");
+		msgBox.exec();
 
+		return false;
+	}
 	else{
 
 		Configuration config = Configuration();
 
 		Config conf = config.getConfiguration();
 
-		conf.userName		= newUser;
-		conf.password		= newPassword;
+		//conf.userName		= newUser;
+		//conf.password		= newPassword;
 		conf.nodes		= newNodes;
 		conf.nodesBM		= newNodesBM;
-		conf.port		= newPort;
-		conf.key		= newKey;
+		conf.clientPort		= newClientPort;
+		conf.masterPort		= newMasterPort;
 		conf.processOwner	= newProcessOwner;
 		conf.processName	= newProcessName;
 		conf.processStartsWith	= newProcessStartsWith;
@@ -221,19 +225,6 @@ bool ConfigurationWindow::saveAndClose() {
 		conf.checkPapi_Status	= newCheckPapi_Status;
 		conf.checkEnergy_Status	= newCheckEnergy_Status;
 
-		/*
-		this->settings->setValue(QString(this->userKey.c_str()),QVariant(QString(newUser.c_str())));
-		this->settings->setValue(QString(this->passwordKey.c_str()),QVariant(QString(this->encryptDecrypt(newPassword).c_str())));
-		this->settings->setValue(QString(this->nodesKey.c_str()),QVariant(QString(newNodes.c_str())));
-		this->settings->setValue(QString(this->nodesBMKey.c_str()),QVariant(QString(newNodesBM.c_str())));
-		this->settings->setValue(QString(this->portKey.c_str()),QVariant(QString(newPort.c_str())));
-		this->settings->setValue(QString(this->keyFileKey.c_str()),QVariant(QString(newKey.c_str())));
-		this->settings->setValue(QString(this->processOwnerKey.c_str()),QVariant(QString(newProcessOwner.c_str())));
-		this->settings->setValue(QString(this->processNameKey.c_str()),QVariant(QString(newProcessName.c_str())));
-		this->settings->setValue(QString(this->measureCPU_Key.c_str()),newCheckMEM_Status);
-		this->settings->setValue(QString(this->measureMEM_Key.c_str()),newCheckCPU_Status);
-		this->settings->setValue(QString(this->measurePapi_Key.c_str()),newCheckPapi_Status);
-*/
 
 		config.setConfiguration(conf);
 

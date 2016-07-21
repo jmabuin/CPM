@@ -31,6 +31,8 @@ typedef struct Config{
 	std::string nodes;		/*!< String containing the master nodes */
 	std::string nodesBM;		/*!< String containing the nodes behind master */
 	std::string port;		/*!< String containing the port */
+	std::string clientPort;		/*!< String containing the port where this client listens */
+	std::string masterPort;		/*!< String containing the port where the master agent listens */
 	std::string key;		/*!< String containing the key file */
 	std::string processOwner;	/*!< String containing the process owner */
 	std::string processName;	/*!< String containing the process name */
@@ -40,6 +42,9 @@ typedef struct Config{
 	bool checkCPU_Status;		/*!< Boolean value used to measure or not the CPU percentage */
 	bool checkPapi_Status;		/*!< Boolean value used to measure or not PAPI counters */
 	bool checkEnergy_Status;	/*!< Boolean value used to measure energy using PAPI and RAPL */
+
+	bool SSH_UsernamePassword;
+	bool SSH_KeyFile;
 
 
 } Config;
@@ -65,6 +70,8 @@ private:
 	std::string passwordKey;		/*!< Key for the password */
 	std::string nodesKey;			/*!< Key for nodes */
 	std::string portKey;			/*!< Key for port */
+	std::string clientPortKey;		/*!< Key for client port */
+	std::string masterPortKey;		/*!< Key for master port */
 	std::string keyFileKey;			/*!< Key for file containing public key */
 	std::string nodesBMKey;			/*!< Key for nodes behind master */
 	std::string networkKey;			/*!< Key for the network interface */
@@ -76,6 +83,9 @@ private:
 	std::string measureMEM_Key;		/*!< Key to measure or not Memory */
 	std::string measurePapi_Key;		/*!< Key to measure or not PAPI counters */
 	std::string measureEnergy_Key;		/*!< Key to measure or not energy */
+
+	std::string SSH_UsernamePassword;
+	std::string SSH_KeyFile;
 
 	std::string encryptDecrypt(std::string toEncrypt);	/*!< Function to encrypt or decrypt a string */
 };

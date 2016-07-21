@@ -23,6 +23,7 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include "ConfigurationWindow.h"
+#include "ManageClusterWindow.h"
 #include <stdio.h>
 #include "DataWidget.h"
 #include "Network.h"
@@ -42,6 +43,7 @@ public:
 private slots:
 
 	void configureRun();
+	void manageSSHRun();
 	void exitRun();
 
 	void startMeasures();
@@ -60,9 +62,11 @@ private:
 
 	QMenu *fileMenu;
 	QAction *configureAction;
+	QAction *manageSettingsSSH;
 	QAction *exitProgram;
 
 	ConfigurationWindow *configurationWindow;
+	ManageClusterWindow *manageClusterWindow;
 	bool receivingData;
 
 	struct in_addr masterNodeIp;

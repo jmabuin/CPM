@@ -34,6 +34,8 @@ Configuration::Configuration()
 	this->passwordKey		= "Password";
 	this->nodesKey			= "Nodes";
 	this->portKey			= "Port";
+	this->clientPortKey		= "ClientPort";
+	this->masterPortKey		= "MasterPort";
 	this->keyFileKey		= "Key";
 	this->nodesBMKey		= "NodesBM";
 	this->networkKey		= "NetInterface";
@@ -46,6 +48,9 @@ Configuration::Configuration()
 	this->measureMEM_Key		= "M_MEM";
 	this->measurePapi_Key		= "M_PAPI";
 	this->measureEnergy_Key		= "M_PAPI_RAPL";
+
+	this->SSH_UsernamePassword	= "SSH_UserPass";
+	this->SSH_KeyFile		= "SSH_KeyFile";
 
 }
 
@@ -77,6 +82,14 @@ Config Configuration::getConfiguration() {
 
 		if(this->settings->contains(this->portKey.c_str())) {
 			currentConfig.port = this->settings->value(this->portKey.c_str()).toString().toStdString();
+		}
+
+		if(this->settings->contains(this->clientPortKey.c_str())) {
+			currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toString().toStdString();
+		}
+
+		if(this->settings->contains(this->masterPortKey.c_str())) {
+			currentConfig.masterPort = this->settings->value(this->masterPortKey.c_str()).toString().toStdString();
 		}
 
 		if(this->settings->contains(this->keyFileKey.c_str())) {
@@ -131,6 +144,20 @@ Config Configuration::getConfiguration() {
 			currentConfig.checkEnergy_Status = false;
 		}
 
+		if(this->settings->contains(this->SSH_UsernamePassword.c_str())) {
+			currentConfig.SSH_UsernamePassword = this->settings->value(this->SSH_UsernamePassword.c_str(), false).toBool();
+		}
+		else{
+			currentConfig.SSH_UsernamePassword = true;
+		}
+
+		if(this->settings->contains(this->SSH_KeyFile.c_str())) {
+			currentConfig.SSH_KeyFile = this->settings->value(this->SSH_KeyFile.c_str(), false).toBool();
+		}
+		else{
+			currentConfig.SSH_KeyFile = false;
+		}
+
 
 		return currentConfig;
 
@@ -150,6 +177,8 @@ void Configuration::setConfiguration(Config conf){
 	std::string newNodes			= conf.nodes;
 	std::string newNodesBM			= conf.nodesBM;
 	std::string newPort			= conf.port;
+	std::string newClientPort		= conf.clientPort;
+	std::string newMasterPort		= conf.masterPort;
 	std::string newKey			= conf.key;
 	std::string newProcessOwner		= conf.processOwner;
 	std::string newProcessName		= conf.processName;
@@ -160,12 +189,16 @@ void Configuration::setConfiguration(Config conf){
 	bool newCheckPapi_Status		= conf.checkPapi_Status;
 	bool newCheckEnergy_Status		= conf.checkEnergy_Status;
 
+	bool newSSH_UsernamePassword		= conf.SSH_UsernamePassword;
+	bool newSSH_KeyFile			= conf.SSH_KeyFile;
 
 	this->settings->setValue(QString(this->userKey.c_str()),QVariant(QString(newUser.c_str())));
 	this->settings->setValue(QString(this->passwordKey.c_str()),QVariant(QString(this->encryptDecrypt(newPassword).c_str())));
 	this->settings->setValue(QString(this->nodesKey.c_str()),QVariant(QString(newNodes.c_str())));
 	this->settings->setValue(QString(this->nodesBMKey.c_str()),QVariant(QString(newNodesBM.c_str())));
 	this->settings->setValue(QString(this->portKey.c_str()),QVariant(QString(newPort.c_str())));
+	this->settings->setValue(QString(this->clientPortKey.c_str()),QVariant(QString(newClientPort.c_str())));
+	this->settings->setValue(QString(this->masterPortKey.c_str()),QVariant(QString(newMasterPort.c_str())));
 	this->settings->setValue(QString(this->keyFileKey.c_str()),QVariant(QString(newKey.c_str())));
 	this->settings->setValue(QString(this->processOwnerKey.c_str()),QVariant(QString(newProcessOwner.c_str())));
 	this->settings->setValue(QString(this->processNameKey.c_str()),QVariant(QString(newProcessName.c_str())));
@@ -175,6 +208,8 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->measureMEM_Key.c_str()),newCheckCPU_Status);
 	this->settings->setValue(QString(this->measurePapi_Key.c_str()),newCheckPapi_Status);
 	this->settings->setValue(QString(this->measureEnergy_Key.c_str()),newCheckEnergy_Status);
+	this->settings->setValue(QString(this->SSH_UsernamePassword.c_str()),newSSH_UsernamePassword);
+	this->settings->setValue(QString(this->SSH_KeyFile.c_str()),newSSH_KeyFile);
 
 
 }

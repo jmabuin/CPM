@@ -60,12 +60,16 @@ void MainWindow::initWindow() {
  */
 void MainWindow::createActions() {
 
-	this->configureAction = new QAction(tr("&Configure"), this);
+	this->configureAction = new QAction(tr("&Configure program..."), this);
 	this->configureAction->setShortcuts(QKeySequence::Preferences);
 	this->configureAction->setStatusTip(tr("Configure program preferences"));
 	connect(this->configureAction, SIGNAL(triggered()), this, SLOT(configureRun()));
 
 
+	this->manageSettingsSSH = new QAction(tr("&Manage SSH settings..."), this);
+	this->manageSettingsSSH->setShortcuts(QKeySequence::Preferences);
+	this->manageSettingsSSH->setStatusTip(tr("Configure program settings to connect by using SSH into cluster (Only for deploy)"));
+	connect(this->manageSettingsSSH, SIGNAL(triggered()), this, SLOT(manageSSHRun()));
 
 	this->exitProgram = new QAction(tr("&Exit"), this);
 	this->exitProgram->setShortcuts(QKeySequence::Quit);
@@ -81,6 +85,7 @@ void MainWindow::createMenus() {
 
 	this->fileMenu = this->menuBar()->addMenu(tr("&File"));
 	this->fileMenu->addAction(this->configureAction);
+	this->fileMenu->addAction(this->manageSettingsSSH);
 	this->fileMenu->addSeparator();
 	this->fileMenu->addAction(this->exitProgram);
 }
@@ -106,6 +111,12 @@ void MainWindow::configureRun() {
 	this->configurationWindow = new ConfigurationWindow(this);
 	this->configurationWindow->setModal(true);
 	this->configurationWindow->show();
+}
+
+void MainWindow::manageSSHRun() {
+	this->manageClusterWindow = new ManageClusterWindow(this);
+	this->manageClusterWindow->setModal(true);
+	this->manageClusterWindow->show();
 }
 
 /*!
