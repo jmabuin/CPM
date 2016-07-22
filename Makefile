@@ -4,7 +4,7 @@ include ./Makefile.common
 
 all: MonitoringAgent MonitoringMaster MonitoringClient scripts
 	@echo "================================================================================"
-	@echo "MonitoringProcesses has been compiled."
+	@echo "CPM has been built."
 	@echo "Location    = $(LOCATION)/$(BUILD_DIR)/"
 	@echo "================================================================================"
 
@@ -28,6 +28,12 @@ scripts:
 	if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
 	cp $(SCRIPTS_DIR)/* $(BUILD_DIR)
 	chmod +x $(BUILD_DIR)/*.sh
+
+client: MonitoringAgent MonitoringMaster scripts
+	@echo "================================================================================"
+	@echo "Clients have been built."
+	@echo "Location    = $(LOCATION)/$(BUILD_DIR)/"
+	@echo "================================================================================"
 
 clean:
 	$(RMR) $(BUILD_DIR)
