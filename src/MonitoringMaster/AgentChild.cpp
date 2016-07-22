@@ -20,11 +20,12 @@
 #include <vector>
 #include <sys/types.h>
 #include <pwd.h>
+#include <stdlib.h>
 
 #include "Network.h"
 
 
-void createMasterMonitor(int client_port, int master_port, int agent_port, struct ProcessesInfo processInfo) {
+void createMasterMonitor(int client_port, int master_port, int agent_port, char *network_outside, char *network_internal, struct ProcessesInfo processInfo) {
 	
 	using namespace std;
 	
@@ -50,12 +51,34 @@ void createMasterMonitor(int client_port, int master_port, int agent_port, struc
 	vector<struct in_addr> agentsAddresses;
 
 
-	//To avoid a warning
-	int length = strlen(NETWORK_INTERFACE);
-	char networkInterface[length];
+	//Set the network interfaces to use. Defined in Network.h or passed as arguments from main program
+	int length = 0;
+	char *networkInterface;
+	char *networkInterfaceInternal;
 	
-	length = strlen(NETWORK_INTERFACE_INTERNAL);
-	char networkInterfaceInternal[length];
+	if(network_outside) {
+		length = strlen(network_outside)+1;
+		networkInterface = (char *)malloc(sizeof(char) * length);
+		strcpy(networkInterface, network_outside);
+	}
+	else {
+		length = strlen(NETWORK_INTERFACE)+1;
+		networkInterface = (char *)malloc(sizeof(char) * length);
+		strcpy(networkInterface,NETWORK_INTERFACE);
+	}
+	
+	
+	if(network_internal) {
+		length = strlen(network_internal)+1;
+		networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
+		strcpy(networkInterfaceInternal, network_internal);
+	}
+	else {
+		length = strlen(NETWORK_INTERFACE_INTERNAL)+1;
+		networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
+		strcpy(networkInterfaceInternal,NETWORK_INTERFACE_INTERNAL);
+	}
+
 
 	//Get the current user ID
 	userInfo = getpwnam(processInfo.userName);
@@ -98,9 +121,7 @@ void createMasterMonitor(int client_port, int master_port, int agent_port, struc
 	
 	struct in_addr addresFromClient = processInfo.from.sin_addr;
 	
-	//Set the network interface to use. Defined in Network.h
-	strcpy(networkInterface,NETWORK_INTERFACE);
-	strcpy(networkInterfaceInternal,NETWORK_INTERFACE_INTERNAL);
+	
 	
 	newProcess.from.sin_addr = getOwnIp(networkInterfaceInternal);
 	
@@ -120,8 +141,8 @@ void createMasterMonitor(int client_port, int master_port, int agent_port, struc
 	//Creation of reception socket
 	int rxSocket = createUDPSocket(1, 1, myRxAddr); //0=no broadcast, 0=no tx socket, myRxAddr especifies an addr to bind to
 	printFunction(0,"[%s] Creating MasterMonitor %s\n",__func__, strAddr(myRxAddr));
-	printFunction(0,"[%s] Internal address is %s\n",__func__, inet_ntoa(myInternalAddress));
-	printFunction(0,"[%s] External address is %s\n",__func__, inet_ntoa(processInfo.from.sin_addr));
+	printFunction(0,"[%s] Internal address is %s:%s\n",__func__, networkInterfaceInternal, inet_ntoa(myInternalAddress));
+	printFunction(0,"[%s] External address is %s:%s\n",__func__, networkInterface, inet_ntoa(processInfo.from.sin_addr));
 
 	//We send ACK to client with info. Client must know new port to send the Agents info
 	

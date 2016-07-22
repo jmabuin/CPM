@@ -29,6 +29,8 @@
 #include <syslog.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <string.h>
+
 #include "Network.h"
 #include "AgentChild.h"
 
@@ -71,6 +73,8 @@ static int usage()
 	fprintf(stderr, " -a INT        Port where the agent is going to run in the computing nodes. Default: 20000.\n");
 	fprintf(stderr, " -m INT        Port where the master monitor (this program) is going to run master node. Default: 8000.\n");
 	fprintf(stderr, " -c INT        Port where the client program is going to run. Default: 10000.\n");
+	fprintf(stderr, " -o STR        Network interface that communicates the master node with the outside world. Default: eth0.\n");
+	fprintf(stderr, " -i STR        Network interface internal to the cluster. Default: eth0.\n");
 	fprintf(stderr, "\n");
 	return 1;
 }
@@ -82,11 +86,14 @@ int main(int argc, char **argv) {
 
 	// Parse options
 	int 			option;
-	int			master_port = 0;
-	int			agent_port = 0;
-	int			client_port = 0;
+	int			master_port 		= 0;
+	int			agent_port		= 0;
+	int			client_port 		= 0;
+	char			*network_internal 	= NULL;
+	char			*network_outside 	= NULL;
 	
-	while ((option = getopt(argc, argv,"dha:m:c:")) >= 0) {
+	
+	while ((option = getopt(argc, argv,"dha:m:c:i:o:")) >= 0) {
 		switch (option) {
 			case 'd' :
 				setDebugMode(1);
@@ -106,6 +113,17 @@ int main(int argc, char **argv) {
 				
 			case 'c':
 				client_port = atoi(optarg);
+				break;
+				
+			case 'o':
+				network_outside = (char *) malloc(sizeof(char) * (strlen(optarg) + 1));
+				strcpy(network_outside, optarg);
+				break;
+				
+			case 'i':
+				network_internal = (char *) malloc(sizeof(char) * (strlen(optarg) + 1));
+				strcpy(network_internal, optarg);
+				break;
 				
 			default: break;
 			
@@ -226,7 +244,7 @@ int main(int argc, char **argv) {
 			//Creation of new process to monitor communications
 			if(fork() == 0){
 				//printFunction(0,"[%s] Forked process\n",__func__);
-				createMasterMonitor(client_port, master_port, agent_port, rxMsg);
+				createMasterMonitor(client_port, master_port, agent_port, network_outside, network_internal, rxMsg);
 				stopDaemon = 1;
 			}
 		

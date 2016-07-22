@@ -20,6 +20,6 @@
 #ifndef DEFS_AGENTCHILD_H
 #define DEFS_AGENTCHILD_H
 
-void createMasterMonitor(int client_port, int master_port, int agent_port, struct ProcessesInfo processInfo);
+void createMasterMonitor(int client_port, int master_port, int agent_port, char *network_outside, char *network_internal, struct ProcessesInfo processInfo);
 
 #endif
