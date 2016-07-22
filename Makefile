@@ -29,7 +29,7 @@ scripts:
 	cp $(SCRIPTS_DIR)/* $(BUILD_DIR)
 	chmod +x $(BUILD_DIR)/*.sh
 
-client: MonitoringAgent MonitoringMaster scripts
+monitors: MonitoringAgent MonitoringMaster scripts
 	@echo "================================================================================"
 	@echo "Clients have been built."
 	@echo "Location    = $(LOCATION)/$(BUILD_DIR)/"
