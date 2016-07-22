@@ -94,8 +94,6 @@ static int usage()
 	fprintf(stderr, "\n");
 
 	fprintf(stderr, " -a INT        Port where the agent (this program) is going to run in the computing nodes. Default: 20000.\n");
-	//fprintf(stderr, " -m INT        Port where the master monitor is going to run in the master node. Default: 8000.\n");
-	//fprintf(stderr, " -c INT        Port where the client program is going to run. Default: 10000.\n");
 	fprintf(stderr, "\n");
 	return 1;
 }
@@ -106,11 +104,10 @@ int main(int argc, char **argv) {
 
 	// Parse options
 	int 			option;
-	//int			master_port = 0;
-	int			agent_port = 0;
-	//int			client_port = 0;
+	int			agent_port 		= 0;
+
 	
-	while ((option = getopt(argc, argv,"dha:m:c:")) >= 0) {
+	while ((option = getopt(argc, argv,"dha:")) >= 0) {
 		switch (option) {
 			case 'd' :
 				setDebugMode(1);
@@ -124,14 +121,7 @@ int main(int argc, char **argv) {
 				agent_port = atoi(optarg);
 				break;
 				
-			/*
-			case 'm':
-				master_port = atoi(optarg);
-				break;
 				
-			case 'c':
-				client_port = atoi(optarg);
-			*/	
 			default: break;
 			
 		}
