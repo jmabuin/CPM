@@ -30,9 +30,9 @@ typedef struct Config{
 	std::string password;		/*!< String containing the password */
 	std::string nodes;		/*!< String containing the master nodes */
 	std::string nodesBM;		/*!< String containing the nodes behind master */
-	std::string port;		/*!< String containing the port */
-	std::string clientPort;		/*!< String containing the port where this client listens */
-	std::string masterPort;		/*!< String containing the port where the master agent listens */
+	int port;			/*!< String containing the port */
+	int clientPort;			/*!< String containing the port where this client listens */
+	int masterPort;			/*!< String containing the port where the master agent listens */
 	std::string key;		/*!< String containing the key file */
 	std::string processOwner;	/*!< String containing the process owner */
 	std::string processName;	/*!< String containing the process name */

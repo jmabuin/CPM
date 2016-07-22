@@ -230,13 +230,25 @@ void *MainWindow::getData(void *param) {
 
 	MainWindow *receivedObject = (MainWindow *) param;
 
-	int rxPort = CLIENT_BASE_PORT;
-
 	Configuration cnf = Configuration();
 
 	Config currentConf = cnf.getConfiguration();
 
 	Network networkObject = Network();
+
+	int rxPort = CLIENT_BASE_PORT;
+
+	if (currentConf.clientPort != rxPort) {
+
+		rxPort = currentConf.clientPort;
+	}
+
+	int master_base_port = MASTER_BASE_PORT;
+
+	if (currentConf.masterPort != master_base_port) {
+		master_base_port = currentConf.masterPort;
+	}
+
 
 	//Creamos dirección de recepción
 	struct in_addr rxAddr = { INADDR_ANY };
@@ -289,7 +301,7 @@ void *MainWindow::getData(void *param) {
 	strcpy(tmpInterface,currentConf.networkInterface.c_str());
 
 	packageAgent.from.sin_addr = networkObject.getOwnIp(tmpInterface);
-	packageAgent.from.sin_port = CLIENT_BASE_PORT;
+	packageAgent.from.sin_port = rxPort; //CLIENT_BASE_PORT;
 
 	int i = 0;
 
@@ -320,9 +332,9 @@ void *MainWindow::getData(void *param) {
 
 				receivedObject->masterNodeIp = ((struct sockaddr_in *)result->ai_addr)->sin_addr;
 
-				printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),MASTER_BASE_PORT);
+				printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),master_base_port);
 
-				networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,MASTER_BASE_PORT,inet_ntoa(receivedObject->masterNodeIp));
+				networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,master_base_port,inet_ntoa(receivedObject->masterNodeIp));
 				//printf("Message sent\n");
 				nRxBytes = recvfrom(rxSocket, rxBuffer, sizeof(rxBuffer), 0,(struct sockaddr *) &myRxAddr, &addrLen);
 				if(nRxBytes <= 0) {

@@ -53,10 +53,10 @@ void ManageClusterWindow::initConfiguration(){
 		this->ui->LineEdit_Password->setText(cnf.password.c_str());
 	}
 
-	//if(this->settings->contains(this->portKey.c_str())) {
-	if(!cnf.port.empty()) {
-		this->ui->LineEdit_Port->setText(cnf.port.c_str());
-	}
+	char buffer[6];
+	sprintf(buffer, "%d", cnf.port);
+	this->ui->LineEdit_Port->setText(buffer);
+
 
 	//if(this->settings->contains(this->keyFileKey.c_str())) {
 	if(!cnf.key.empty()) {
@@ -97,7 +97,7 @@ bool ManageClusterWindow::saveAndClose() {
 	//1.- Check values
 	std::string newUser			= this->ui->LineEdit_Username->text().toStdString();
 	std::string newPassword			= this->ui->LineEdit_Password->text().toStdString();
-	std::string newPort			= this->ui->LineEdit_Port->text().toStdString();
+	int newPort				= this->ui->LineEdit_Port->text().toInt(); //.toStdString();
 	std::string newKey			= this->ui->LineEdit_KeyFile->text().toStdString();
 
 	bool newSSH_UsernamePassword		= this->ui->radioButton_userpass->isChecked();
@@ -111,7 +111,7 @@ bool ManageClusterWindow::saveAndClose() {
 
 
 	//We check inserted values
-	if(!this->isNumeric(newPort)){
+	if(!this->isNumeric(this->ui->LineEdit_Port->text().toStdString())){
 		msgBox.setText("Port must be a numeric value");
 		msgBox.exec();
 

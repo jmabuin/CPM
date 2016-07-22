@@ -17,7 +17,9 @@
   * along with CPM. If not, see <http://www.gnu.org/licenses/>.
   */
 
+#include <stdlib.h>
 #include "Configuration.h"
+#include "Network.h"
 
 /*!
  * \brief Configuration::Configuration Class
@@ -81,15 +83,26 @@ Config Configuration::getConfiguration() {
 		}
 
 		if(this->settings->contains(this->portKey.c_str())) {
-			currentConfig.port = this->settings->value(this->portKey.c_str()).toString().toStdString();
+			currentConfig.port = this->settings->value(this->portKey.c_str()).toInt(); //.toString().toStdString();
+		}
+		else{
+			currentConfig.port = 22;
 		}
 
 		if(this->settings->contains(this->clientPortKey.c_str())) {
-			currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toString().toStdString();
+			// currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toString().toStdString();
+			currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toInt();
+		}
+		else{
+			currentConfig.clientPort = CLIENT_BASE_PORT;
 		}
 
 		if(this->settings->contains(this->masterPortKey.c_str())) {
-			currentConfig.masterPort = this->settings->value(this->masterPortKey.c_str()).toString().toStdString();
+			// currentConfig.masterPort = this->settings->value(this->masterPortKey.c_str()).toString().toStdString();
+			currentConfig.masterPort = this->settings->value(this->masterPortKey.c_str()).toInt();
+		}
+		else{
+			currentConfig.masterPort = MASTER_BASE_PORT;
 		}
 
 		if(this->settings->contains(this->keyFileKey.c_str())) {
@@ -176,9 +189,9 @@ void Configuration::setConfiguration(Config conf){
 	std::string newPassword			= conf.password;
 	std::string newNodes			= conf.nodes;
 	std::string newNodesBM			= conf.nodesBM;
-	std::string newPort			= conf.port;
-	std::string newClientPort		= conf.clientPort;
-	std::string newMasterPort		= conf.masterPort;
+	int newPort				= conf.port;
+	int newClientPort			= conf.clientPort;
+	int newMasterPort			= conf.masterPort;
 	std::string newKey			= conf.key;
 	std::string newProcessOwner		= conf.processOwner;
 	std::string newProcessName		= conf.processName;
@@ -196,9 +209,17 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->passwordKey.c_str()),QVariant(QString(this->encryptDecrypt(newPassword).c_str())));
 	this->settings->setValue(QString(this->nodesKey.c_str()),QVariant(QString(newNodes.c_str())));
 	this->settings->setValue(QString(this->nodesBMKey.c_str()),QVariant(QString(newNodesBM.c_str())));
-	this->settings->setValue(QString(this->portKey.c_str()),QVariant(QString(newPort.c_str())));
-	this->settings->setValue(QString(this->clientPortKey.c_str()),QVariant(QString(newClientPort.c_str())));
-	this->settings->setValue(QString(this->masterPortKey.c_str()),QVariant(QString(newMasterPort.c_str())));
+
+	char buffer[6];
+	sprintf(buffer, "%d",newPort);
+	this->settings->setValue(QString(this->portKey.c_str()),QVariant(QString(buffer)));
+
+	sprintf(buffer, "%d",newClientPort);
+	this->settings->setValue(QString(this->clientPortKey.c_str()),QVariant(QString(buffer)));
+
+	sprintf(buffer, "%d",newMasterPort);
+	this->settings->setValue(QString(this->masterPortKey.c_str()),QVariant(QString(buffer)));
+
 	this->settings->setValue(QString(this->keyFileKey.c_str()),QVariant(QString(newKey.c_str())));
 	this->settings->setValue(QString(this->processOwnerKey.c_str()),QVariant(QString(newProcessOwner.c_str())));
 	this->settings->setValue(QString(this->processNameKey.c_str()),QVariant(QString(newProcessName.c_str())));

@@ -124,13 +124,15 @@ void ConfigurationWindow::initConfiguration(){
 
 	//if(this->settings->contains(this->portKey.c_str())) {
 
-	if(!cnf.clientPort.empty()) {
-		this->ui->LineEdit_Port->setText(cnf.clientPort.c_str());
-	}
 
-	if(!cnf.masterPort.empty()) {
-		this->ui->LineEdit_MasterPort->setText(cnf.masterPort.c_str());
-	}
+	char buffer[6];
+
+	sprintf(buffer,"%d",cnf.clientPort);
+	this->ui->LineEdit_Port->setText(buffer);
+
+	sprintf(buffer,"%d",cnf.masterPort);
+	this->ui->LineEdit_MasterPort->setText(buffer);
+
 
 	if(!cnf.processOwner.empty()) {
 		this->ui->LineEdit_ProcessOwner->setText(cnf.processOwner.c_str());
@@ -174,8 +176,8 @@ bool ConfigurationWindow::saveAndClose() {
 	//std::string newPassword			= this->ui->LineEdit_Password->text().toStdString();
 	std::string newNodes			= this->ui->plainTextEdit_ClusterNodeList->toPlainText().toStdString();
 	std::string newNodesBM			= this->ui->plainTextEdit_ClusterNodeListBM->toPlainText().toStdString();
-	std::string newClientPort		= this->ui->LineEdit_Port->text().toStdString();
-	std::string newMasterPort		= this->ui->LineEdit_MasterPort->text().toStdString();
+	int newClientPort			= this->ui->LineEdit_Port->text().toInt(); //.toStdString();
+	int newMasterPort			= this->ui->LineEdit_MasterPort->text().toInt(); //.toStdString();
 	std::string newProcessOwner		= this->ui->LineEdit_ProcessOwner->text().toStdString();
 	std::string newProcessName		= this->ui->LineEdit_ProcessName->text().toStdString();
 	std::string newProcessStartsWith	= this->ui->LineEdit_ProcessStartsWith->text().toStdString();
@@ -192,13 +194,13 @@ bool ConfigurationWindow::saveAndClose() {
 	//msgBox.setDefaultButton(QMessageBox::No);
 
 
-	if(!this->isNumeric(newClientPort)){
+	if(!this->isNumeric(this->ui->LineEdit_Port->text().toStdString())){
 		msgBox.setText("Client port must be a numeric value");
 		msgBox.exec();
 
 		return false;
 	}
-	else if(!this->isNumeric(newMasterPort)){
+	else if(!this->isNumeric(this->ui->LineEdit_MasterPort->text().toStdString())){
 		msgBox.setText("Master port must be a numeric value");
 		msgBox.exec();
 
