@@ -42,7 +42,7 @@ int SSH_Handler::connect() {
 
 	// Verify the server's identity
 	// For the source code of verify_knowhost(), check previous example
-	if (this->verify_knownhost(this->my_ssh_session) < 0) {
+	if (this->verify_knownhost() < 0) {
 		ssh_disconnect(this->my_ssh_session);
 		ssh_free(this->my_ssh_session);
 		return 0;
@@ -71,7 +71,7 @@ int SSH_Handler::disconnect() {
 }
 
 
-int SSH_Handler::verify_knownhost(ssh_session session) {
+int SSH_Handler::verify_knownhost() {
 	char *hexa;
 	int state;
 	char buf[10];
@@ -80,9 +80,9 @@ int SSH_Handler::verify_knownhost(ssh_session session) {
 	ssh_key srv_pubkey;
 	int rc;
 
-	state = ssh_is_server_known(session);
+	state = ssh_is_server_known(this->my_ssh_session);
 
-	rc = ssh_get_publickey(session, &srv_pubkey);
+	rc = ssh_get_publickey(this->my_ssh_session, &srv_pubkey);
 	if (rc < 0) {
 		return -1;
 	}
@@ -145,7 +145,7 @@ int SSH_Handler::verify_knownhost(ssh_session session) {
 			}
 
 			if(strncasecmp(buf,"yes",3)==0){
-				if (ssh_write_knownhost(session) < 0) {
+				if (ssh_write_knownhost(this->my_ssh_session) < 0) {
 					ssh_clean_pubkey_hash(&hash);
 					fprintf(stderr, "error %s\n", strerror(errno));
 					return -1;
@@ -156,7 +156,7 @@ int SSH_Handler::verify_knownhost(ssh_session session) {
 
 		case SSH_SERVER_ERROR:
 			ssh_clean_pubkey_hash(&hash);
-			fprintf(stderr,"%s",ssh_get_error(session));
+			fprintf(stderr,"%s",ssh_get_error(this->my_ssh_session));
 			return -1;
 	}
 
@@ -165,14 +165,15 @@ int SSH_Handler::verify_knownhost(ssh_session session) {
 }
 
 //Function to execute a remote command
-int SSH_Handler::execute_remote_command(ssh_session session, std::string command) {
+int SSH_Handler::execute_remote_command(std::string command, char *buffer) {
 
 	ssh_channel channel;
 	int rc;
-	char buffer[256];
+	unsigned int tmpBufferSize = 512;
+	char *tmpBuffer = (char *)calloc(tmpBufferSize, sizeof(char));
 	int nbytes;
-
-	channel = ssh_channel_new(session);
+	unsigned int resultLineNumber = 0;
+	channel = ssh_channel_new(this->my_ssh_session);
 
 	if (channel == NULL)
 		return SSH_ERROR;
@@ -180,6 +181,7 @@ int SSH_Handler::execute_remote_command(ssh_session session, std::string command
 	rc = ssh_channel_open_session(channel);
 
 	if (rc != SSH_OK) {
+		fprintf(stderr,"[%s] %s",__func__,ssh_get_error(this->my_ssh_session));
 		ssh_channel_free(channel);
 		return rc;
 	}
@@ -187,29 +189,51 @@ int SSH_Handler::execute_remote_command(ssh_session session, std::string command
 	rc = ssh_channel_request_exec(channel, command.c_str());
 
 	if (rc != SSH_OK) {
+		fprintf(stderr,"[%s] %s",__func__,ssh_get_error(this->my_ssh_session));
 		ssh_channel_close(channel);
 		ssh_channel_free(channel);
 		return rc;
 	}
 
-	nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
+	nbytes = ssh_channel_read(channel, tmpBuffer, tmpBufferSize*sizeof(char), 0);
+	//nbytes = ssh_channel_read(channel, buffer,sizeof(buffer), 0);
+
+	//fprintf(stderr,"[%s] Number of received bytes: %d %lu\n",__func__, nbytes, strlen(buffer));
+
 
 	while (nbytes > 0) {
 
-		if (write(1, buffer, nbytes) != (unsigned int) nbytes) {
+		// Result to stdout
+		if (write(1, tmpBuffer, nbytes) != (unsigned int) nbytes) {
+			fprintf(stderr,"[%s] %s",__func__,ssh_get_error(this->my_ssh_session));
 			ssh_channel_close(channel);
 			ssh_channel_free(channel);
 			return SSH_ERROR;
 		}
 
-		nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
+		//Fills total buffer
+		if(resultLineNumber == 0){
+			sprintf(buffer,"%s", tmpBuffer);
+		}
+		else{
+			strcat(buffer, tmpBuffer);
+		}
+
+		free(tmpBuffer);
+		tmpBuffer = (char *)calloc(tmpBufferSize, sizeof(char));
+
+		nbytes = ssh_channel_read(channel, tmpBuffer, tmpBufferSize*sizeof(char), 0);
+		resultLineNumber++;
+
 	}
 
 	if (nbytes < 0) {
+		fprintf(stderr,"[%s] %s",__func__,ssh_get_error(this->my_ssh_session));
 		ssh_channel_close(channel);
 		ssh_channel_free(channel);
 		return SSH_ERROR;
 	}
+
 
 	ssh_channel_send_eof(channel);
 	ssh_channel_close(channel);
@@ -219,13 +243,13 @@ int SSH_Handler::execute_remote_command(ssh_session session, std::string command
 }
 
 // Allocate SFTP session
-int SSH_Handler::sftp_allocate(ssh_session session) {
+int SSH_Handler::sftp_allocate() {
 
 	int rc;
-	this->sftp = sftp_new(session);
+	this->sftp = sftp_new(this->my_ssh_session);
 
 	if (this->sftp == NULL) {
-		fprintf(stderr, "Error allocating SFTP session: %s\n", ssh_get_error(session));
+		fprintf(stderr, "Error allocating SFTP session: %s\n", ssh_get_error(this->my_ssh_session));
 		return SSH_ERROR;
 	}
 
@@ -312,5 +336,12 @@ int SSH_Handler::sftp_copyFileToRemote(std::string localFileName, std::string re
 	}
 
 	return SSH_OK;
+
+}
+
+int SSH_Handler::sftp_ownrmdir(std::string dirName) {
+
+
+	return sftp_rmdir(this->sftp, dirName.c_str());
 
 }

@@ -17,6 +17,15 @@ public:
 	SSH_Handler();
 	SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password);
 
+	int connect();
+	int disconnect();
+	int execute_remote_command(std::string command, char *buffer);
+	int sftp_allocate();
+	int sftp_deallocate();
+	int sftp_ownmkdir(std::string dirName);
+	int sftp_ownrmdir(std::string dirName);
+	int sftp_copyFileToRemote(std::string localFileName, std::string remoteFileName);
+
 private:
 	ssh_session my_ssh_session;
 	sftp_session sftp;
@@ -26,14 +35,10 @@ private:
 	std::string username;
 	std::string password;
 
-	int connect();
-	int disconnect();
-	int verify_knownhost(ssh_session session);
-	int execute_remote_command(ssh_session session, std::string command);
-	int sftp_allocate(ssh_session session);
-	int sftp_deallocate();
-	int sftp_ownmkdir(std::string dirName);
-	int sftp_copyFileToRemote(std::string localFileName, std::string remoteFileName);
+
+	int verify_knownhost();
+
+
 };
 
 #endif // SSH_HANDLER_H

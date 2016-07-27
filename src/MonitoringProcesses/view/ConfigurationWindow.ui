@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>838</width>
-    <height>618</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>480</x>
-     <y>580</y>
+     <y>600</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -60,27 +60,20 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="Label_ClusterNodeList">
-       <property name="text">
-        <string>Cluster node list</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="Label_Port">
-       <property name="text">
-        <string>Client port</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="LineEdit_Port">
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="LineEdit_MasterPort">
        <property name="font">
         <font>
          <weight>50</weight>
          <bold>false</bold>
         </font>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="Label_MasterPort">
+       <property name="text">
+        <string>Master port</string>
        </property>
       </widget>
      </item>
@@ -122,15 +115,46 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="Label_MasterPort">
-       <property name="text">
-        <string>Master port</string>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="LineEdit_Port">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="LineEdit_MasterPort"/>
+     <item row="1" column="0">
+      <widget class="QLabel" name="Label_Port">
+       <property name="text">
+        <string>Client port</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="Label_ClusterNodeList">
+       <property name="text">
+        <string>Cluster node list</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="Label_AgentPort">
+       <property name="text">
+        <string>Agents port</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="LineEdit_AgentsPort">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -141,7 +165,7 @@
      <x>10</x>
      <y>430</y>
      <width>561</width>
-     <height>131</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="font">
@@ -331,7 +355,7 @@
      <x>600</x>
      <y>230</y>
      <width>211</width>
-     <height>121</height>
+     <height>161</height>
     </rect>
    </property>
    <property name="font">
@@ -341,20 +365,91 @@
     </font>
    </property>
    <property name="title">
-    <string>Network</string>
+    <string>Network interfaces</string>
    </property>
-   <widget class="QComboBox" name="comboBox_NetworkInterfaces">
+   <widget class="QWidget" name="gridLayoutWidget_3">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>30</y>
       <width>191</width>
-      <height>22</height>
+      <height>121</height>
      </rect>
     </property>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="LineEdit_MasterOut">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="Label_MasterOut">
+       <property name="text">
+        <string>Master out</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="Label_ClientNet">
+       <property name="text">
+        <string>Client</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboBox_NetworkInterfaces">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="Label_MasterIn">
+       <property name="text">
+        <string>Master in</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="LineEdit_MasterIn">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>plainTextEdit_ClusterNodeList</tabstop>
+  <tabstop>plainTextEdit_ClusterNodeListBM</tabstop>
+  <tabstop>LineEdit_Port</tabstop>
+  <tabstop>LineEdit_MasterPort</tabstop>
+  <tabstop>LineEdit_AgentsPort</tabstop>
+  <tabstop>LineEdit_ProcessOwner</tabstop>
+  <tabstop>LineEdit_ProcessName</tabstop>
+  <tabstop>LineEdit_ProcessStartsWith</tabstop>
+  <tabstop>checkBox_CPU</tabstop>
+  <tabstop>checkBox_MEM</tabstop>
+  <tabstop>checkBox_PapiCounters</tabstop>
+  <tabstop>checkBox_Energy</tabstop>
+  <tabstop>pushButton_NodesInfo</tabstop>
+  <tabstop>comboBox_NetworkInterfaces</tabstop>
+  <tabstop>LineEdit_MasterOut</tabstop>
+  <tabstop>LineEdit_MasterIn</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

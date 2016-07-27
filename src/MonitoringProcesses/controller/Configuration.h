@@ -30,14 +30,18 @@ typedef struct Config{
 	std::string password;		/*!< String containing the password */
 	std::string nodes;		/*!< String containing the master nodes */
 	std::string nodesBM;		/*!< String containing the nodes behind master */
-	int port;			/*!< String containing the port */
+	int port;			/*!< String containing the port for SSH */
+	int internalSSH_Port;		/*!< String containing the port for SSH internal to the cluster */
 	int clientPort;			/*!< String containing the port where this client listens */
 	int masterPort;			/*!< String containing the port where the master agent listens */
+	int agentPort;			/*!< String containing the port where the agent listens */
 	std::string key;		/*!< String containing the key file */
 	std::string processOwner;	/*!< String containing the process owner */
 	std::string processName;	/*!< String containing the process name */
 	std::string processStartsWith;	/*!< String containing the start part of the process name */
 	std::string networkInterface;	/*!< String containing the network interface to use */
+	std::string masterInInterface;	/*!< String containing the input network interface to use in master agent */
+	std::string masterOutInterface;	/*!< String containing the output network interface to use in master agent */
 	bool checkMEM_Status;		/*!< Boolean value used to measure or not the memory */
 	bool checkCPU_Status;		/*!< Boolean value used to measure or not the CPU percentage */
 	bool checkPapi_Status;		/*!< Boolean value used to measure or not PAPI counters */
@@ -69,12 +73,16 @@ private:
 	std::string userKey;			/*!< Key for the username */
 	std::string passwordKey;		/*!< Key for the password */
 	std::string nodesKey;			/*!< Key for nodes */
-	std::string portKey;			/*!< Key for port */
+	std::string portKey;			/*!< Key for port in SSH */
+	std::string internalSSH_PortKey;	/*!< Key for port in SSH internal to the cluster*/
 	std::string clientPortKey;		/*!< Key for client port */
 	std::string masterPortKey;		/*!< Key for master port */
+	std::string agentPortKey;		/*!< Key for agent port */
 	std::string keyFileKey;			/*!< Key for file containing public key */
 	std::string nodesBMKey;			/*!< Key for nodes behind master */
 	std::string networkKey;			/*!< Key for the network interface */
+	std::string masterInInterfaceKey;	/*!< Key for the master in network interface */
+	std::string masterOutInterfaceKey;	/*!< Key for the master out network interface */
 	std::string processOwnerKey;		/*!< Key for the process owner */
 	std::string processNameKey;		/*!< Key for the process name */
 	std::string processStartsWithKey;	/*!< key for the string that contains the start of the process */

@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>656</width>
-    <height>369</height>
+    <width>953</width>
+    <height>644</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Manage Cluster</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>330</y>
+     <x>600</x>
+     <y>600</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -32,10 +32,10 @@
   <widget class="QGroupBox" name="groupBox_SSHSettings">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>20</x>
      <y>20</y>
-     <width>601</width>
-     <height>301</height>
+     <width>911</width>
+     <height>331</height>
     </rect>
    </property>
    <property name="title">
@@ -44,21 +44,21 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>40</y>
-      <width>551</width>
-      <height>244</height>
+      <width>731</width>
+      <height>282</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="5" column="1">
+     <item row="6" column="1">
       <widget class="QRadioButton" name="radioButton_userpass">
        <property name="text">
         <string>Username - Password</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="Label_KeyFile">
        <property name="font">
         <font>
@@ -71,14 +71,14 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="5" column="1">
       <widget class="QPushButton" name="pushButton_KeyFile">
        <property name="text">
         <string>Select...</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="Label_ConnectionMethod">
        <property name="font">
         <font>
@@ -146,7 +146,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Port</string>
+        <string>SSH Port</string>
        </property>
       </widget>
      </item>
@@ -163,7 +163,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QLineEdit" name="LineEdit_KeyFile">
        <property name="font">
         <font>
@@ -173,17 +173,209 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="7" column="1">
       <widget class="QRadioButton" name="radioButton_keyfile">
        <property name="text">
         <string>Key file</string>
        </property>
       </widget>
      </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="Label_SSHInternal_Port">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>SSH Internal Port</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="LineEdit_SSH_Internal_Port"/>
+     </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton_SaveSettings">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>40</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Save settings</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_ClearSettings">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>80</y>
+      <width>111</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clear</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_Actions">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>370</y>
+     <width>281</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Actions</string>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>241</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_Deploy">
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox_Locations">
+       <item>
+        <property name="text">
+         <string>All</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Master</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Agents</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="Label_Action">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="Label_Location">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Location</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="comboBox_Actions">
+       <item>
+        <property name="text">
+         <string>Deploy</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Check</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Execute">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>100</y>
+      <width>116</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Execute</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_Status">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>370</y>
+     <width>601</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Status</string>
+   </property>
+   <widget class="QPlainTextEdit" name="plainTextEdit_MasterOutput">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>591</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>LineEdit_Username</tabstop>
+  <tabstop>LineEdit_Password</tabstop>
+  <tabstop>LineEdit_Port</tabstop>
+  <tabstop>LineEdit_KeyFile</tabstop>
+  <tabstop>pushButton_KeyFile</tabstop>
+  <tabstop>radioButton_userpass</tabstop>
+  <tabstop>radioButton_keyfile</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

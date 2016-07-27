@@ -36,8 +36,10 @@ Configuration::Configuration()
 	this->passwordKey		= "Password";
 	this->nodesKey			= "Nodes";
 	this->portKey			= "Port";
+	this->internalSSH_PortKey	= "InternalSSHPort";
 	this->clientPortKey		= "ClientPort";
 	this->masterPortKey		= "MasterPort";
+	this->agentPortKey		= "AgentPort";
 	this->keyFileKey		= "Key";
 	this->nodesBMKey		= "NodesBM";
 	this->networkKey		= "NetInterface";
@@ -45,7 +47,8 @@ Configuration::Configuration()
 	this->processNameKey		= "ProcessName";
 	this->processStartsWithKey	= "ProcessStartsWith";
 	this->networkKey		= "NetworkInterface";
-
+	this->masterInInterfaceKey	= "MasterInInterface";
+	this->masterOutInterfaceKey	= "MasterOutInterface";
 	this->measureCPU_Key		= "M_CPU";
 	this->measureMEM_Key		= "M_MEM";
 	this->measurePapi_Key		= "M_PAPI";
@@ -89,6 +92,14 @@ Config Configuration::getConfiguration() {
 			currentConfig.port = 22;
 		}
 
+		if(this->settings->contains(this->internalSSH_PortKey.c_str())) {
+			currentConfig.internalSSH_Port = this->settings->value(this->internalSSH_PortKey.c_str()).toInt(); //.toString().toStdString();
+		}
+		else{
+			currentConfig.internalSSH_Port = 22;
+		}
+
+
 		if(this->settings->contains(this->clientPortKey.c_str())) {
 			// currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toString().toStdString();
 			currentConfig.clientPort = this->settings->value(this->clientPortKey.c_str()).toInt();
@@ -103,6 +114,14 @@ Config Configuration::getConfiguration() {
 		}
 		else{
 			currentConfig.masterPort = MASTER_BASE_PORT;
+		}
+
+		if(this->settings->contains(this->agentPortKey.c_str())) {
+			// currentConfig.masterPort = this->settings->value(this->masterPortKey.c_str()).toString().toStdString();
+			currentConfig.agentPort = this->settings->value(this->agentPortKey.c_str()).toInt();
+		}
+		else{
+			currentConfig.agentPort = DAEMON_AGENT_PORT;
 		}
 
 		if(this->settings->contains(this->keyFileKey.c_str())) {
@@ -127,6 +146,14 @@ Config Configuration::getConfiguration() {
 
 		if(this->settings->contains(this->networkKey.c_str())) {
 			currentConfig.networkInterface = this->settings->value(this->networkKey.c_str()).toString().toStdString();
+		}
+
+		if(this->settings->contains(this->masterInInterfaceKey.c_str())) {
+			currentConfig.masterInInterface = this->settings->value(this->masterInInterfaceKey.c_str()).toString().toStdString();
+		}
+
+		if(this->settings->contains(this->masterOutInterfaceKey.c_str())) {
+			currentConfig.masterOutInterface = this->settings->value(this->masterOutInterfaceKey.c_str()).toString().toStdString();
 		}
 
 		if(this->settings->contains(this->measureCPU_Key.c_str())) {
@@ -190,13 +217,17 @@ void Configuration::setConfiguration(Config conf){
 	std::string newNodes			= conf.nodes;
 	std::string newNodesBM			= conf.nodesBM;
 	int newPort				= conf.port;
+	int newInternalSSH_Port			= conf.internalSSH_Port;
 	int newClientPort			= conf.clientPort;
 	int newMasterPort			= conf.masterPort;
+	int newAgentPort			= conf.agentPort;
 	std::string newKey			= conf.key;
 	std::string newProcessOwner		= conf.processOwner;
 	std::string newProcessName		= conf.processName;
 	std::string newProcessStartsWith	= conf.processStartsWith;
 	std::string newNetworkInterface		= conf.networkInterface;
+	std::string newMasterInInterface	= conf.masterInInterface;
+	std::string newMasterOutInterface	= conf.masterOutInterface;
 	bool newCheckMEM_Status			= conf.checkMEM_Status;
 	bool newCheckCPU_Status			= conf.checkMEM_Status;
 	bool newCheckPapi_Status		= conf.checkPapi_Status;
@@ -210,21 +241,38 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->nodesKey.c_str()),QVariant(QString(newNodes.c_str())));
 	this->settings->setValue(QString(this->nodesBMKey.c_str()),QVariant(QString(newNodesBM.c_str())));
 
-	char buffer[6];
+	char *buffer = (char *) calloc(6,sizeof(char));
 	sprintf(buffer, "%d",newPort);
 	this->settings->setValue(QString(this->portKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
 
+	buffer = (char *) calloc(6,sizeof(char));
+	sprintf(buffer, "%d",newInternalSSH_Port);
+	this->settings->setValue(QString(this->internalSSH_PortKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
+
+	buffer = (char *) calloc(6,sizeof(char));
 	sprintf(buffer, "%d",newClientPort);
 	this->settings->setValue(QString(this->clientPortKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
 
+	buffer = (char *) calloc(6,sizeof(char));
 	sprintf(buffer, "%d",newMasterPort);
 	this->settings->setValue(QString(this->masterPortKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
+
+	buffer = (char *) calloc(6,sizeof(char));
+	sprintf(buffer, "%d",newAgentPort);
+	this->settings->setValue(QString(this->agentPortKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
 
 	this->settings->setValue(QString(this->keyFileKey.c_str()),QVariant(QString(newKey.c_str())));
 	this->settings->setValue(QString(this->processOwnerKey.c_str()),QVariant(QString(newProcessOwner.c_str())));
 	this->settings->setValue(QString(this->processNameKey.c_str()),QVariant(QString(newProcessName.c_str())));
 	this->settings->setValue(QString(this->processStartsWithKey.c_str()),QVariant(QString(newProcessStartsWith.c_str())));
 	this->settings->setValue(QString(this->networkKey.c_str()),QVariant(QString(newNetworkInterface.c_str())));
+	this->settings->setValue(QString(this->masterInInterfaceKey.c_str()),QVariant(QString(newMasterInInterface.c_str())));
+	this->settings->setValue(QString(this->masterOutInterfaceKey.c_str()),QVariant(QString(newMasterOutInterface.c_str())));
 	this->settings->setValue(QString(this->measureCPU_Key.c_str()),newCheckMEM_Status);
 	this->settings->setValue(QString(this->measureMEM_Key.c_str()),newCheckCPU_Status);
 	this->settings->setValue(QString(this->measurePapi_Key.c_str()),newCheckPapi_Status);

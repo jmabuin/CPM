@@ -66,9 +66,9 @@ void MainWindow::createActions() {
 	connect(this->configureAction, SIGNAL(triggered()), this, SLOT(configureRun()));
 
 
-	this->manageSettingsSSH = new QAction(tr("&Manage SSH settings..."), this);
+	this->manageSettingsSSH = new QAction(tr("&Manage cluster..."), this);
 	this->manageSettingsSSH->setShortcuts(QKeySequence::Preferences);
-	this->manageSettingsSSH->setStatusTip(tr("Configure program settings to connect by using SSH into cluster (Only for deploy)"));
+	this->manageSettingsSSH->setStatusTip(tr("Manage the computing cluster"));
 	connect(this->manageSettingsSSH, SIGNAL(triggered()), this, SLOT(manageSSHRun()));
 
 	this->exitProgram = new QAction(tr("&Exit"), this);

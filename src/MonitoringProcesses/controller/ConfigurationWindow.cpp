@@ -106,7 +106,13 @@ void ConfigurationWindow::initConfiguration(){
 		}
 	}
 
+	if(!cnf.masterInInterface.empty()) {
+		this->ui->LineEdit_MasterIn->setText(cnf.masterInInterface.c_str());
+	}
 
+	if(!cnf.masterOutInterface.empty()) {
+		this->ui->LineEdit_MasterOut->setText(cnf.masterOutInterface.c_str());
+	}
 
 	//if(this->settings->contains(this->userKey.c_str())) {
 	/*if(!cnf.userName.empty()) {
@@ -125,14 +131,22 @@ void ConfigurationWindow::initConfiguration(){
 	//if(this->settings->contains(this->portKey.c_str())) {
 
 
-	char buffer[6];
+	// char buffer[6];
+	char *buffer = (char *) calloc(6,sizeof(char));
 
 	sprintf(buffer,"%d",cnf.clientPort);
 	this->ui->LineEdit_Port->setText(buffer);
+	free(buffer);
 
+	buffer = (char *) calloc(6,sizeof(char));
 	sprintf(buffer,"%d",cnf.masterPort);
 	this->ui->LineEdit_MasterPort->setText(buffer);
+	free(buffer);
 
+	buffer = (char *) calloc(6,sizeof(char));
+	sprintf(buffer,"%d",cnf.agentPort);
+	this->ui->LineEdit_AgentsPort->setText(buffer);
+	free(buffer);
 
 	if(!cnf.processOwner.empty()) {
 		this->ui->LineEdit_ProcessOwner->setText(cnf.processOwner.c_str());
@@ -178,10 +192,14 @@ bool ConfigurationWindow::saveAndClose() {
 	std::string newNodesBM			= this->ui->plainTextEdit_ClusterNodeListBM->toPlainText().toStdString();
 	int newClientPort			= this->ui->LineEdit_Port->text().toInt(); //.toStdString();
 	int newMasterPort			= this->ui->LineEdit_MasterPort->text().toInt(); //.toStdString();
+	int newAgentPort			= this->ui->LineEdit_AgentsPort->text().toInt();
 	std::string newProcessOwner		= this->ui->LineEdit_ProcessOwner->text().toStdString();
 	std::string newProcessName		= this->ui->LineEdit_ProcessName->text().toStdString();
 	std::string newProcessStartsWith	= this->ui->LineEdit_ProcessStartsWith->text().toStdString();
 	std::string newNetworkInterface		= this->ui->comboBox_NetworkInterfaces->currentText().toStdString();
+	std::string newMasterInInterface	= this->ui->LineEdit_MasterIn->text().toStdString();
+	std::string newMasterOutInterface	= this->ui->LineEdit_MasterOut->text().toStdString();
+
 	bool newCheckMEM_Status			= this->ui->checkBox_MEM->isChecked();
 	bool newCheckCPU_Status			= this->ui->checkBox_CPU->isChecked();
 	bool newCheckPapi_Status		= this->ui->checkBox_PapiCounters->isChecked();
@@ -206,6 +224,12 @@ bool ConfigurationWindow::saveAndClose() {
 
 		return false;
 	}
+	else if(!this->isNumeric(this->ui->LineEdit_AgentsPort->text().toStdString())){
+		msgBox.setText("Agents port must be a numeric value");
+		msgBox.exec();
+
+		return false;
+	}
 	else{
 
 		Configuration config = Configuration();
@@ -218,10 +242,13 @@ bool ConfigurationWindow::saveAndClose() {
 		conf.nodesBM		= newNodesBM;
 		conf.clientPort		= newClientPort;
 		conf.masterPort		= newMasterPort;
+		conf.agentPort		= newAgentPort;
 		conf.processOwner	= newProcessOwner;
 		conf.processName	= newProcessName;
 		conf.processStartsWith	= newProcessStartsWith;
 		conf.networkInterface	= newNetworkInterface;
+		conf.masterInInterface	= newMasterInInterface;
+		conf.masterOutInterface	= newMasterOutInterface;
 		conf.checkMEM_Status	= newCheckMEM_Status;
 		conf.checkCPU_Status	= newCheckCPU_Status;
 		conf.checkPapi_Status	= newCheckPapi_Status;
@@ -274,65 +301,3 @@ bool ConfigurationWindow::isNumeric(std::string cadea){
 	return true;
 
 }
-
-
-
-/*
-Configuration ConfigurationWindow::getConfiguration() {
-
-	Configuration currentConfig;
-
-	this->settings = new QSettings(QString(this->configFile.c_str()),QSettings::NativeFormat);
-
-
-
-	if(this->settings->contains(this->userKey.c_str())) {
-		currentConfig.userName = this->settings->value(this->userKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->passwordKey.c_str())) { //Here we decrypt the value from the configuration file
-		currentConfig.password = this->encryptDecrypt(this->settings->value(this->passwordKey.c_str()).toString().toStdString()).c_str();
-	}
-
-	if(this->settings->contains(this->nodesKey.c_str())){
-		currentConfig.nodes = this->settings->value(this->nodesKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->portKey.c_str())) {
-		currentConfig.port = this->settings->value(this->portKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->keyFileKey.c_str())) {
-		currentConfig.key = this->settings->value(this->keyFileKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->processOwnerKey.c_str())) {
-		currentConfig.processOwner = this->settings->value(this->processOwnerKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->processNameKey.c_str())) {
-		currentConfig.processName = this->settings->value(this->processNameKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->nodesBMKey.c_str())) {
-		currentConfig.nodesBM = this->settings->value(this->nodesBMKey.c_str()).toString().toStdString();
-	}
-
-	if(this->settings->contains(this->measureCPU_Key.c_str())) {
-		currentConfig.checkCPU_Status = this->settings->value(this->measureCPU_Key.c_str(), false).toBool();
-	}
-
-	if(this->settings->contains(this->measureMEM_Key.c_str())) {
-		currentConfig.checkMEM_Status = this->settings->value(this->measureMEM_Key.c_str(), false).toBool();
-	}
-
-	if(this->settings->contains(this->measurePapi_Key.c_str())) {
-		currentConfig.checkPapi_Status = this->settings->value(this->measurePapi_Key.c_str(), false).toBool();
-	}
-
-
-
-	return currentConfig;
-
-}
-*/
