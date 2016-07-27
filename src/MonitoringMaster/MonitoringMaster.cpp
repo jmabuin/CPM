@@ -33,7 +33,7 @@
 
 #include "Network.h"
 #include "AgentChild.h"
-
+//#include "ssh_handler.h"
 
 using namespace std;
 
@@ -76,6 +76,7 @@ static int usage()
 	fprintf(stderr, " -o STR        Network interface that communicates the master node with the outside world. Default: eth0.\n");
 	fprintf(stderr, " -i STR        Network interface internal to the cluster. Default: eth0.\n");
 	fprintf(stderr, "\n");
+
 	return 1;
 }
 
@@ -93,6 +94,7 @@ int main(int argc, char **argv) {
 	char			*network_outside 	= NULL;
 	
 	
+	//while ((option = getopt(argc, argv,"dha:m:c:i:o:eu:p:P:n:")) >= 0) {
 	while ((option = getopt(argc, argv,"dha:m:c:i:o:")) >= 0) {
 		switch (option) {
 			case 'd' :
@@ -124,11 +126,13 @@ int main(int argc, char **argv) {
 				network_internal = (char *) malloc(sizeof(char) * (strlen(optarg) + 1));
 				strcpy(network_internal, optarg);
 				break;
-				
+
 			default: break;
 			
 		}
 	}
+	
+	// If deploy, deploys the agent and exit
 	
 	//Daemon init
 	if(!getDebugMode()) {

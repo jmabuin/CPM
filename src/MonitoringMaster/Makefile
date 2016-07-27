@@ -3,7 +3,7 @@ CFLAGS=			-std=c++0x -g -Wall -Wno-unused-function -O2
 WRAP_MALLOC=		-DUSE_MALLOC_WRAPPERS
 DFLAGS=			-DHAVE_PTHREAD $(WRAP_MALLOC)
 PROG=			MonitoringMaster
-
+LIBRARIES=
 .SUFFIXES:.cpp .o .cc
 
 .cpp.o:
@@ -12,7 +12,7 @@ PROG=			MonitoringMaster
 all:$(PROG)
 	
 MonitoringMaster: MonitoringMaster.o Network.o AgentChild.o Globals.o
-	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringMaster.o Network.o AgentChild.o Globals.o -o $@
+	$(CC) $(CFLAGS) $(DFLAGS) $(AOBJS) MonitoringMaster.o Network.o AgentChild.o Globals.o $(LIBRARIES) -o $@
 	
 clean:
 	rm $(PROG) *.o
