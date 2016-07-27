@@ -20,7 +20,7 @@
 #ifndef DEFS_GLOBALS_H
 #define DEFS_GLOBALS_H
 
-#define PACKAGE_VERSION "0.2.0"
+#define PACKAGE_VERSION "0.3.0"
 
 void setDebugMode(int new_debug);
 int getDebugMode();

@@ -29,16 +29,6 @@ typedef struct processesRunning {
 
 sig_atomic_t child_exit_status;
 
-/*static void synch_signal (int sig, siginfo_t *info, void *data) {
-
-	stopAgent = 1;
-	//fprintf(stderr,"[%s] Receiving signal\n",__func__);
-	printFunction(0,"[%s] Receiving signal\n",__func__);
-
-}
-*/
-
-
 
 void handleChildren(int sigNum) {
 
@@ -52,28 +42,7 @@ void handleChildren(int sigNum) {
 
 	child_exit_status = status;
 }
-/*
-void *stopAgentFunction(void *ptr) {
 
-	//Waits for signal and when arrives, stopAgent=1
-
-	//unsigned int agentId = (*(unsigned int *)ptr);
-
-	struct sigaction usr_action;
-	//sigset_t block_mask;
-
-	sigemptyset (&usr_action.sa_mask);
-	//usr_action.sa_handler = synch_signal;
-	usr_action.sa_sigaction = synch_signal;
-	usr_action.sa_flags = SA_SIGINFO;
-	sigaction (SIGUSR1, &usr_action, NULL);
-
-	sigsuspend(&usr_action.sa_mask);
-
-	return NULL;
-
-}
-*/
 
 static int usage()
 {
