@@ -8,7 +8,7 @@ This tool composed by three programs:
 * **MonitoringAgent**. The daemon running in the cluster computing/worker nodes.
 
 # What's CPM about? #
-Typically, in a computing cluster, the task of monitorize a parallel job and get statictics, such as CPU consumption, used memory or other kind of data, is a tedious job that implies visualize large logs or modify the application source code. There are some solutions that monitorize all the cluster, such as [Nagios][1] or [Zabbix][2], but they monitorize the nodes total resources, and not per process of a launched job. Also [Vampir](https://www.vampir.eu/){:target="_blank"} exists. It is a very complete tool that allows the user to do a very deep profiling of parallel applications, but it requires to purchase a license. **CPM** allows the user to monitorize data from individual processes in real time and get plots and statictics from them in a very easy way. It is composed by three programs that communicate among each other and work togheter.
+Typically, in a computing cluster, the task of monitorize a parallel job and get statictics, such as CPU consumption, used memory or other kind of data, is a tedious job that implies visualize large logs or modify the application source code. There are some solutions that monitorize all the cluster, such as [Nagios][1] or [Zabbix][2], but they monitorize the nodes total resources, and not per process of a launched job. Also [Vampir][3] exists. It is a very complete tool that allows the user to do a very deep profiling of parallel applications, but it requires to purchase a license. **CPM** allows the user to monitorize data from individual processes in real time and get plots and statictics from them in a very easy way. It is composed by three programs that communicate among each other and work togheter.
 
 In order to explain how **CPM** works, is needed to talk about how a computing cluster typically works. In almost all the supercomputers or clusters, the user connects throught SSH to what is called the **master, login or front node**. In this master node the user can compile his/her program that uses MPI, OpenMP, Hadoop, or others. After that, the user launchs the job by using a queue system or resources manager, and after to wait for available resources, the job runs in the **worker or computing nodes**, this is, the rest of nodes in the cluster that make the real computation.
 
@@ -22,7 +22,7 @@ When the **MonitoringProcesses** client wants to start taking measures from a jo
 
 ## Resume ##
 **MonitoringProcesses**
-It is implemented in C++ using the [Qt](http://www.qt.io/){:target="_blank"} libraries. It provides a user-friendly interface to visualize the data from the cluster processes. Listen at port 10000 by default, where it receives data from **MonitoringAgent** across the **MonitoringMaster**.
+It is implemented in C++ using the [Qt][4] libraries. It provides a user-friendly interface to visualize the data from the cluster processes. Listen at port 10000 by default, where it receives data from **MonitoringAgent** across the **MonitoringMaster**.
 
 **MonitoringMaster**
 It is a program that runs in the cluster computing master node. It works as a bridge between the client program, and the agents running in each one of the computing nodes of the cluster. It listens at port 8000 + N.
@@ -45,9 +45,9 @@ Common requirements for the three programs are a Linux 64 bit distribution. Indi
 
 ### MonitoringProcesses ###
 
-* [Qt](http://www.qt.io/){:target="_blank"} libraries.
+* [Qt][4] libraries.
 * C++11.
-* [libssh](https://www.libssh.org/){:target="_blank"}
+* [libssh][5].
 
 ### MonitoringMaster ###
 
@@ -103,7 +103,7 @@ This window have the following configuration parameters:
 
 ###**Measurements**###
 
-Here the user can configure what data he/she wants to aquire from the processes running in the cluser. By default, CPU Percentage and memory are measured. Also, PAPI counters can be measured. For now, only the PAPI_L1_DCM, PAPI_L2_DCM and PAPI_TOT_INS are measured. Energy can also be measured if the CPUs in the computing nodes have the [Intel RAPL Registers](http://icl.cs.utk.edu/projects/papi/wiki/PAPITopics:RAPL_Access){:target="_blank"} enabled.
+Here the user can configure what data he/she wants to aquire from the processes running in the cluser. By default, CPU Percentage and memory are measured. Also, PAPI counters can be measured. For now, only the PAPI_L1_DCM, PAPI_L2_DCM and PAPI_TOT_INS are measured. Energy can also be measured if the CPUs in the computing nodes have the [Intel RAPL Registers](http://icl.cs.utk.edu/projects/papi/wiki/PAPITopics:RAPL_Access) enabled.
 
 ###**Network Interfaces**###
 
@@ -178,7 +178,7 @@ The precious Actions can take place in different locations:
 * **All**: All the nodes.
 
 ## Deploying manually ##
-It is also possible to deploy the tool manually. In each one of the cluster computing node the **MonitoringAgent** has to be running. For that, in each one of these nodes, the user has to execute `./MonitoringAgent`. In the master node, the **MonitoringAgent** and the **MonitoringMaster** have to be running. In the case of the Agent, the command is the same. For the Master the command is `./MonitoringMaster`. And finally, in the user's PC, the command to execute is `./MonitoringProcesses`. This last command will open the graphic interface made with Qt.
+It is also possible to deploy the tool manually. In each one of the cluster computing node the **MonitoringAgent** has to be running. For that, in each one of these nodes, the user has to execute `./MonitoringAgent`. In the master node, the **MonitoringAgent** and the **MonitoringMaster** have to be running. In the case of the Agent, the command is the same. For the Master the command is `./MonitoringMaster`. And finally, in the user's PC, the command to execute is `./MonitoringProcesses`. This last command will open the graphic interface made with [Qt][4].
 
 ##Configuring the MonitoringMaster program##
 
@@ -255,3 +255,6 @@ Depending on the Linux distribution the name of the library can change. For exam
 
 [1]: https://www.nagios.org/
 [2]: http://www.zabbix.com/
+[3]: https://www.vampir.eu/
+[4]: http://www.qt.io/
+[5]: https://www.libssh.org/
