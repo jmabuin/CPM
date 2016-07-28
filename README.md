@@ -86,20 +86,20 @@ This window have the following configuration parameters:
 ###**Cluster settings**###
 **Usual Nodes**: This is where we have to write the master node name, for example: *masternode.domain.com*
 
-** Nodes Behind Master Node**: This is where we have to write the computing node names, one per line. Typically, this names are in the master node */etc/hosts* file. For example, in a hadoop cluster, the content could be:
+**Nodes Behind Master Node**: This is where we have to write the computing node names, one per line. Typically, this names are in the master node */etc/hosts* file. For example, in a hadoop cluster, the content could be:
 
     hadoop2
     hadoop3
     hadoop4
     hadoop5
 
-** Client Port **: This is where we can insert or change the port where the **MonitoringProcesses** application will listen and wait for data packages. The default is 10000.
+**Client Port**: This is where we can insert or change the port where the **MonitoringProcesses** application will listen and wait for data packages. The default is 10000.
 
-** Master Port **: Port where the **MonitoringMaster** application will listen for incoming packages. Default: 8000.
+**Master Port**: Port where the **MonitoringMaster** application will listen for incoming packages. Default: 8000.
 
-** Agents Port **: Port where the agent daemon will listen for incoming packages requesting information for processes. Default: 20000.
+**Agents Port**: Port where the agent daemon will listen for incoming packages requesting information for processes. Default: 20000.
 
-** IMPORTANT**: The ports configuration only works if the user uses the Deploy mode. Otherwise, the ports need to be specified when launching the **MonitoringMaster** and **MonitoringAgents** applications.
+**IMPORTANT**: The ports configuration only works if the user uses the Deploy mode. Otherwise, the ports need to be specified when launching the **MonitoringMaster** and **MonitoringAgents** applications.
 
 ###**Measurements**###
 
