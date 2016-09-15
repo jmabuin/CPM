@@ -30,11 +30,16 @@
 
 #define MAX_LINE_SIZE 2048
 
+/*!
+ * \brief Class to handle ssh connections from the program to the cluster master node
+ * \author Jose M. Abuin
+ */
 class SSH_Handler
 {
 public:
 	SSH_Handler();
-	SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password);
+	SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password, std::string keyFileName);
+	//SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password);
 
 	int connect();
 	int disconnect();
@@ -53,7 +58,9 @@ private:
 	std::string host;
 	std::string username;
 	std::string password;
-
+	std::string keyFileName;
+	ssh_key pkey;
+	bool isKeyConnection;
 
 	int verify_knownhost();
 

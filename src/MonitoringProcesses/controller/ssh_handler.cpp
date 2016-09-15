@@ -19,7 +19,16 @@
 
 #include "controller/ssh_handler.h"
 
-// Constructors
+
+/*!
+ * \brief Class to handle ssh connections from the program to the cluster master node
+ * \author Jose M. Abuin
+ */
+
+/*!
+ * \brief SSH_Handler::SSH_Handler
+ * \details Empty constructor
+ */
 SSH_Handler::SSH_Handler() {
 
 	this->verbosity = SSH_LOG_PROTOCOL;
@@ -28,39 +37,66 @@ SSH_Handler::SSH_Handler() {
 
 }
 
-SSH_Handler::SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password) {
+/*!
+ * \brief SSH_Handler::SSH_Handler
+ * \param hostname A string containing the hostname to connect with
+ * \param port An integer which value is the port to connect to
+ * \param verbosity Verbosity level
+ * \param username String containing the username
+ * \param password String containing the password. If empty, the public-private key method will be used
+ * \param keyFileName String containing the path to the private key file. if empty, the password method will be used
+ */
+SSH_Handler::SSH_Handler(std::string hostname, int port, int verbosity, std::string username, std::string password, std::string keyFileName) {
 
 	this->host = hostname;
 	this->port = port;
 	this->verbosity = verbosity;
 	this->username = username;
-	this->password = password;
 
+	// If the password is not empty, we will use it
+	if(!password.empty()) {
+		this->password = password;
+		this->isKeyConnection = false;
+	}
+	//Otherwise, if the key file name is not empty, we will use this method
+	else if(!keyFileName.empty()) {
+		this->keyFileName = keyFileName;
+		this->isKeyConnection = true;
+	}
+
+	this->pkey = NULL;
 }
 
-//Functions to connect and disconnect
+/*!
+ * \brief SSH_Handler::connect
+ * \details Stablish a connection with the destination host
+ * \return 1 if everything went fine. 0 otherwise
+ */
 int SSH_Handler::connect() {
 
 	int rc;
+
+	// Creation of a new ssh session
 	this->my_ssh_session = ssh_new();
 
 	if (this->my_ssh_session == NULL)
 		return 0;
 
+	// We set the ssh options
 	ssh_options_set(this->my_ssh_session, SSH_OPTIONS_HOST, this->host.c_str());
 	ssh_options_set(this->my_ssh_session, SSH_OPTIONS_LOG_VERBOSITY, &(this->verbosity));
 	ssh_options_set(this->my_ssh_session, SSH_OPTIONS_PORT, &(this->port));
 
+	// Stablish connection
 	rc = ssh_connect(this->my_ssh_session);
 
-	if (rc != SSH_OK)
-	{
+	// Test the connection
+	if (rc != SSH_OK) {
 	  fprintf(stderr, "Error connecting to localhost: %s\n", ssh_get_error(this->my_ssh_session));
 	  return 0;
 	}
 
 	// Verify the server's identity
-	// For the source code of verify_knowhost(), check previous example
 	if (this->verify_knownhost() < 0) {
 		ssh_disconnect(this->my_ssh_session);
 		ssh_free(this->my_ssh_session);
@@ -68,28 +104,58 @@ int SSH_Handler::connect() {
 	}
 
 	// Authenticate ourselves
-	// password = getpass("Password: ");
-	rc = ssh_userauth_password(this->my_ssh_session, this->username.c_str(), this->password.c_str());
+	// With username and password
+	if(!this->isKeyConnection) {
+		rc = ssh_userauth_password(this->my_ssh_session, this->username.c_str(), this->password.c_str());
+	}
+	// Or with our private key
+	else {
+		rc = ssh_pki_import_privkey_file(this->keyFileName.c_str(), NULL, NULL, NULL, &(this->pkey));
 
+		if(rc != SSH_OK) {
+			ssh_key_free(this->pkey);
+			ssh_disconnect(this->my_ssh_session);
+			ssh_free(this->my_ssh_session);
+			return 0;
+		}
+		else {
+			rc = ssh_userauth_publickey (this->my_ssh_session, this->username.c_str(), this->pkey);
+		}
+	}
+
+	// Check the return value
 	if (rc != SSH_AUTH_SUCCESS) {
 		fprintf(stderr, "Error authenticating with password: %s\n", ssh_get_error(my_ssh_session));
+		ssh_key_free(this->pkey);
 		ssh_disconnect(this->my_ssh_session);
 		ssh_free(this->my_ssh_session);
 		return 0;
 	}
 
+	// If we are here everything went fine
 	return 1;
 }
 
+/*!
+ * \brief SSH_Handler::disconnect
+ * \details Function to disconnect from the ssh session
+ * \return 1 if everything went fine. 0 otherwise
+ * \todo Check return values from functions
+ */
 int SSH_Handler::disconnect() {
 
+	ssh_key_free(this->pkey);
 	ssh_disconnect(this->my_ssh_session);
 	ssh_free(this->my_ssh_session);
 
 	return 1;
 }
 
-
+/*!
+ * \brief SSH_Handler::verify_knownhost
+ * \details Function to verify the identity of the host
+ * \return 0 if everything went fine. -1 otherwise
+ */
 int SSH_Handler::verify_knownhost() {
 	char *hexa;
 	int state;
@@ -183,7 +249,13 @@ int SSH_Handler::verify_knownhost() {
 	return 0;
 }
 
-//Function to execute a remote command
+/*!
+ * \brief SSH_Handler::execute_remote_command
+ * \details Function to execute a command in the remote host
+ * \param command The command to be executed
+ * \param buffer The output from the executed command
+ * \return SSH_OK if everuthing went fine. Other libssh values otherwise
+ */
 int SSH_Handler::execute_remote_command(std::string command, char *buffer) {
 
 	ssh_channel channel;
@@ -261,7 +333,11 @@ int SSH_Handler::execute_remote_command(std::string command, char *buffer) {
 
 }
 
-// Allocate SFTP session
+/*!
+ * \brief SSH_Handler::sftp_allocate
+ * \details Function to allocate a sftp session
+ * \return SSH_OK if everything went fine. Other libssh values otherwise
+ */
 int SSH_Handler::sftp_allocate() {
 
 	int rc;
@@ -283,14 +359,23 @@ int SSH_Handler::sftp_allocate() {
 	return SSH_OK;
 }
 
-// Deallocate SFTP session
+/*!
+ * \brief SSH_Handler::sftp_deallocate
+ * \details Function to dealocate a sftp session
+ * \return 1 if everything went fine
+ */
 int SSH_Handler::sftp_deallocate() {
 
 	sftp_free(this->sftp);
 	return 1;
 }
 
-//Creates a remote directory
+/*!
+ * \brief SSH_Handler::sftp_ownmkdir
+ * \details Function to create a remote directory
+ * \param dirName A string conaining the name of the directory to be created
+ * \return SSH_OK if everything went fine. Other libssh values otherwise
+ */
 int SSH_Handler::sftp_ownmkdir(std::string dirName) {
 
 	int rc;
@@ -306,6 +391,13 @@ int SSH_Handler::sftp_ownmkdir(std::string dirName) {
 	return SSH_OK;
 }
 
+/*!
+ * \brief SSH_Handler::sftp_copyFileToRemote
+ * \details Function to copy a local file to a remote destination
+ * \param localFileName The path to the local filename
+ * \param remoteFileName The path to the remote filename
+ * \return SSH_OK if everything went fine. Other libssh values otherwise
+ */
 int SSH_Handler::sftp_copyFileToRemote(std::string localFileName, std::string remoteFileName) {
 
 	int access_type = O_WRONLY | O_CREAT | O_TRUNC;
@@ -358,8 +450,13 @@ int SSH_Handler::sftp_copyFileToRemote(std::string localFileName, std::string re
 
 }
 
+/*!
+ * \brief SSH_Handler::sftp_ownrmdir
+ * \details Function to delete a remote directory
+ * \param dirName The directory name to be deleted
+ * \return SSH_OK if everything went fine. Other libssh values otherwise
+ */
 int SSH_Handler::sftp_ownrmdir(std::string dirName) {
-
 
 	return sftp_rmdir(this->sftp, dirName.c_str());
 
