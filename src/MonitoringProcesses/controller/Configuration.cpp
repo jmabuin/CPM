@@ -127,6 +127,9 @@ Config Configuration::getConfiguration() {
 		if(this->settings->contains(this->keyFileKey.c_str())) {
 			currentConfig.key = this->settings->value(this->keyFileKey.c_str()).toString().toStdString();
 		}
+		else{
+			currentConfig.key = "";
+		}
 
 		if(this->settings->contains(this->processOwnerKey.c_str())) {
 			currentConfig.processOwner = this->settings->value(this->processOwnerKey.c_str()).toString().toStdString();

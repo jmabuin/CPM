@@ -23,6 +23,7 @@
 #include "Network.h"
 #include "ManageClusterWindow.h"
 #include "ui_ManageClusterWindow.h"
+#include <QFileDialog>
 
 ManageClusterWindow::ManageClusterWindow(QWidget *parent) :
 	QDialog(parent),
@@ -61,6 +62,11 @@ void ManageClusterWindow::initConfiguration(){
 		this->ui->LineEdit_Password->setText(cnf.password.c_str());
 	}
 
+	if(!cnf.key.empty()) {
+		this->ui->LineEdit_KeyFile->setText(cnf.key.c_str());
+	}
+
+
 	char buffer[6];
 	sprintf(buffer, "%d", cnf.port);
 	this->ui->LineEdit_Port->setText(buffer);
@@ -85,6 +91,7 @@ void ManageClusterWindow::initConfiguration(){
 void ManageClusterWindow::initWindow() {
 
 	connect(this->ui->pushButton_Execute,SIGNAL(clicked(bool)),this,SLOT(executeSlot()));
+	connect(this->ui->pushButton_KeyFile,SIGNAL(clicked(bool)),this,SLOT(openFileDialogKeyFile()));
 
 }
 
@@ -395,13 +402,25 @@ void ManageClusterWindow::executeCommandInMaster(std::string command) {
 	int port		= this->ui->LineEdit_Port->text().toInt();
 	int verbosity		= SSH_LOG_PROTOCOL;
 	std::string username	= this->ui->LineEdit_Username->text().toStdString();
-	std::string password	= this->ui->LineEdit_Password->text().toStdString();
+	std::string password;
+	std::string keyFileName;
+
+	if(this->ui->radioButton_userpass->isChecked()) {
+		password	= this->ui->LineEdit_Password->text().toStdString();
+		keyFileName	= "";
+	}
+	else if (this->ui->radioButton_keyfile->isChecked()) {
+		password	= "";
+		keyFileName	= this->ui->LineEdit_KeyFile->text().toStdString();
+
+	}
+
 
 	int connectResult = 0;
 	unsigned int buffer_length_command = 4096;
 
 
-	SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password);
+	SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
 	//sshHandler.sftp_allocate();
 
 	connectResult = sshHandler.connect();
@@ -445,7 +464,18 @@ void ManageClusterWindow::executeCommandInAgents(std::string command) {
 	std::string internal_port	= this->ui->LineEdit_SSH_Internal_Port->text().toStdString();
 	int verbosity			= SSH_LOG_PROTOCOL;
 	std::string username		= this->ui->LineEdit_Username->text().toStdString();
-	std::string password		= this->ui->LineEdit_Password->text().toStdString();
+	std::string password;
+	std::string keyFileName;
+
+	if(this->ui->radioButton_userpass->isChecked()) {
+		password	= this->ui->LineEdit_Password->text().toStdString();
+		keyFileName	= "";
+	}
+	else if (this->ui->radioButton_keyfile->isChecked()) {
+		password	= "";
+		keyFileName	= this->ui->LineEdit_KeyFile->text().toStdString();
+
+	}
 
 	int connectResult = 0;
 	unsigned int buffer_length_command = 4096;
@@ -467,7 +497,7 @@ void ManageClusterWindow::executeCommandInAgents(std::string command) {
 		this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(nodes)+"\n");
 
 
-		SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password);
+		SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
 		//sshHandler.sftp_allocate();
 
 		connectResult = sshHandler.connect();
@@ -522,7 +552,18 @@ void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
 	std::string internal_port	= this->ui->LineEdit_SSH_Internal_Port->text().toStdString();
 	int verbosity			= SSH_LOG_PROTOCOL;
 	std::string username		= this->ui->LineEdit_Username->text().toStdString();
-	std::string password		= this->ui->LineEdit_Password->text().toStdString();
+	std::string password;
+	std::string keyFileName;
+
+	if(this->ui->radioButton_userpass->isChecked()) {
+		password	= this->ui->LineEdit_Password->text().toStdString();
+		keyFileName	= "";
+	}
+	else if (this->ui->radioButton_keyfile->isChecked()) {
+		password	= "";
+		keyFileName	= this->ui->LineEdit_KeyFile->text().toStdString();
+
+	}
 
 	int connectResult = 0;
 	unsigned int buffer_length_command = 4096;
@@ -544,7 +585,7 @@ void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
 		this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(nodes)+"\n");
 
 
-		SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password);
+		SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
 		//sshHandler.sftp_allocate();
 
 		connectResult = sshHandler.connect();
@@ -584,6 +625,34 @@ void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
 
 
 		nodes = strtok(NULL,"\n");
+	}
+
+}
+
+void ManageClusterWindow::openFileDialogKeyFile(){
+
+
+	std::string currentKey = this->ui->LineEdit_KeyFile->text().toStdString();
+
+	QString fileName;
+
+	if(currentKey.empty()) {
+		fileName = QFileDialog::getOpenFileName(this,"Select key file...","./");
+	}
+	else {
+		size_t found;
+
+		found = currentKey.find_last_of("/\\");
+
+		fileName = QFileDialog::getOpenFileName(this,"Select key file...",currentKey.substr(0,found).c_str());
+
+	}
+
+
+	if(!fileName.isEmpty()) {
+
+		this->ui->LineEdit_KeyFile->setText(fileName);
+
 	}
 
 }

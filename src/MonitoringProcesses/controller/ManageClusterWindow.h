@@ -40,6 +40,7 @@ private slots:
 
 	void done(int result);
 	void executeSlot();
+	void openFileDialogKeyFile();
 
 
 private:
