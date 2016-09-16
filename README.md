@@ -56,6 +56,7 @@ Common requirements for the three programs are a Linux 64 bit distribution. Indi
 ### MonitoringAgent ###
 
 * *procps* development libraries. In Debian, *libprocps4-dev*, in CentOs, *procps-devel.x86_64*.
+* [PAPI][6] library.
 * C++11.
 
 
@@ -125,7 +126,7 @@ Here we will insert the characteristics of the process that we want to gather in
 
 **Process starts with**: A string that indicates the beginning of the process name we are looking for
 
-
+**CPU threshold**: The agents will only look for processes above this CPU percentage. (Default: 0)
 
 # Deploying CPM #
 
@@ -258,3 +259,4 @@ Depending on the Linux distribution the name of the library can change. For exam
 [3]: https://www.vampir.eu/
 [4]: http://www.qt.io/
 [5]: https://www.libssh.org/
+[6]: http://icl.cs.utk.edu/papi/
