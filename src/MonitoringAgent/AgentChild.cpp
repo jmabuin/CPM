@@ -84,7 +84,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 	pid_t childPidRAPL = 0;
 	//Variables to get process information
-	unsigned int cpuUsage = 0;
+	unsigned int cpuUsage = rxMsg.cpuThreshold;
 
 	char userName[1024];// = (char*)calloc(1024,sizeof(char));
 	char processName[MAX_PROCESS_NAME];// = (char*)calloc(1024,sizeof(char));
@@ -213,6 +213,8 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 					pcpu = (total_time * 1000ULL / Hertz) / seconds;
 
 				}
+
+				//fprintf(stderr,"%lu\n",proc_info->maj_delta);
 
 				processesCPU.insert ( pair<unsigned int,unsigned int>(proc_info->tid,(total_time * 1000ULL / Hertz)) );
 
