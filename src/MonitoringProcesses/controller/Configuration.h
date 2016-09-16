@@ -30,15 +30,16 @@ typedef struct Config{
 	std::string password;		/*!< String containing the password */
 	std::string nodes;		/*!< String containing the master nodes */
 	std::string nodesBM;		/*!< String containing the nodes behind master */
-	int port;			/*!< String containing the port for SSH */
-	int internalSSH_Port;		/*!< String containing the port for SSH internal to the cluster */
-	int clientPort;			/*!< String containing the port where this client listens */
-	int masterPort;			/*!< String containing the port where the master agent listens */
-	int agentPort;			/*!< String containing the port where the agent listens */
+	int port;			/*!< Int containing the port for SSH */
+	int internalSSH_Port;		/*!< Int containing the port for SSH internal to the cluster */
+	int clientPort;			/*!< int containing the port where this client listens */
+	int masterPort;			/*!< Int containing the port where the master agent listens */
+	int agentPort;			/*!< Int containing the port where the agent listens */
 	std::string key;		/*!< String containing the key file */
 	std::string processOwner;	/*!< String containing the process owner */
 	std::string processName;	/*!< String containing the process name */
 	std::string processStartsWith;	/*!< String containing the start part of the process name */
+	unsigned int cpuThreshold;	/*!< Unsigned int containing the minimun CPU percentage od the processes to search for */
 	std::string networkInterface;	/*!< String containing the network interface to use */
 	std::string masterInInterface;	/*!< String containing the input network interface to use in master agent */
 	std::string masterOutInterface;	/*!< String containing the output network interface to use in master agent */
@@ -86,6 +87,7 @@ private:
 	std::string processOwnerKey;		/*!< Key for the process owner */
 	std::string processNameKey;		/*!< Key for the process name */
 	std::string processStartsWithKey;	/*!< key for the string that contains the start of the process */
+	std::string cpu_thresholdKey;		/*!< Key for the CPU threshold value*/
 
 	std::string measureCPU_Key;		/*!< Key to measure or not CPU */
 	std::string measureMEM_Key;		/*!< Key to measure or not Memory */

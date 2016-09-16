@@ -37,7 +37,7 @@ class ConfigurationWindow;
  * \details   This class is the Configuration Window class
  * \author    Jose M. Abuin
  * \version   0.1
- * \date      2015
+ * \date      2016
  * \copyright GNU Public License.
  */
 class ConfigurationWindow : public QDialog

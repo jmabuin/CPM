@@ -46,6 +46,7 @@ Configuration::Configuration()
 	this->processOwnerKey		= "Owner";
 	this->processNameKey		= "ProcessName";
 	this->processStartsWithKey	= "ProcessStartsWith";
+	this->cpu_thresholdKey		= "CPU_Threshold";
 	this->networkKey		= "NetworkInterface";
 	this->masterInInterfaceKey	= "MasterInInterface";
 	this->masterOutInterfaceKey	= "MasterOutInterface";
@@ -143,6 +144,13 @@ Config Configuration::getConfiguration() {
 			currentConfig.processStartsWith = this->settings->value(this->processStartsWithKey.c_str()).toString().toStdString();
 		}
 
+		if(this->settings->contains(this->cpu_thresholdKey.c_str())) {
+			currentConfig.cpuThreshold = this->settings->value(this->cpu_thresholdKey.c_str()).toUInt();
+		}
+		else{
+			currentConfig.cpuThreshold = 0;
+		}
+
 		if(this->settings->contains(this->nodesBMKey.c_str())) {
 			currentConfig.nodesBM = this->settings->value(this->nodesBMKey.c_str()).toString().toStdString();
 		}
@@ -228,6 +236,7 @@ void Configuration::setConfiguration(Config conf){
 	std::string newProcessOwner		= conf.processOwner;
 	std::string newProcessName		= conf.processName;
 	std::string newProcessStartsWith	= conf.processStartsWith;
+	unsigned int newCpu_Threshold		= conf.cpuThreshold;
 	std::string newNetworkInterface		= conf.networkInterface;
 	std::string newMasterInInterface	= conf.masterInInterface;
 	std::string newMasterOutInterface	= conf.masterOutInterface;
@@ -273,6 +282,12 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->processOwnerKey.c_str()),QVariant(QString(newProcessOwner.c_str())));
 	this->settings->setValue(QString(this->processNameKey.c_str()),QVariant(QString(newProcessName.c_str())));
 	this->settings->setValue(QString(this->processStartsWithKey.c_str()),QVariant(QString(newProcessStartsWith.c_str())));
+
+	buffer = (char *) calloc(4,sizeof(char));
+	sprintf(buffer, "%u",newCpu_Threshold);
+	this->settings->setValue(QString(this->cpu_thresholdKey.c_str()),QVariant(QString(buffer)));
+	free(buffer);
+
 	this->settings->setValue(QString(this->networkKey.c_str()),QVariant(QString(newNetworkInterface.c_str())));
 	this->settings->setValue(QString(this->masterInInterfaceKey.c_str()),QVariant(QString(newMasterInInterface.c_str())));
 	this->settings->setValue(QString(this->masterOutInterfaceKey.c_str()),QVariant(QString(newMasterOutInterface.c_str())));

@@ -165,7 +165,7 @@
      <x>10</x>
      <y>430</y>
      <width>561</width>
-     <height>151</height>
+     <height>181</height>
     </rect>
    </property>
    <property name="font">
@@ -183,7 +183,7 @@
       <x>20</x>
       <y>30</y>
       <width>521</width>
-      <height>110</height>
+      <height>146</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
@@ -237,6 +237,16 @@
         </font>
        </property>
       </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_CPU_Threshold">
+       <property name="text">
+        <string>CPU threshold</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="spinBox_CPU_Threshold"/>
      </item>
     </layout>
    </widget>

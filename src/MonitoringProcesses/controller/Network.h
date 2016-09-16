@@ -79,6 +79,7 @@ typedef struct ProcessesInfo{
 	char processStartsWith[MAX_PROCESS_NAME];
 	unsigned int agentId;
 	unsigned int uid;
+	unsigned int cpuThreshold;
 	struct sockaddr_in from;
 	char nodeName[256];
 	struct sockaddr_in destinationNode;

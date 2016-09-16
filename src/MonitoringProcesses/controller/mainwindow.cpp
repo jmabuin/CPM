@@ -277,6 +277,9 @@ void *MainWindow::getData(void *param) {
 	packageAgent.packageId = PACKAGE_ID_DATAPROCESS;
 	strcpy(packageAgent.processName,currentConf.processName.c_str());
 	strcpy(packageAgent.processStartsWith,currentConf.processStartsWith.c_str());
+
+	packageAgent.cpuThreshold = currentConf.cpuThreshold;
+
 	//strcpy(packageAgent.userName,currentConf.userName.c_str());
 	strcpy(packageAgent.userName,currentConf.processOwner.c_str());
 

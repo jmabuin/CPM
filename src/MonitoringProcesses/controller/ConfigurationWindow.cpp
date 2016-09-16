@@ -160,6 +160,9 @@ void ConfigurationWindow::initConfiguration(){
 		this->ui->LineEdit_ProcessStartsWith->setText(cnf.processStartsWith.c_str());
 	}
 
+	this->ui->spinBox_CPU_Threshold->setValue(cnf.cpuThreshold);
+
+
 	if(!cnf.nodesBM.empty()) {
 		this->ui->plainTextEdit_ClusterNodeListBM->setPlainText(cnf.nodesBM.c_str());
 	}
@@ -196,6 +199,7 @@ bool ConfigurationWindow::saveAndClose() {
 	std::string newProcessOwner		= this->ui->LineEdit_ProcessOwner->text().toStdString();
 	std::string newProcessName		= this->ui->LineEdit_ProcessName->text().toStdString();
 	std::string newProcessStartsWith	= this->ui->LineEdit_ProcessStartsWith->text().toStdString();
+	unsigned int newCPU_threshold		= this->ui->spinBox_CPU_Threshold->value();
 	std::string newNetworkInterface		= this->ui->comboBox_NetworkInterfaces->currentText().toStdString();
 	std::string newMasterInInterface	= this->ui->LineEdit_MasterIn->text().toStdString();
 	std::string newMasterOutInterface	= this->ui->LineEdit_MasterOut->text().toStdString();
@@ -246,6 +250,7 @@ bool ConfigurationWindow::saveAndClose() {
 		conf.processOwner	= newProcessOwner;
 		conf.processName	= newProcessName;
 		conf.processStartsWith	= newProcessStartsWith;
+		conf.cpuThreshold	= newCPU_threshold;
 		conf.networkInterface	= newNetworkInterface;
 		conf.masterInInterface	= newMasterInInterface;
 		conf.masterOutInterface	= newMasterOutInterface;
