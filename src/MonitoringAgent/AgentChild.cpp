@@ -257,8 +257,8 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 						strcpy(fileName,"/tmp/");
 						strcpy(shmName,"PapiCount");
 
-						char charPID[5];
-						sprintf(charPID,"%d",proc_info->tid);
+						char charPID[6];
+						sprintf(charPID,"%d\0",proc_info->tid);
 						strcat(shmName,charPID);
 						strcat(fileName,shmName);
 
@@ -301,6 +301,11 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 					//syslog(LOG_INFO,"[%s] PAPI data fulfilled\n",__func__);
 
+				}
+				else {
+					msgToSend.papiMeasures[0] = 0;
+					msgToSend.papiMeasures[1] = 0;
+					msgToSend.papiMeasures[2] = 0;
 				}
 
 				//Fulfill the data to send back
