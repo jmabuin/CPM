@@ -8,6 +8,8 @@ PROG=			MonitoringAgent
 PROC_LIBS = $(shell find /lib/ -name "*libprocps*")
 PROC_LIBS2 = $(shell find /lib/ -name "*libproc*")
 
+LIBS=			-lprocps -lpthread -lpapi
+
 ifneq (, $(findstring procps, $(PROC_LIBS)))
 	LIBS=			-lprocps -lpthread -lpapi
 else ifneq (, $(findstring proc, $(PROC_LIBS2)))
