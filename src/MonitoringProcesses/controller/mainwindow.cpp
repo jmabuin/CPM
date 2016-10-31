@@ -383,6 +383,7 @@ void *MainWindow::getData(void *param) {
 
 		if(rxMsg.packageId == PACKAGE_ID_DATAMSG){
 			//printf("%d %u %lu %2f%c %2f%c %s %s %llu Kb\n",rxMsg.PID, rxMsg.agentId, rxMsg.measureNumber,rxMsg.cpuPercentage,'%', rxMsg.totalCpuPercentage,'%', rxMsg.userName,rxMsg.processName,rxMsg.memory);
+			//fprintf(stderr, "PAPI data: %lld %lld\n", rxMsg.papiMeasures[0], rxMsg.papiMeasures[1]);
 			QWidget *currentWidget = receivedObject->ui->nodesTab->widget(rxMsg.agentId);
 			DataWidget *currentDataWidget;
 

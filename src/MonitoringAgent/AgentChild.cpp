@@ -258,7 +258,8 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 						strcpy(shmName,"PapiCount");
 
 						char charPID[6];
-						sprintf(charPID,"%d\0",proc_info->tid);
+						sprintf(charPID,"%d",proc_info->tid);
+						charPID[5] = '\0';
 						strcat(shmName,charPID);
 						strcat(fileName,shmName);
 
@@ -294,6 +295,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 						//syslog(LOG_INFO,"[%s] Fulfilling PAPI data\n",__func__);
 
 						msgToSend.papiMeasures[0] = shmRegionsData.at(proc_info->tid)[0];
+						//fprintf(stderr,"%lld %lld\n",shmRegionsData.at(proc_info->tid)[0], shmRegionsData.at(proc_info->tid)[1]);
 						msgToSend.papiMeasures[1] = shmRegionsData.at(proc_info->tid)[1];
 						msgToSend.papiMeasures[2] = shmRegionsData.at(proc_info->tid)[2];
 
@@ -303,9 +305,9 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 				}
 				else {
-					msgToSend.papiMeasures[0] = 0;
-					msgToSend.papiMeasures[1] = 0;
-					msgToSend.papiMeasures[2] = 0;
+					msgToSend.papiMeasures[0] = 0L;
+					msgToSend.papiMeasures[1] = 0L;
+					msgToSend.papiMeasures[2] = 0L;
 				}
 
 				//Fulfill the data to send back

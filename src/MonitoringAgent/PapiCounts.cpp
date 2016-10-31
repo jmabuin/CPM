@@ -53,7 +53,8 @@ int countPapi(int PID){
 	strcpy(shmName,"PapiCount");
 
 	char charPID[6];
-	sprintf(charPID,"%d\0",PID);
+	sprintf(charPID,"%d",PID);
+	charPID[5] = '\0';
 	strcat(shmName,charPID);
 	strcat(fileName,shmName);
 
