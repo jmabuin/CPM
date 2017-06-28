@@ -36,6 +36,11 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <vector>
+#include <string>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <algorithm>
 
 #include "Globals.h"
 
@@ -115,5 +120,6 @@ int sendMsg(int txSocket, Agent2MasterDataMsg *msg, struct sockaddr_in *txAddrs)
 int createTxUPDSocket(unsigned int port, char *address, struct sockaddr_in *rxMasterSocket);
 char *strAddr(struct sockaddr_in);
 int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip);
+std::vector<std::string> getInterfaces();
 
 #endif

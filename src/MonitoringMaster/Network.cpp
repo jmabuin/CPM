@@ -191,3 +191,30 @@ int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip) 
 	return 1;
 
 }
+
+std::vector<std::string> getInterfaces() {
+
+	std::vector<std::string> returnedInterfaces;
+
+	struct ifaddrs *ifaddr, *ifa;
+	int n;
+
+	if (getifaddrs(&ifaddr) == -1) {
+		perror("getifaddrs");
+
+	}
+	else{
+		for (ifa = ifaddr, n = 0; ifa != NULL; ifa = ifa->ifa_next, n++) {
+
+			if (ifa->ifa_addr == NULL) {
+				continue;
+			}
+			if(std::find(returnedInterfaces.begin(),returnedInterfaces.end(),ifa->ifa_name) == returnedInterfaces.end()){
+				//printf("%d %s\n",n,ifa->ifa_name);
+				returnedInterfaces.push_back(ifa->ifa_name);
+			}
+		}
+	}
+	return returnedInterfaces;
+
+}

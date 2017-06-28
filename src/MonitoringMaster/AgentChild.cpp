@@ -62,9 +62,25 @@ void createMasterMonitor(int client_port, int master_port, int agent_port, char 
 		strcpy(networkInterface, network_outside);
 	}
 	else {
-		length = strlen(NETWORK_INTERFACE)+1;
-		networkInterface = (char *)malloc(sizeof(char) * length);
-		strcpy(networkInterface,NETWORK_INTERFACE);
+		std::vector<std::string> interfaces_names = getInterfaces();
+		
+		if(interfaces_names.size() >= 2) {
+			if(strcmp(interfaces_names[0].c_str(), "lo") == 0) {
+				length = strlen(interfaces_names[1].c_str())+1;
+				networkInterface = (char *)malloc(sizeof(char) * length);
+				strcpy(networkInterface, interfaces_names[1].c_str());
+			}
+			else {
+				length = strlen(interfaces_names[0].c_str())+1;
+				networkInterface = (char *)malloc(sizeof(char) * length);
+				strcpy(networkInterface, interfaces_names[0].c_str());
+			}
+		}
+		else {
+			length = strlen(NETWORK_INTERFACE)+1;
+			networkInterface = (char *)malloc(sizeof(char) * length);
+			strcpy(networkInterface,NETWORK_INTERFACE);
+		}
 	}
 	
 	
@@ -74,10 +90,28 @@ void createMasterMonitor(int client_port, int master_port, int agent_port, char 
 		strcpy(networkInterfaceInternal, network_internal);
 	}
 	else {
-		length = strlen(NETWORK_INTERFACE_INTERNAL)+1;
-		networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
-		strcpy(networkInterfaceInternal,NETWORK_INTERFACE_INTERNAL);
+		std::vector<std::string> interfaces_names = getInterfaces();
+		
+		if(interfaces_names.size() >= 2) {
+			if(strcmp(interfaces_names[0].c_str(), "lo") == 0) {
+				length = strlen(interfaces_names[1].c_str())+1;
+				networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
+				strcpy(networkInterfaceInternal, interfaces_names[1].c_str());
+			}
+			else {
+				length = strlen(interfaces_names[0].c_str())+1;
+				networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
+				strcpy(networkInterfaceInternal, interfaces_names[0].c_str());
+			}
+		}
+		else {
+			length = strlen(NETWORK_INTERFACE_INTERNAL)+1;
+			networkInterfaceInternal = (char *)malloc(sizeof(char) * length);
+			strcpy(networkInterfaceInternal,NETWORK_INTERFACE_INTERNAL);
+		}
+	
 	}
+	
 
 
 	//Get the current user ID
