@@ -17,7 +17,7 @@
   * along with CPM. If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include "controller/DataWidget.h"
+#include "DataWidget.h"
 #include "ui_DataWidget.h"
 
 #include <QFileDialog>

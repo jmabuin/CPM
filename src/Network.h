@@ -36,6 +36,11 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <vector>
+#include <string>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <algorithm>
 
 #include "Globals.h"
 
@@ -45,7 +50,8 @@
 
 #define MAX_BUF_SIZE 20480
 
-#define DAEMON_NAME "MonitoringAgent"
+#define MASTER_DAEMON_NAME "MonitoringMaster"
+#define AGENT_DAEMON_NAME "MonitoringAgent"
 
 #define PACKAGE_ID_ENERGY 4
 #define PACKAGE_ID_STOP 3
@@ -55,8 +61,12 @@
 #define SLEEP_NUM_SECS 5
 
 #define NETWORK_INTERFACE "eth0"
+//#define NETWORK_INTERFACE_INTERNAL "bond0"
+#define NETWORK_INTERFACE_INTERNAL "eth0"
 
 #define MAX_PROCESS_NAME 2048
+
+#define MAX_MASTER_MONITORS 50
 
 typedef struct Agent2MasterDataMsg{
 	unsigned int packageId;
@@ -74,7 +84,7 @@ typedef struct Agent2MasterDataMsg{
 	int numberOfThreads;
 	long long int papiMeasures[3];
 	//double energyMeasures[24];
-  
+	
 } Agent2MasterDataMsg;
 
 typedef struct ProcessesInfo{
@@ -113,5 +123,6 @@ int sendMsg(int txSocket, Agent2MasterDataMsg *msg, struct sockaddr_in *txAddrs)
 int createTxUPDSocket(unsigned int port, char *address, struct sockaddr_in *rxMasterSocket);
 char *strAddr(struct sockaddr_in);
 int sendMsgTo(void *message, unsigned int msgType, unsigned int port, char *ip);
+std::vector<std::string> getInterfaces();
 
 #endif

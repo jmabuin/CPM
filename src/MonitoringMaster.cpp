@@ -32,7 +32,7 @@
 #include <string.h>
 
 #include "Network.h"
-#include "AgentChild.h"
+#include "MasterChild.h"
 //#include "ssh_handler.h"
 
 using namespace std;
@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
 	//Daemon init
 	if(!getDebugMode()) {
 		setlogmask(LOG_UPTO(LOG_NOTICE | LOG_INFO));
-		openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
+		openlog(MASTER_DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
 	}
     
 	// printFunction(0, "Entering Daemon MonitoringMaster\n");

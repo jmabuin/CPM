@@ -1,6 +1,6 @@
 /**
-  * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
-  * 
+  * Copyright 2015 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
+  *
   * This file is part of CPM.
   *
   * CPM is free software: you can redistribute it and/or modify
@@ -12,43 +12,18 @@
   * but WITHOUT ANY WARRANTY; without even the implied warranty of
   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   * GNU General Public License for more details.
-  * 
+  *
   * You should have received a copy of the GNU General Public License
   * along with CPM. If not, see <http://www.gnu.org/licenses/>.
   */
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <syslog.h>
-#include "Globals.h"
+#include "controller/mainwindow.h"
+#include <QApplication>
 
-int DEBUG_MODE = 0;
+int main(int argc, char *argv[]) {
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
 
-
-void setDebugMode(int new_mode) {
-
-	DEBUG_MODE = new_mode;
-
+    return a.exec();
 }
-
-int getDebugMode() {
-	return DEBUG_MODE;
-}
-
-void printFunction (int error, const char* format, ...) {
-
-	va_list argptr;
-	va_start(argptr, format);
-
-	if (DEBUG_MODE) {
-		vfprintf(stderr, format, argptr);
-	}
-	else if (error) {
-		syslog(LOG_ERR, format, argptr);
-	}
-	else{
-		syslog(LOG_INFO, format, argptr);
-	}
-
-}
-

@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
 	//Daemon init
 	if(!getDebugMode()) {
 		setlogmask(LOG_UPTO(LOG_NOTICE | LOG_INFO));
-		openlog(DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
+		openlog(AGENT_DAEMON_NAME, LOG_CONS | LOG_NDELAY | LOG_PERROR | LOG_PID, LOG_USER);
 	}
 	
 	printFunction(0, "[%s] Entering Daemon MonitoringAgent\n",__func__);
