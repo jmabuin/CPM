@@ -16,7 +16,8 @@ The general process of how **CPM** works can be seen at [Figure 1](#figure1).
 <center>
 <a name="figure1"></a><img src="./doc/Images/Diagrama2.png" alt="Figure 1" style="width: 500px;"/>
 </center>
-Typically, only the master node has direct acces to the outside world (Internet). In this master node is where the **MonitoringMaster** is going to run. This daemon acts as a bridge between the computing nodes and the user PC. It is going to open a port (8000 by default) and waits for messages from **MonitoringProcesses**, this is, the client. This client is the visual program that runs in the user PC. The **MonitoringProcesses** program opens the port 10000 bu default, where it receives packages from the master node with data that contains the information from the computing nodes. In the computing nodes is where the **MonitorinsAgent** runs. This daemon opens the port 20000 by default. All these ports are configurable from the **Monitoringprocesses** graphical interface.
+
+Typically, only the master node has direct access to the outside world (Internet). In this master node is where the **MonitoringMaster** is going to run. This daemon acts as a bridge between the computing nodes and the user PC. It is going to open a port (8000 by default) and waits for messages from **MonitoringProcesses**, this is, the client. This client is the visual program that runs in the user PC. The **MonitoringProcesses** program opens the port 10000 bu default, where it receives packages from the master node with data that contains the information from the computing nodes. In the computing nodes is where the **MonitorinsAgent** runs. This daemon opens the port 20000 by default. All these ports are configurable from the **MonitoringProcesses** graphical interface.
 
 When the **MonitoringProcesses** client wants to start taking measures from a job, it sends a package to the **MonitoringMaster**. This daemon creates an image from itself by using the *fork()* function and listens in the port 8000 + N, where N is the number of **MonitoringMaster** processes that are already running in the master node. This forked process sends an ACK to the client. In this way, the client knows that the program is running in the master node and at wich port. After that, the client sends to this new process a package pear each one of the agents it wants to have data from, and a package to indicate that also wants data from this master node. Then, the **MonitoringMaster** sends a package to each one of the computing nodes, where the **MonitoringAgent** is running. This daemon forks and launchs a **MonitoringAgent** process in each one of the computing nodes. This forked processes are the ones that actually get the information from given processes and send it back to the **MonitoringMaster**, who is going to re-send it to the client.
 
@@ -36,7 +37,6 @@ In this GitHub repository you can find the following directories:
 * doc - Documentation.
 * script - Scripts that can be used to start or stop the daemons.
 * src - **CPM** source code. It includes the source of the three programs.
-* build - Directory where the final compiled programs are stored. This directory is created when building the application.
 
 # Getting started #
 
@@ -55,7 +55,7 @@ Common requirements for the three programs are a Linux 64 bit distribution. Indi
 
 ### MonitoringAgent ###
 
-* *procps* development libraries. In Debian, *libprocps4-dev*, in CentOs, *procps-devel.x86_64*.
+* *procps* development libraries.
 * [PAPI][6] library.
 * C++11.
 
@@ -65,6 +65,9 @@ The default way to build **CPM** is:
 
 	git clone https://github.com/jmabuin/CPM.git
 	cd CPM
+	mkdir build
+	cd build
+	cmake ..
 	make
 
 This will create the *build* folder, which will contain three files:
@@ -84,7 +87,8 @@ To configure **CPM** open the **MonitoringProcesses** program and then click on 
 
 This window have the following configuration parameters:
 
-###**Cluster settings**###
+### **Cluster settings** ###
+
 **Usual Nodes**: This is where we have to write the master node name, for example: *masternode.domain.com*
 
 **Nodes Behind Master Node**: This is where we have to write the computing node names, one per line. Typically, this names are in the master node */etc/hosts* file. For example, in a hadoop cluster, the content could be:
@@ -102,11 +106,11 @@ This window have the following configuration parameters:
 
 **IMPORTANT**: The ports configuration only works if the user uses the Deploy mode. Otherwise, the ports need to be specified when launching the **MonitoringMaster** and **MonitoringAgents** applications.
 
-###**Measurements**###
+### **Measurements** ###
 
 Here the user can configure what data he/she wants to aquire from the processes running in the cluser. By default, CPU Percentage and memory are measured. Also, PAPI counters can be measured. For now, only the PAPI_L1_DCM, PAPI_L2_DCM and PAPI_TOT_INS are measured. Energy can also be measured if the CPUs in the computing nodes have the [Intel RAPL Registers](http://icl.cs.utk.edu/projects/papi/wiki/PAPITopics:RAPL_Access) enabled.
 
-###**Network Interfaces**###
+### **Network Interfaces** ###
 
 This configuration will only work if we use the deploy mode.
 
@@ -116,7 +120,7 @@ This configuration will only work if we use the deploy mode.
 
 **Master in**: In this field we need to write the network interface that the master node uses to communicate with the internal network. Default: eth0.
 
-###**Process Settings**###
+### **Process Settings** ###
 
 Here we will insert the characteristics of the process that we want to gather information.
 
@@ -148,7 +152,7 @@ To configure the deploy mode, go to `File -> Manage cluster...`. You should see 
 
 This window have the following configuration parameters:
 
-###**SSH Connection settings**###
+### **SSH Connection settings** ###
 **Username**: Username to connect with master and computing nodes.
 
 **Password**: Password to connect with master node.
@@ -161,7 +165,7 @@ This window have the following configuration parameters:
 
 **Prefered connection method**: Here the user can choose to use a username - password authentication or use the key file. For now, only the username - password works.
 
-###**Actions**###
+### **Actions** ###
 
 Here is where the deploy actions will take place. There are four possible actions:
 
@@ -170,9 +174,9 @@ Here is where the deploy actions will take place. There are four possible action
 * **Stop**: Stop the *MonitoringMaster* and *MonitoringAgent* processes launched with the *Run* action.
 * **Check**: Check if the processes *MonitoringMaster* and *MonitoringAgent* are running in our cluster.
 
-###**Locations**###
+### **Locations** ###
 
-The precious Actions can take place in different locations:
+The previous Actions can take place in different locations:
 
 * **Agents**: The computing nodes.
 * **Master**: The master node.
@@ -181,7 +185,7 @@ The precious Actions can take place in different locations:
 ## Deploying manually ##
 It is also possible to deploy the tool manually. In each one of the cluster computing node the **MonitoringAgent** has to be running. For that, in each one of these nodes, the user has to execute `./MonitoringAgent`. In the master node, the **MonitoringAgent** and the **MonitoringMaster** have to be running. In the case of the Agent, the command is the same. For the Master the command is `./MonitoringMaster`. And finally, in the user's PC, the command to execute is `./MonitoringProcesses`. This last command will open the graphic interface made with [Qt][4].
 
-##Configuring the MonitoringMaster program##
+## Configuring the MonitoringMaster program ##
 
 If we execute the **MonitoringMaster** program with the `-h` parameter, we will see all the available options.
 
@@ -209,7 +213,7 @@ If we execute the **MonitoringMaster** program with the `-h` parameter, we will 
 These options are useful if we do not want to use the deploy mode. In the deploy mode, these configuration parameters are set automatically.
 
 
-##Configuring the MonitoringAgent program##
+## Configuring the MonitoringAgent program ##
 
 If we execute the **MonitoringAgent** program with the `-h` parameter, we will see all the available options.
 
@@ -244,15 +248,8 @@ These options are useful if we do not want to use the deploy mode. In the deploy
 
 ###To Do
 
-- [ ] Creation of install target in Makefile.
 - [ ] Improve the ports assignation to forked processes.
 
-##Frequently asked questions (FAQs)
-
-1. [I can not build the tool because I can not find the procps library.](#building1)
-
-####<a name="building1"></a>1. I can not build the tool because I can not find the procps library.
-Depending on the Linux distribution the name of the library can change. For example, in Debian the library is linked with the *-lprocps* argument, and in CentOs with *-lproc* argument. Check in your library folder for the libproc library and link it properly in your Makefile.
 
 [1]: https://www.nagios.org/
 [2]: http://www.zabbix.com/
