@@ -158,8 +158,8 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 			if(proc_info->cmdline) {
 				char *tmpCmd = proc_info->cmdline[0];
 
-				char space[1];
-				strcpy(space," ");
+				//char space[1];
+				//strcpy(space," ");
 
 				int j = 0;
 
@@ -178,7 +178,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 					}
 					else{
 						if((strlen(processName) + strlen(tmpCmd)+1) < MAX_PROCESS_NAME) {
-							strcat(processName, space);
+							strcat(processName, " ");
 							strcat(processName, tmpCmd);
 						}
 
