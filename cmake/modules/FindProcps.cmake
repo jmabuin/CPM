@@ -149,7 +149,7 @@ set(desc_PROCPS_STATIC      # list will be displayed joined with semi-colon
         " this is usually required because procps API is not standardized"
         " turn this OFF only if you have patched libprocps to export all needed symbols.")
 
-option(PROCPS_STATIC "${desc_PROCPS_STATIC}" TRUE)
+option(PROCPS_STATIC "${desc_PROCPS_STATIC}" FALSE)
 
 set(help_PROCPS_STATIC_LOCATION
         "You can override location of libprocps library to which you want statically"
@@ -173,6 +173,8 @@ set(help_PROCPS_SHARED
         "Otherwise consider static linkage to libprocps by setting cmake"
         " variable PROCPS_STATIC, e.g. by running\n"
         " ## cmake -D PROCPS_STATIC:BOOL=ON .\n" )
+
+option(PROCPS_SHARED "${desc_PROCPS_SHARED}" TRUE)
 
 set(help_PROCPS_SHARED_LOCATION
         "You can override location of shared libprocps library and the include"
