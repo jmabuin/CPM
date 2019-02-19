@@ -88,6 +88,7 @@ void ConfigurationWindow::initConfiguration(){
 	this->ui->checkBox_MEM->setChecked(true);
 	this->ui->checkBox_MEM->setEnabled(false);
 
+	this->ui->checkBox_cmake3->setChecked(false);
 
 	//Get the network interfaces and list them in the combobox
 	Network networkObject = Network();
@@ -177,6 +178,7 @@ void ConfigurationWindow::initConfiguration(){
 
 	this->ui->checkBox_Energy->setChecked(cnf.checkEnergy_Status);
 
+	this->ui->checkBox_cmake3->setChecked(cnf.use_cmake3);
 
 }
 
@@ -208,6 +210,8 @@ bool ConfigurationWindow::saveAndClose() {
 	bool newCheckCPU_Status			= this->ui->checkBox_CPU->isChecked();
 	bool newCheckPapi_Status		= this->ui->checkBox_PapiCounters->isChecked();
 	bool newCheckEnergy_Status		= this->ui->checkBox_Energy->isChecked();
+
+	bool newUse_cmake3                  = this->ui->checkBox_cmake3->isChecked();
 
 	QMessageBox msgBox;
 	msgBox.setWindowTitle("Error");
@@ -258,7 +262,7 @@ bool ConfigurationWindow::saveAndClose() {
 		conf.checkCPU_Status	= newCheckCPU_Status;
 		conf.checkPapi_Status	= newCheckPapi_Status;
 		conf.checkEnergy_Status	= newCheckEnergy_Status;
-
+        conf.use_cmake3         = newUse_cmake3;
 
 		config.setConfiguration(conf);
 

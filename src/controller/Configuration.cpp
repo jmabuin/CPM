@@ -30,24 +30,24 @@
 Configuration::Configuration()
 {
 
-	this->configFile		= "Configuration";
+	this->configFile			= "Configuration";
 	
-	this->userKey			= "User";
-	this->passwordKey		= "Password";
-	this->nodesKey			= "Nodes";
-	this->portKey			= "Port";
+	this->userKey				= "User";
+	this->passwordKey			= "Password";
+	this->nodesKey				= "Nodes";
+	this->portKey				= "Port";
 	this->internalSSH_PortKey	= "InternalSSHPort";
-	this->clientPortKey		= "ClientPort";
-	this->masterPortKey		= "MasterPort";
-	this->agentPortKey		= "AgentPort";
-	this->keyFileKey		= "Key";
-	this->nodesBMKey		= "NodesBM";
-	this->networkKey		= "NetInterface";
+	this->clientPortKey			= "ClientPort";
+	this->masterPortKey			= "MasterPort";
+	this->agentPortKey			= "AgentPort";
+	this->keyFileKey			= "Key";
+	this->nodesBMKey			= "NodesBM";
+	this->networkKey			= "NetInterface";
 	this->processOwnerKey		= "Owner";
 	this->processNameKey		= "ProcessName";
 	this->processStartsWithKey	= "ProcessStartsWith";
 	this->cpu_thresholdKey		= "CPU_Threshold";
-	this->networkKey		= "NetworkInterface";
+	this->networkKey			= "NetworkInterface";
 	this->masterInInterfaceKey	= "MasterInInterface";
 	this->masterOutInterfaceKey	= "MasterOutInterface";
 	this->measureCPU_Key		= "M_CPU";
@@ -56,7 +56,9 @@ Configuration::Configuration()
 	this->measureEnergy_Key		= "M_PAPI_RAPL";
 
 	this->SSH_UsernamePassword	= "SSH_UserPass";
-	this->SSH_KeyFile		= "SSH_KeyFile";
+	this->SSH_KeyFile			= "SSH_KeyFile";
+
+	this->use_cmake3Key			= "cmake3";
 
 }
 
@@ -209,6 +211,12 @@ Config Configuration::getConfiguration() {
 			currentConfig.SSH_KeyFile = false;
 		}
 
+		if(this->settings->contains(this->use_cmake3Key.c_str())) {
+			currentConfig.use_cmake3 = this->settings->value(this->use_cmake3Key.c_str(), false).toBool();
+		}
+		else{
+			currentConfig.use_cmake3 = false;
+		}
 
 		return currentConfig;
 
@@ -247,6 +255,8 @@ void Configuration::setConfiguration(Config conf){
 
 	bool newSSH_UsernamePassword		= conf.SSH_UsernamePassword;
 	bool newSSH_KeyFile			= conf.SSH_KeyFile;
+
+	bool newUse_cmake3					= conf.use_cmake3;
 
 	this->settings->setValue(QString(this->userKey.c_str()),QVariant(QString(newUser.c_str())));
 	this->settings->setValue(QString(this->passwordKey.c_str()),QVariant(QString(this->encryptDecrypt(newPassword).c_str())));
@@ -297,6 +307,8 @@ void Configuration::setConfiguration(Config conf){
 	this->settings->setValue(QString(this->measureEnergy_Key.c_str()),newCheckEnergy_Status);
 	this->settings->setValue(QString(this->SSH_UsernamePassword.c_str()),newSSH_UsernamePassword);
 	this->settings->setValue(QString(this->SSH_KeyFile.c_str()),newSSH_KeyFile);
+
+	this->settings->setValue(QString(this->use_cmake3Key.c_str()),newUse_cmake3);
 
 
 }

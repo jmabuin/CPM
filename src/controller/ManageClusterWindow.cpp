@@ -121,13 +121,13 @@ bool ManageClusterWindow::saveAndClose() {
     //Save settings and close
 
     //1.- Check values
-    std::string newUser			= this->ui->LineEdit_Username->text().toStdString();
+    std::string newUser			    = this->ui->LineEdit_Username->text().toStdString();
     std::string newPassword			= this->ui->LineEdit_Password->text().toStdString();
-    int newPort				= this->ui->LineEdit_Port->text().toInt(); //.toStdString();
-    std::string newKey			= this->ui->LineEdit_KeyFile->text().toStdString();
+    int newPort				        = this->ui->LineEdit_Port->text().toInt(); //.toStdString();
+    std::string newKey			    = this->ui->LineEdit_KeyFile->text().toStdString();
 
-    bool newSSH_UsernamePassword		= this->ui->radioButton_userpass->isChecked();
-    bool newSSH_KeyFile			= this->ui->radioButton_keyfile->isChecked();
+    bool newSSH_UsernamePassword	= this->ui->radioButton_userpass->isChecked();
+    bool newSSH_KeyFile			    = this->ui->radioButton_keyfile->isChecked();
 
     QMessageBox msgBox;
     msgBox.setWindowTitle("Error");
@@ -150,12 +150,12 @@ bool ManageClusterWindow::saveAndClose() {
 
         Config conf = config.getConfiguration();
 
-        conf.userName			= newUser;
-        conf.password			= newPassword;
-        conf.port			= newPort;
-        conf.key			= newKey;
+        conf.userName			    = newUser;
+        conf.password			    = newPassword;
+        conf.port			        = newPort;
+        conf.key			        = newKey;
         conf.SSH_UsernamePassword	= newSSH_UsernamePassword;
-        conf.SSH_KeyFile		= newSSH_KeyFile;
+        conf.SSH_KeyFile		    = newSSH_KeyFile;
 
         config.setConfiguration(conf);
 
@@ -264,7 +264,13 @@ void ManageClusterWindow::deployMasterRun() {
 
     this->executeCommandInMaster("rm -R CPM");
     this->executeCommandInMaster("git clone "+this->projectGitURL);
-    this->executeCommandInMaster("cd CPM/ && mkdir build && cd build && cmake -DONLY_MASTER=true .. && make");
+
+    if (!this->config.use_cmake3) {
+        this->executeCommandInMaster("cd CPM/ && mkdir build && cd build && cmake -DONLY_MASTER=true .. && make");
+    }
+    else {
+        this->executeCommandInMaster("cd CPM/ && mkdir build && cd build && cmake3 -DONLY_MASTER=true .. && make");
+    }
 
 }
 
@@ -274,7 +280,14 @@ void ManageClusterWindow::deployAgentsRun() {
 
     this->executeCommandInAgents("rm -R CPM");
     this->copyFromMaster2Agents("CPM/");
-    this->executeCommandInAgents("cd CPM/build/ && rm -Rf ./* && cmake -DONLY_AGENT=true .. && make");
+
+    if (!this->config.use_cmake3) {
+        this->executeCommandInAgents("cd CPM/build/ && rm -Rf ./* && cmake -DONLY_AGENT=true .. && make");
+    }
+    else {
+        this->executeCommandInAgents("cd CPM/build/ && rm -Rf ./* && cmake3 -DONLY_AGENT=true .. && make");
+    }
+
 
 }
 

@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	//Call to vcarious procedures to init the Window
+	//Call to various procedures to init the Window
 	this->initWindow();
 	this->createActions();
 	this->createMenus();
