@@ -24,6 +24,8 @@
 #include "ManageClusterWindow.h"
 #include "ui_ManageClusterWindow.h"
 #include <QFileDialog>
+#include <iostream>
+#include <sstream>
 
 ManageClusterWindow::ManageClusterWindow(QWidget *parent) :
         QDialog(parent),
@@ -51,39 +53,39 @@ void ManageClusterWindow::initConfiguration(){
 
     Configuration conf = Configuration();
 
-    Config cnf = conf.getConfiguration();
+    this->config = conf.getConfiguration();
 
-    if(!cnf.userName.empty()) {
-        this->ui->LineEdit_Username->setText(cnf.userName.c_str());
+    if(!this->config.userName.empty()) {
+        this->ui->LineEdit_Username->setText(this->config.userName.c_str());
     }
 
     //if(this->settings->contains(this->passwordKey.c_str())) { //Here we decrypt the value from the configuration file
-    if(!cnf.password.empty()) {
-        this->ui->LineEdit_Password->setText(cnf.password.c_str());
+    if(!this->config.password.empty()) {
+        this->ui->LineEdit_Password->setText(this->config.password.c_str());
     }
 
-    if(!cnf.key.empty()) {
-        this->ui->LineEdit_KeyFile->setText(cnf.key.c_str());
+    if(!this->config.key.empty()) {
+        this->ui->LineEdit_KeyFile->setText(this->config.key.c_str());
     }
 
 
     char buffer[6];
-    sprintf(buffer, "%d", cnf.port);
+    sprintf(buffer, "%d", this->config.port);
     this->ui->LineEdit_Port->setText(buffer);
 
     char bufferSSH_Internal[6];
-    sprintf(bufferSSH_Internal, "%d", cnf.internalSSH_Port);
+    sprintf(bufferSSH_Internal, "%d", this->config.internalSSH_Port);
     this->ui->LineEdit_SSH_Internal_Port->setText(bufferSSH_Internal);
 
     //if(this->settings->contains(this->keyFileKey.c_str())) {
-    if(!cnf.key.empty()) {
-        this->ui->LineEdit_KeyFile->setText(cnf.key.c_str());
+    if(!this->config.key.empty()) {
+        this->ui->LineEdit_KeyFile->setText(this->config.key.c_str());
     }
 
 
-    this->ui->radioButton_userpass->setChecked(cnf.SSH_UsernamePassword);
+    this->ui->radioButton_userpass->setChecked(this->config.SSH_UsernamePassword);
 
-    this->ui->radioButton_keyfile->setChecked(cnf.SSH_KeyFile);
+    this->ui->radioButton_keyfile->setChecked(this->config.SSH_KeyFile);
 
 
 }
@@ -148,16 +150,16 @@ bool ManageClusterWindow::saveAndClose() {
 
         Configuration config = Configuration();
 
-        Config conf = config.getConfiguration();
+        //Config conf = config.getConfiguration();
 
-        conf.userName			    = newUser;
-        conf.password			    = newPassword;
-        conf.port			        = newPort;
-        conf.key			        = newKey;
-        conf.SSH_UsernamePassword	= newSSH_UsernamePassword;
-        conf.SSH_KeyFile		    = newSSH_KeyFile;
+        this->config.userName			    = newUser;
+        this->config.password			    = newPassword;
+        this->config.port			        = newPort;
+        this->config.key			        = newKey;
+        this->config.SSH_UsernamePassword	= newSSH_UsernamePassword;
+        this->config.SSH_KeyFile		    = newSSH_KeyFile;
 
-        config.setConfiguration(conf);
+        config.setConfiguration(this->config);
 
         return true;
 
@@ -266,9 +268,12 @@ void ManageClusterWindow::deployMasterRun() {
     this->executeCommandInMaster("git clone "+this->projectGitURL);
 
     if (!this->config.use_cmake3) {
+        fprintf(stderr, "[%s] Not using cmake3\n",__func__);
         this->executeCommandInMaster("cd CPM/ && mkdir build && cd build && cmake -DONLY_MASTER=true .. && make");
+
     }
     else {
+        fprintf(stderr, "[%s] Using cmake3\n",__func__);
         this->executeCommandInMaster("cd CPM/ && mkdir build && cd build && cmake3 -DONLY_MASTER=true .. && make");
     }
 
@@ -471,9 +476,9 @@ void ManageClusterWindow::executeCommandInAgents(std::string command) {
 
     std::string hostnames		= conf.nodesBM;
     std::string hostname		= conf.nodes;
-    int port			= this->ui->LineEdit_Port->text().toInt();
+    int port			        = this->ui->LineEdit_Port->text().toInt();
     std::string internal_port	= this->ui->LineEdit_SSH_Internal_Port->text().toStdString();
-    int verbosity			= SSH_LOG_PROTOCOL;
+    int verbosity			    = SSH_LOG_PROTOCOL;
     std::string username		= this->ui->LineEdit_Username->text().toStdString();
     std::string password;
     std::string keyFileName;
@@ -492,47 +497,52 @@ void ManageClusterWindow::executeCommandInAgents(std::string command) {
     unsigned int buffer_length_command = 4096;
     std::string ssh_command;
 
-    char *nodes;
+    std::string current_node;
 
-    char *nodesTmp = (char *)malloc(hostnames.length()*sizeof(char));
-    strcpy(nodesTmp,hostnames.c_str());
+    std::vector<std::string> nodes;
+
+
+    std::stringstream ss(hostnames.c_str());
+
+    while(std::getline(ss, current_node, '\n')){
+        nodes.push_back(current_node);
+    }
 
 
     this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString("=====Executing remote command=====\n"));
 
-    nodes = strtok(nodesTmp,"\n");
-    while(nodes != NULL){
+    SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
+    //sshHandler.sftp_allocate();
 
-        //fprintf(stderr, "[%s] Deploying agent in %s\n",__func__, nodes);
+    connectResult = sshHandler.connect();
+
+    if(!connectResult) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        msgBox.setText("Could not open SSH session");
+        msgBox.exec();
+    }
+
+    for(int i = 0; i< nodes.size(); ++i) {
+
+        current_node = nodes[i];
+        fprintf(stderr, "[%s] Deploying agent in %s\n",__func__, current_node.c_str());
+
         this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString("==========================\n"));
-        this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(nodes)+"\n");
+        this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(current_node.c_str())+"\n");
 
-
-        SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
-        //sshHandler.sftp_allocate();
-
-        connectResult = sshHandler.connect();
-
-        if(!connectResult) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Error");
-            msgBox.setStandardButtons(QMessageBox::Ok);
-
-            msgBox.setText("Could not open SSH session");
-            msgBox.exec();
-        }
 
         char *result_command = (char *)calloc(buffer_length_command, sizeof(char));
 
-        //std::string command_to_execute = "scp -r CPM/ "+std::string(nodes)+":CPM/";
-
         if(internal_port != "22"){
-            ssh_command = "ssh -p "+internal_port+" "+nodes+" \""+command.c_str()+"\"";
-
+            ssh_command = "ssh -p "+internal_port+" "+current_node+" \""+command.c_str()+"\"";
+            //std::cout << ssh_command << std::endl;
         }
         else {
-            ssh_command = "ssh "+std::string(nodes)+" \""+command.c_str()+"\"";
-
+            ssh_command = "ssh "+current_node+" \""+command.c_str()+"\"";
+            std::cout << ssh_command << std::endl;
         }
 
         this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(ssh_command.c_str())+"\n");
@@ -544,24 +554,23 @@ void ManageClusterWindow::executeCommandInAgents(std::string command) {
 
         free(result_command);
 
-        sshHandler.disconnect();
-
-
-        nodes = strtok(NULL,"\n");
     }
+
+    sshHandler.disconnect();
 }
 
 void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
 
+    //fprintf(stderr, "Performing SCP command\n");
     Configuration config = Configuration();
 
     Config conf = config.getConfiguration();
 
     std::string hostnames		= conf.nodesBM;
     std::string hostname		= conf.nodes;
-    int port			= this->ui->LineEdit_Port->text().toInt();
+    int port			        = this->ui->LineEdit_Port->text().toInt();
     std::string internal_port	= this->ui->LineEdit_SSH_Internal_Port->text().toStdString();
-    int verbosity			= SSH_LOG_PROTOCOL;
+    int verbosity			    = SSH_LOG_PROTOCOL;
     std::string username		= this->ui->LineEdit_Username->text().toStdString();
     std::string password;
     std::string keyFileName;
@@ -580,46 +589,53 @@ void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
     unsigned int buffer_length_command = 4096;
     std::string ssh_command;
 
-    char *nodes;
+    std::string current_node;
 
-    char *nodesTmp = (char *)malloc(hostnames.length()*sizeof(char));
-    strcpy(nodesTmp,hostnames.c_str());
+    std::vector<std::string> nodes;
+    
+    std::stringstream ss(hostnames.c_str());
+
+    while(std::getline(ss,current_node,'\n')){
+        nodes.push_back(current_node);
+    }
 
     this->ui->plainTextEdit_MasterOutput->clear();
     this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString("=====Executing remote command=====\n"));
 
-    nodes = strtok(nodesTmp,"\n");
-    while(nodes != NULL){
+    SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
+    //sshHandler.sftp_allocate();
+
+    connectResult = sshHandler.connect();
+
+    if(!connectResult) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+
+        msgBox.setText("Could not open SSH session");
+        msgBox.exec();
+    }
+
+    for(int i = 0; i< nodes.size(); ++i) {
+
+        current_node = nodes[i];
 
         //fprintf(stderr, "[%s] Deploying agent in %s\n",__func__, nodes);
+        std::cout << "Performing SCP in node: " << current_node << std::endl;
         this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString("==========================\n"));
-        this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(nodes)+"\n");
-
-
-        SSH_Handler sshHandler = SSH_Handler(hostname, port, verbosity, username, password, keyFileName);
-        //sshHandler.sftp_allocate();
-
-        connectResult = sshHandler.connect();
-
-        if(!connectResult) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Error");
-            msgBox.setStandardButtons(QMessageBox::Ok);
-
-            msgBox.setText("Could not open SSH session");
-            msgBox.exec();
-        }
+        this->ui->plainTextEdit_MasterOutput->setPlainText(this->ui->plainTextEdit_MasterOutput->toPlainText() + QString(current_node.c_str())+"\n");
 
         char *result_command = (char *)calloc(buffer_length_command, sizeof(char));
 
         //std::string command_to_execute = "scp -r CPM/ "+std::string(nodes)+":CPM/";
 
         if(internal_port != "22"){
-            ssh_command = "scp -p "+internal_port+" -r "+path+" "+std::string(nodes)+":"+path;
+            ssh_command = "scp -p "+internal_port+" -r "+path+" "+current_node+":"+path;
 
         }
         else {
-            ssh_command = "scp -r "+path+" "+std::string(nodes)+":"+path;
+            ssh_command = "scp -r "+path+" "+current_node+":"+path;
+            fprintf(stderr, "SCP command is %s\n", ssh_command.c_str());
 
         }
 
@@ -632,11 +648,9 @@ void ManageClusterWindow::copyFromMaster2Agents(std::string path) {
 
         free(result_command);
 
-        sshHandler.disconnect();
-
-
-        nodes = strtok(NULL,"\n");
     }
+
+    sshHandler.disconnect();
 
 }
 
