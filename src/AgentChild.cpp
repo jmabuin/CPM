@@ -18,6 +18,7 @@
   */
 
 
+#include <iostream>
 #include "AgentChild.h"
 #include "Globals.h"
 
@@ -85,21 +86,27 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 	pid_t childPidRAPL = 0;
 	//Variables to get process information
 	unsigned int cpuUsage = rxMsg.cpuThreshold;
-
+/*
 	char userName[1024];// = (char*)calloc(1024,sizeof(char));
 	char processName[MAX_PROCESS_NAME];// = (char*)calloc(1024,sizeof(char));
 	char *processNameRE = (char*)calloc(MAX_PROCESS_NAME,sizeof(char));
 	char processStartsWith[MAX_PROCESS_NAME];
+*/
 
+	std::string userNameStr = std::string(rxMsg.userName);
+    std::string processNameStr;
+    std::string processNameREStr = std::string(rxMsg.processName);
+    std::string processStartsWithStr = std::string(rxMsg.processStartsWith);
+    std::string current_username;
 	//char *processNameFull = (char*)calloc(1024,sizeof(char));
 
-
+/*
 	strcpy(userName,rxMsg.userName);
 	strcpy(processStartsWith,rxMsg.processStartsWith);
 	//strcpy(processName,rxMsg.processName);
 
 	strcpy(processNameRE,rxMsg.processName);
-
+*/
 	//Variables to calculate pcpu -> % CPU
 	unsigned long long seconds;
 	unsigned pcpu = 0;
@@ -130,7 +137,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 	signal(SIGUSR1, stopAgentHandler);
 
-	syslog(LOG_INFO,"[%s] New agent created %d %lu\n",__func__,getpid(),strlen(processStartsWith));
+	syslog(LOG_INFO,"[%s] New agent created %d %lu\n",__func__,getpid(),processStartsWithStr.length());
 
 	while(!stopAgent ){
 
@@ -149,14 +156,16 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 		//To get the memory information into global variables
 		meminfo();
-
-		while((proc_info = proc_tab[procTabIndex])!=NULL){
-			
+		while((proc_info = proc_tab[procTabIndex]) != nullptr){
 
 			//Store the current process name into the processName variable
 
+			processNameStr.clear();
+			current_username.clear();
+
 			if(proc_info->cmdline) {
-				char *tmpCmd = proc_info->cmdline[0];
+
+			    char *tmpCmd = proc_info->cmdline[0];
 
 				//char space[1];
 				//strcpy(space," ");
@@ -166,22 +175,11 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				while(tmpCmd) {
 
 					if(j == 0) {
-						if(strlen(tmpCmd) < MAX_PROCESS_NAME) {
-							sprintf(processName,"%s",tmpCmd);
-						}
-						else{
-							memcpy(processName,tmpCmd,MAX_PROCESS_NAME-1);
-							processName[MAX_PROCESS_NAME-1] = '\0';
-						}
-
+                        processNameStr = std::string(proc_info->cmdline[j]) + " ";
 
 					}
 					else{
-						if((strlen(processName) + strlen(tmpCmd)+1) < MAX_PROCESS_NAME) {
-							strcat(processName, " ");
-							strcat(processName, tmpCmd);
-						}
-
+                        processNameStr += std::string(proc_info->cmdline[j]) + " ";
 
 					}
 
@@ -190,20 +188,20 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				}
 			}
 			else{
-				if(strlen(proc_info->cmd)  < MAX_PROCESS_NAME) {
-					sprintf(processName,"%s",proc_info->cmd);
-				}
-				else {
-					memcpy(processName,proc_info->cmd,MAX_PROCESS_NAME-1);
-					processName[MAX_PROCESS_NAME-1] = '\0';
-				}
+                processNameStr = std::string(proc_info->cmd);
 
 			}
 
-			//We check if the process belongs to our user, the process fulfills the regular expression and the CPU usage is above the threshold (currently 0)
+            if (getpwuid(proc_info->ruid) != nullptr) {
+                current_username = std::string(getpwuid(proc_info->ruid)->pw_name);
+            }
+            else {
+                current_username = "";
+            }
 
-			if((strcmp(userName,getpwuid(proc_info->ruid)->pw_name)==0) && (cpuUsage <= (proc_info->pcpu)) && (strstr(processName,processNameRE)!=NULL) && strncmp(processStartsWith, processName, strlen(processStartsWith)) == 0){
-
+            //We check if the process belongs to our user, the process fulfills the regular expression and the CPU usage is above the threshold (currently 0)
+			//if((strcmp(userName,getpwuid(proc_info->ruid)->pw_name)==0) && (cpuUsage <= (proc_info->pcpu)) && (strstr(processName,processNameRE)!=NULL) && strncmp(processStartsWith, processName, strlen(processStartsWith)) == 0){
+            if((userNameStr.compare(current_username) == 0) && (cpuUsage <= (proc_info->pcpu)) && (processNameStr.find(processNameREStr) != std::string::npos) && (processNameStr.find(processStartsWithStr) == 0)){
 
 				//We calculate the TOTAL percentage of CPU
 				pcpu = 0;
@@ -334,7 +332,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 
 				strcpy(msgToSend.userName,getpwuid(proc_info->ruid)->pw_name);
 				//strcpy(msgToSend.processName, proc_info->cmd);
-				strcpy(msgToSend.processName, processName);
+				strcpy(msgToSend.processName, processNameStr.c_str());
 				msgToSend.memory = proc_info->vm_rss;
 				msgToSend.memoryPercentage = (msgToSend.memory*100.0)/kb_main_total;
 
@@ -343,7 +341,6 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				//syslog(LOG_INFO,"[%s] Process data package %lu sent to %s:%d\n",__func__,msgToSend.messageNumber,inet_ntoa(masterIp),rxPort);
 				messageNumber++;
 			}
-
 			procTabIndex++;
 			freeproc(proc_info);
 		}
@@ -418,7 +415,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				energyMsg.agentId		= agent_id;
 				energyMsg.messageNumber		= messageNumber;
 				energyMsg.measureNumber		= measureNumber*SLEEP_NUM_SECS;
-				strcpy(energyMsg.userName, userName);
+				strcpy(energyMsg.userName, userNameStr.c_str());
 				//energyMsg.destinationNode
 
 				int j = 0;
@@ -439,7 +436,7 @@ void searchAndSendInfo(struct ProcessesInfo rxMsg) {
 				energyMsg.agentId		= agent_id;
 				energyMsg.messageNumber		= messageNumber;
 				energyMsg.measureNumber		= measureNumber*SLEEP_NUM_SECS;
-				strcpy(energyMsg.userName, userName);
+				strcpy(energyMsg.userName, userNameStr.c_str());
 			
 				//Read from the SHM region
 				int j = 0;
