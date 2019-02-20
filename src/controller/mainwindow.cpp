@@ -335,8 +335,6 @@ void *MainWindow::getData(void *param) {
 
 				receivedObject->masterNodeIp = ((struct sockaddr_in *)result->ai_addr)->sin_addr;
 
-				printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),master_base_port);
-
 				networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,master_base_port,inet_ntoa(receivedObject->masterNodeIp));
 				//printf("Message sent\n");
 				nRxBytes = recvfrom(rxSocket, rxBuffer, sizeof(rxBuffer), 0,(struct sockaddr *) &myRxAddr, &addrLen);
@@ -348,7 +346,7 @@ void *MainWindow::getData(void *param) {
 				//memcpy(&packageAgent,&receivedData,sizeof(ProcessesInfo));
 				receivedObject->rxPortInMaster = receivedData.port;
 				receivedData.from = packageAgent.from;
-
+                //printf("Received from %s\n", networkObject.strAddr(receivedData.from));
 
 				//Send message to start agentMonitor also in the master node
 				//printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),receivedObject->rxPortInMaster);
@@ -360,7 +358,7 @@ void *MainWindow::getData(void *param) {
 		//The daemon in the master has been started. Now, send the info about the agents to start
 		//We assume that masterNodeIp and rxPortInMaster had been init in the first iteration
 		else {
-			printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),receivedObject->rxPortInMaster);
+			//printf("Sending message to %s:%u\n",inet_ntoa(receivedObject->masterNodeIp),receivedObject->rxPortInMaster);
 			networkObject.sendMsgTo((void *)&packageAgent,PACKAGE_ID_DATAPROCESS,receivedObject->rxPortInMaster,inet_ntoa(receivedObject->masterNodeIp));
 
 		}

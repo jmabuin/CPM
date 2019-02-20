@@ -192,18 +192,19 @@ int main(int argc, char **argv) {
 			printFunction(1,"[%s] Error in recvfrom()\n",__func__);
 		}
 
-
 		//Message parse
 		memcpy(&rxMsg, rxBuffer, sizeof(ProcessesInfo));
 
 		//Init of child process to monitor and send data back
 		if(rxMsg.packageId == PACKAGE_ID_DATAPROCESS) {
+
 			//fork
-			if((currentPID = fork()) == 0){
+			if((currentPID = fork()) == 0){ //If in children process
 				searchAndSendInfo(rxMsg);
 				stopDaemon = 1;
 			}
-			else {//In the parent process store the new agent data
+			else {// If in the parent process store the new agent data
+				//printFunction(1,"[%s] Received message and forked\n",__func__);
 				struct processesRunning currentProcess;
 
 				currentProcess.PID = currentPID;
